@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ClinCalc — 臨床決策輔助平台 v5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --c0:#060810;--c1:#0d1220;--c2:#141c2e;--c3:#1a2438;--c4:#1e2840;
+  --teal:#00c9a7;--teal2:#00a389;--teall:rgba(0,201,167,.12);
+  --amber:#f59e0b;--ambl:rgba(245,158,11,.1);
+  --rose:#f43f5e;--rosel:rgba(244,63,94,.1);
+  --sky:#38bdf8;--skyl:rgba(56,189,248,.1);
+  --violet:#a78bfa;--violetl:rgba(167,139,250,.1);
+  --emerald:#10b981;
+  --t1:#e8edf8;--t2:#8896b0;--t3:#4a566e;
+  --bd:rgba(255,255,255,.06);--bda:rgba(0,201,167,.2);
+  --r:10px;
+  --ff-h:'Syne',sans-serif;
+  --ff-b:'Noto Sans TC',sans-serif;
+  --ff-m:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--ff-b);background:var(--c0);color:var(--t1);min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 10% 5%,rgba(0,201,167,.07) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 35% at 90% 95%,rgba(56,189,248,.05) 0%,transparent 55%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='g' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='30' cy='30' r='.4' fill='rgba(255,255,255,.02)'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* TOPNAV */
+.tnav{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(6,8,16,.92);
+  backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);z-index:300;
+  display:flex;align-items:center;padding:0 20px;gap:4px;}
+.tlogo{display:flex;align-items:center;gap:9px;margin-right:24px;text-decoration:none;}
+.tlogo-m{width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--teal) 0%,var(--sky) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-h);font-size:14px;font-weight:800;color:#000;
+  box-shadow:0 4px 14px rgba(0,201,167,.35);}
+.tlogo-t{font-family:var(--ff-h);font-size:17px;font-weight:700;color:var(--t1);}
+.tlogo-v{font-family:var(--ff-m);font-size:9px;color:var(--t3);margin-left:2px;align-self:flex-end;margin-bottom:3px;}
+.ntab{padding:5px 15px;border-radius:6px;border:none;background:none;
+  font-family:var(--ff-b);font-size:13px;font-weight:500;color:var(--t2);
+  cursor:pointer;transition:all .15s;white-space:nowrap;}
+.ntab:hover{color:var(--t1);background:rgba(255,255,255,.04);}
+.ntab.on{color:var(--teal);background:rgba(0,201,167,.1);}
+.ntab.dr-tab{color:var(--violet);}
+.ntab.dr-tab.on{color:var(--violet);background:rgba(167,139,250,.12);}
+.nright{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.nbadge{font-family:var(--ff-m);font-size:9.5px;padding:3px 8px;
+  border:1px solid rgba(0,201,167,.3);border-radius:100px;color:var(--teal);letter-spacing:.5px;}
+.drbtn{padding:5px 13px;border-radius:6px;border:1px solid rgba(255,255,255,.1);
+  background:none;color:var(--t2);font-size:12px;font-family:var(--ff-m);cursor:pointer;transition:all .15s;}
+.drbtn:hover{border-color:var(--violet);color:var(--violet);}
+.drbtn.on{background:rgba(167,139,250,.1);border-color:var(--violet);color:var(--violet);}
+.dpulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--emerald);
+  margin-right:5px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+/* LAYOUT */
+.wrap{margin-top:56px;}
+.sec{display:none;animation:fadeUp .25s ease;}
+.sec.on{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:border-color .2s;}
+.card:hover{border-color:rgba(0,201,167,.12);}
+.ch{font-family:var(--ff-m);font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--t3);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.ch::after{content:'';flex:1;height:1px;background:var(--bd);}
+
+/* FORM */
+.fg{margin-bottom:12px;}
+.fl{display:block;font-size:11.5px;color:var(--t2);margin-bottom:5px;font-weight:500;}
+.fi,.fsel{width:100%;padding:8px 11px;background:var(--c2);border:1px solid var(--bd);
+  border-radius:6px;color:var(--t1);font-family:var(--ff-m);font-size:12.5px;outline:none;transition:all .15s;}
+.fi:focus,.fsel:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,167,.07);}
+.fi::placeholder{color:var(--t3);}
+.fsel option{background:var(--c2);}
+.fro{display:flex;gap:14px;margin-top:4px;}
+.ro{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12.5px;font-family:var(--ff-m);color:var(--t2);}
+.ro input{accent-color:var(--teal);}
+.iu{position:relative;}
+.iu .fi{padding-right:48px;}
+.uu{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-family:var(--ff-m);font-size:9.5px;color:var(--t3);pointer-events:none;}
+.hint{font-size:11px;color:var(--t3);margin-top:3px;line-height:1.5;}
+.section-divider{font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);padding:4px 0 10px;border-bottom:1px solid var(--bd);margin:14px 0 12px;}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+
+/* BUTTONS */
+.brow{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;}
+.btn{padding:9px 20px;border-radius:7px;font-size:13px;font-weight:600;
+  font-family:var(--ff-b);cursor:pointer;border:none;transition:all .18s;
+  display:inline-flex;align-items:center;gap:6px;}
+.bt{background:var(--teal);color:#000;}
+.bt:hover{background:var(--teal2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,201,167,.28);}
+.bs{background:rgba(255,255,255,.05);color:var(--t1);border:1px solid var(--bd);}
+.bs:hover{background:rgba(255,255,255,.08);}
+.ba{background:rgba(244,63,94,.1);color:#fb7185;border:1px solid rgba(244,63,94,.2);}
+.ba:hover{background:rgba(244,63,94,.18);}
+.bv{background:rgba(167,139,250,.12);color:var(--violet);border:1px solid rgba(167,139,250,.25);}
+.bv:hover{background:rgba(167,139,250,.2);}
+.bg-a{background:var(--amber);color:#000;}
+.bg-a:hover{background:#d97706;transform:translateY(-1px);}
+.bg-s{background:var(--sky);color:#000;}
+.bg-s:hover{background:#0ea5e9;transform:translateY(-1px);}
+
+/* ALERTS */
+.al{padding:11px 14px;border-radius:7px;font-size:12.5px;display:flex;align-items:flex-start;gap:9px;margin-bottom:9px;line-height:1.65;border-left:3px solid;}
+.ag{background:rgba(0,201,167,.07);border-color:var(--teal);color:#6ee7d4;}
+.ay{background:var(--ambl);border-color:var(--amber);color:#fcd34d;}
+.ar{background:var(--rosel);border-color:var(--rose);color:#fda4af;}
+.ai{background:rgba(56,189,248,.06);border-color:var(--sky);color:#7dd3fc;}
+.av{background:var(--violetl);border-color:var(--violet);color:#c4b5fd;}
+.ad{background:rgba(255,255,255,.03);border-color:var(--t3);color:var(--t2);}
+
+/* RESULT */
+.rp{display:none;margin-top:20px;}
+.rp.on{display:block;animation:fadeUp .25s ease;}
+.rmain{background:var(--c1);border:1px solid var(--bda);border-radius:var(--r);padding:22px 26px;margin-bottom:14px;
+  background-image:linear-gradient(135deg,rgba(0,201,167,.04),transparent);}
+.rbig{font-family:var(--ff-h);font-size:32px;font-weight:700;letter-spacing:-1px;margin:5px 0 3px;}
+.rcells{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.rcell{background:var(--c2);border:1px solid var(--bd);border-radius:7px;padding:13px 16px;}
+.rl{font-family:var(--ff-m);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:5px;}
+.rv{font-family:var(--ff-m);font-size:18px;font-weight:600;}
+.rs{font-size:11px;color:var(--t2);margin-top:2px;}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:100px;
+  font-family:var(--ff-m);font-size:9.5px;font-weight:600;letter-spacing:.2px;}
+.tt{background:var(--teall);color:var(--teal);border:1px solid rgba(0,201,167,.2);}
+.ta{background:var(--ambl);color:var(--amber);border:1px solid rgba(245,158,11,.2);}
+.tr{background:var(--rosel);color:#fb7185;border:1px solid rgba(244,63,94,.2);}
+.tb{background:var(--skyl);color:var(--sky);border:1px solid rgba(56,189,248,.2);}
+.tv{background:var(--violetl);color:var(--violet);border:1px solid rgba(167,139,250,.2);}
+
+/* COLORS */
+.ct{color:var(--teal)!important;}
+.ca{color:var(--amber)!important;}
+.cr{color:var(--rose)!important;}
+.cb{color:var(--sky)!important;}
+.cv{color:var(--violet)!important;}
+.cs{color:var(--t2)!important;}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:12px;}
+.dt th{background:var(--c2);padding:8px 12px;text-align:left;font-family:var(--ff-m);
+  font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);border-bottom:1px solid var(--bd);}
+.dt td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:middle;}
+.dt tr:hover td{background:rgba(255,255,255,.012);}
+.dt tr:last-child td{border-bottom:none;}
+
+/* CALC TABS */
+.ctabs{display:flex;gap:2px;background:var(--c2);padding:4px;border-radius:8px;margin-bottom:20px;flex-wrap:wrap;}
+.ctab{flex:1;min-width:80px;padding:7px 10px;border-radius:5px;font-size:12px;font-weight:500;
+  cursor:pointer;text-align:center;transition:all .15s;color:var(--t3);border:none;background:none;
+  font-family:var(--ff-b);white-space:nowrap;}
+.ctab.on{background:var(--c1);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+.cp{display:none;}
+.cp.on{display:block;animation:fadeUp .2s ease;}
+
+/* HOME */
+.hero{padding:64px 48px 48px;max-width:1100px;margin:0 auto;}
+.eyebrow{font-family:var(--ff-m);font-size:10px;letter-spacing:2.5px;color:var(--teal);text-transform:uppercase;margin-bottom:14px;}
+.h1{font-family:var(--ff-h);font-size:48px;font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:16px;}
+.h1 span{background:linear-gradient(90deg,var(--teal),var(--sky));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hsub{font-size:15px;color:var(--t2);max-width:500px;line-height:1.8;margin-bottom:28px;}
+.hbtns{display:flex;gap:10px;flex-wrap:wrap;}
+.stat-r{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:1100px;margin:0 auto;padding:0 48px 40px;}
+.sc{background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:18px;}
+.sv{font-family:var(--ff-h);font-size:22px;font-weight:700;color:var(--teal);}
+.sl{font-size:10.5px;color:var(--t3);margin-top:3px;font-family:var(--ff-m);letter-spacing:.4px;}
+.feat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1100px;margin:0 auto;padding:0 48px 40px;}
+.fc{background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;}
+.fc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),var(--sky));transform:scaleX(0);transform-origin:left;transition:.25s;}
+.fc:hover::after{transform:scaleX(1);}
+.fc:hover{border-color:rgba(0,201,167,.18);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.3);}
+.fc-i{font-size:24px;margin-bottom:12px;}
+.fc-t{font-family:var(--ff-h);font-size:14px;font-weight:700;margin-bottom:6px;}
+.fc-d{font-size:12px;color:var(--t2);line-height:1.65;}
+.fc-rf{display:inline-block;margin-top:9px;font-family:var(--ff-m);font-size:9px;padding:2px 7px;border:1px solid var(--bd);border-radius:4px;color:var(--t3);}
+
+/* SECTION INNER */
+.si{max-width:1100px;margin:0 auto;padding:32px 48px;}
+.ph{margin-bottom:22px;border-bottom:1px solid var(--bd);padding-bottom:14px;}
+.pt{font-family:var(--ff-h);font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px;}
+.ps{font-size:13px;color:var(--t2);}
+.ptags{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;}
+
+/* DR SECTION BLOCKS */
+.drblock{background:linear-gradient(135deg,rgba(0,201,167,.03),rgba(56,189,248,.02));
+  border:1px solid rgba(0,201,167,.12);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.drbt{font-family:var(--ff-h);font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px;color:var(--t1);}
+
+/* QUALIFY */
+.qbox{background:var(--c2);border:1px solid var(--bd);border-left-width:3px;border-radius:var(--r);padding:16px;margin-bottom:11px;transition:border-color .2s;}
+.qhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.qtit{font-size:13.5px;font-weight:600;}
+.qis{display:flex;flex-direction:column;gap:6px;}
+.qi{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--t2);line-height:1.5;}
+.qdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.qok{background:var(--teal);}
+.qno{background:var(--t3);}
+.qwarn{background:var(--amber);}
+.qnote{margin-top:10px;font-size:11.5px;color:var(--t2);padding:9px 12px;background:rgba(255,255,255,.025);border-radius:6px;line-height:1.65;}
+
+/* LOADER */
+.loader{display:none;position:fixed;inset:0;background:rgba(6,8,16,.92);z-index:999;
+  align-items:center;justify-content:center;flex-direction:column;gap:14px;backdrop-filter:blur(8px);}
+.loader.on{display:flex;}
+.spin{width:40px;height:40px;border:2px solid rgba(0,201,167,.15);border-top-color:var(--teal);border-radius:50%;animation:sp .65s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ltxt{font-family:var(--ff-m);font-size:11.5px;color:var(--t2);}
+
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;
+  align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.mbg.on{display:flex;}
+.mbox{background:var(--c1);border:1px solid var(--bda);border-radius:14px;padding:28px;width:420px;max-width:92vw;animation:fadeUp .2s ease;}
+.mt{font-family:var(--ff-h);font-size:20px;font-weight:700;margin-bottom:5px;}
+.ms{font-size:12.5px;color:var(--t2);margin-bottom:18px;}
+
+/* DB CARDS */
+.dbcard{background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:18px;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.dbcard:hover{border-color:var(--bda);box-shadow:0 4px 20px rgba(0,0,0,.2);}
+.dbcard-h{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.dbcard-t{font-size:14px;font-weight:600;}
+.dbcard-m{font-size:11.5px;color:var(--t2);line-height:1.6;}
+.dbcard-url{font-family:var(--ff-m);font-size:10px;color:var(--teal);margin-top:6px;display:flex;align-items:center;gap:4px;}
+.dbcard-url a{color:var(--teal);text-decoration:none;}
+.dbcard-url a:hover{text-decoration:underline;}
+
+/* SYM TAGS */
+.sym-g{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+.stag{padding:6px 13px;background:var(--c2);border:1px solid var(--bd);border-radius:100px;
+  font-size:12px;cursor:pointer;transition:all .15s;font-family:var(--ff-m);color:var(--t2);}
+.stag:hover{border-color:rgba(0,201,167,.3);color:var(--teal);}
+.stag.on{background:var(--teall);border-color:var(--teal);color:var(--teal);}
+.stag.urgent{border-color:rgba(244,63,94,.25);color:#fda4af;}
+.stag.urgent.on{background:var(--rosel);}
+
+/* AI BLOCK */
+.aiblock{background:var(--c2);border:1px solid var(--bda);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.aih{font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+.aipt{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12.5px;line-height:1.65;color:var(--t2);}
+.aipt:last-child{border-bottom:none;}
+.aidot{width:4px;height:4px;border-radius:50%;background:var(--teal);margin-top:7px;flex-shrink:0;}
+
+/* DISCLAIMER */
+.dis{margin-top:16px;padding:12px 14px;background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);font-size:11px;color:var(--t3);line-height:1.7;}
+
+/* AI LOCKED STATE */
+.ai-locked{opacity:.4;pointer-events:none;user-select:none;filter:grayscale(0.5);transition:opacity .3s,filter .3s;}
+.ai-unlocked{opacity:1;pointer-events:auto;filter:none;transition:opacity .3s,filter .3s;}
+.lock-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;font-family:var(--ff-m);font-size:9.5px;background:rgba(255,255,255,.04);border:1px solid var(--bd);color:var(--t3);margin-bottom:12px;}
+.lock-badge.unlocked{background:rgba(0,201,167,.08);border-color:rgba(0,201,167,.25);color:var(--teal);}
+.api-test-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:6px;}
+.test-status{font-family:var(--ff-m);font-size:11px;padding:5px 12px;border-radius:6px;display:none;}
+.test-status.ok{display:inline-block;background:rgba(0,201,167,.1);color:var(--teal);border:1px solid rgba(0,201,167,.25);}
+.test-status.fail{display:inline-block;background:rgba(244,63,94,.1);color:#fda4af;border:1px solid rgba(244,63,94,.2);}
+
+/* SUPABASE GUIDE */
+.sb-step{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:12px;position:relative;transition:border-color .2s;}
+.sb-step:hover{border-color:rgba(0,201,167,.15);}
+.sb-step-num{position:absolute;top:-10px;left:16px;width:22px;height:22px;border-radius:50%;background:var(--teal);color:#000;font-family:var(--ff-m);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.sb-step-t{font-family:var(--ff-h);font-size:13px;font-weight:700;margin-bottom:8px;padding-top:4px;}
+.sb-step-d{font-size:12.5px;color:var(--t2);line-height:1.75;}
+.sb-code{background:var(--c0);border:1px solid var(--bd);border-radius:6px;padding:12px;font-family:var(--ff-m);font-size:11px;color:#a5f3fc;margin:8px 0;overflow-x:auto;white-space:pre;line-height:1.65;}
+.sb-copy-btn{font-family:var(--ff-m);font-size:10px;padding:3px 9px;background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:4px;color:var(--t2);cursor:pointer;float:right;margin-top:-2px;}
+.sb-copy-btn:hover{color:var(--teal);border-color:rgba(0,201,167,.3);}
+
+/* REFS ENHANCEMENTS */
+.ref-cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.ref-cat-btn{padding:4px 12px;border-radius:100px;font-size:11.5px;font-family:var(--ff-m);border:1px solid var(--bd);background:none;color:var(--t3);cursor:pointer;transition:all .15s;}
+.ref-cat-btn.on,.ref-cat-btn:hover{background:rgba(0,201,167,.1);border-color:rgba(0,201,167,.3);color:var(--teal);}
+.ref-search-bar{width:100%;padding:8px 12px;background:var(--c2);border:1px solid var(--bd);border-radius:7px;color:var(--t1);font-family:var(--ff-b);font-size:13px;outline:none;margin-bottom:12px;transition:border-color .15s;}
+.ref-search-bar:focus{border-color:var(--teal);}
+.ref-search-bar::placeholder{color:var(--t3);}
+
+/* DEPLOY */
+.deploy{background:linear-gradient(135deg,rgba(56,189,248,.05),rgba(0,201,167,.03));
+  border:1px solid rgba(56,189,248,.15);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+
+/* TABS for DB */
+.dbtabs{display:flex;gap:2px;background:var(--c2);padding:3px;border-radius:7px;margin-bottom:16px;}
+.dbtab{flex:1;padding:7px;border-radius:5px;font-size:12px;cursor:pointer;text-align:center;
+  transition:all .15s;color:var(--t3);border:none;background:none;font-family:var(--ff-b);}
+.dbtab.on{background:var(--c1);color:var(--t1);box-shadow:0 2px 6px rgba(0,0,0,.4);}
+.dbp{display:none;}
+.dbp.on{display:block;animation:fadeUp .2s ease;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--c3);border-radius:4px;}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  .hero,.si{padding:36px 20px;}
+  .feat-g,.stat-r{grid-template-columns:1fr 1fr;padding:0 20px 32px;}
+  .g2,.g3,.g4,.g5,.rcells{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:640px){
+  .feat-g,.stat-r{grid-template-columns:1fr;}
+  .g2,.g3,.g4,.g5,.rcells{grid-template-columns:1fr;}
+  .h1{font-size:30px;}
+  .tnav .ntab:not(.on){display:none;}
+}
+
+</style>
+</head>
+<body>
+
+<nav class="tnav">
+  <a class="tlogo" href="#" onclick="showSec('home');return false;">
+    <div class="tlogo-m">C+</div>
+    <div class="tlogo-t">ClinCalcc</div>
+    <span class="tlogo-v">v26</span>
+  </a>
+  <button class="ntab on" onclick="showSec('home')">首頁</button>
+  <button class="ntab" onclick="showSec('calc')">計算工具</button>
+  <button class="ntab" onclick="showSec('ai')">AI 檢測</button>
+  <button class="ntab dr-tab" onclick="goDr()">醫師專區</button>
+  <div class="nright">
+    <span class="nbadge">ADA 2026</span>
+    <span class="nbadge" style="border-color:rgba(56,189,248,.3);color:var(--sky);">KDIGO 2024</span>
+    <button class="drbtn" id="drBtn" onclick="goDr()">🔐 醫師登入</button>
+  </div>
+</nav>
+<div class="wrap">
+
+<div class="sec on" id="s-home">
+  <div class="hero">
+    <div class="eyebrow">臨床決策輔助平台 · 完全免費 · 無需安裝</div>
+    <h1 class="h1">精準計算<br><span>臨床決策</span></h1>
+    <p class="hsub">整合 ADA 2026、KDIGO 2024、ACC/AHA 2022 最新指引。所有計算工具完全免費，輸入網址即可使用，資料不離開您的裝置。</p>
+    <div class="hbtns">
+      <button class="btn bt" onclick="showSec('calc')" style="font-size:14px;padding:11px 26px;">🔬 計算工具</button>
+      <button class="btn bs" onclick="showSec('ai')" style="font-size:14px;padding:11px 26px;">🤖 AI 檢測</button>
+      <button class="btn bv" onclick="goDr()" style="font-size:14px;padding:11px 26px;">👨‍⚕️ 醫師專區</button>
+    </div>
+  </div>
+  <div class="stat-r">
+    <div class="sc"><div class="sv">免費</div><div class="sl">永久免費</div></div>
+    <div class="sc"><div class="sv">離線</div><div class="sl">計算不需網路</div></div>
+    <div class="sc"><div class="sv">ADA 2026</div><div class="sl">最新醫學指引</div></div>
+    <div class="sc"><div class="sv">0 上傳</div><div class="sl">資料不離裝置</div></div>
+    <div class="sc"><div class="sv">PostgreSQL</div><div class="sl">醫師雲端儲存</div></div>
+  </div>
+  <div class="feat-g">
+    <div class="fc" onclick="showCalc('ckd')"><div class="fc-i">◎</div><div class="fc-t">慢性腎臟病 CKD</div><div class="fc-d">eGFR CKD-EPI 2021、分期、UACR矩陣、Early CKD收案</div><span class="fc-rf">KDIGO 2024</span></div>
+    <div class="fc" onclick="showCalc('dm')"><div class="fc-i">◈</div><div class="fc-t">糖尿病 / 血糖</div><div class="fc-d">HbA1c診斷、GMI估算、代謝症候群、ADA 2026目標</div><span class="fc-rf">ADA 2026</span></div>
+    <div class="fc" onclick="showCalc('cv')"><div class="fc-i">◇</div><div class="fc-t">心血管 / 血脂</div><div class="fc-d">ASCVD 10年風險、LDL目標、健保Statin開立條件</div><span class="fc-rf">ACC/AHA 2022</span></div>
+    <div class="fc" onclick="showCalc('anemia')"><div class="fc-i">◉</div><div class="fc-t">貧血 / 血球</div><div class="fc-d">MCV分類、Mentzer index、缺鐵、地中海型</div><span class="fc-rf">WHO</span></div>
+    <div class="fc" onclick="showCalc('liver')"><div class="fc-i">◐</div><div class="fc-t">肝功能</div><div class="fc-d">FIB-4、APRI、Child-Pugh、B/C肝追蹤</div><span class="fc-rf">EASL 2023</span></div>
+    <div class="fc" onclick="showCalc('thyroid')"><div class="fc-i">◑</div><div class="fc-t">甲狀腺功能</div><div class="fc-d">TSH分類、FT4、FT3、妊娠標準、橋本氏</div><span class="fc-rf">ATA 2023</span></div>
+    <div class="fc" onclick="showCalc('bone')"><div class="fc-i">◫</div><div class="fc-t">骨質 / 腎骨</div><div class="fc-d">Ca / P / PTH / Vit D、腎性骨病、CKD-MBD</div><span class="fc-rf">KDIGO 2017</span></div>
+    <div class="fc" onclick="showCalc('sens')"><div class="fc-i">⊕</div><div class="fc-t">靈敏度 / 特異度</div><div class="fc-d">Se/Sp/PPV/NPV/LR+/LR−/Youden J、貝氏修正</div><span class="fc-rf">統計分析</span></div>
+    <div class="fc" onclick="goDr()"><div class="fc-i">◈</div><div class="fc-t" style="color:var(--violet);">醫師專區</div><div class="fc-d">完整健檢判讀、健保收案資格、資料庫、AI醫師總評</div><span class="fc-rf" style="border-color:rgba(167,139,250,.2);color:var(--violet);">醫師專用</span></div>
+  </div>
+  <!--<div class="si" style="padding-top:0;">
+    <div class="deploy">
+      <div style="font-family:var(--ff-h);font-size:15px;font-weight:700;margin-bottom:10px;color:var(--sky);">🌐 免費部署教學 — 讓任何人都能輸入網址使用</div>
+      <div style="font-size:12.5px;color:var(--t2);line-height:1.9;">
+        ① <strong style="color:var(--t1);">GitHub Pages</strong>（推薦）：上傳至 GitHub repo → Settings → Pages → 選擇 main branch → 儲存。10分鐘獲得免費網址 <code style="font-family:var(--ff-m);font-size:11px;background:var(--c3);padding:2px 6px;border-radius:3px;">yourname.github.io/clincalc</code><br>
+        ② <strong style="color:var(--t1);">Netlify</strong>：拖曳 HTML 至 netlify.com/drop，30秒完成。免費方案足夠<br>
+        ③ <strong style="color:var(--t1);">Vercel</strong>：支援靜態 HTML，免費方案月流量 100GB<br>
+        <div style="margin-top:8px;padding:8px;background:rgba(0,0,0,.2);border-radius:5px;font-family:var(--ff-m);font-size:10.5px;">
+          💡 後端 PostgreSQL / Supabase（醫師模式用）：建立 Supabase 專案 → 複製 URL 和 anon key → 貼入醫師設定 → 啟用雲端儲存
+        </div>
+      </div>
+    </div>-->
+  </div>
+</div>
+
+<div class="sec" id="s-calc">
+<div class="si">
+  <div class="ph">
+    <div class="pt">計算工具</div>
+    <div class="ps">即時數學運算 · 離線可用 · 依最新醫學指引</div>
+    <div class="ptags">
+      <span class="tag tt">ADA 2026</span><span class="tag tb">KDIGO 2024</span><span class="tag ta">ACC/AHA 2022</span>
+    </div>
+  </div>
+  <div class="ctabs">
+    <button class="ctab on" onclick="showCalc('ckd')">◎ CKD</button>
+    <button class="ctab" onclick="showCalc('dm')">◈ 糖尿病</button>
+    <button class="ctab" onclick="showCalc('cv')">◇ 心血管</button>
+    <button class="ctab" onclick="showCalc('anemia')">◉ 貧血</button>
+    <button class="ctab" onclick="showCalc('liver')">◐ 肝功能</button>
+    <button class="ctab" onclick="showCalc('thyroid')">◑ 甲狀腺</button>
+    <button class="ctab" onclick="showCalc('bone')">◫ 骨質</button>
+    <button class="ctab" onclick="showCalc('sens')">⊕ 靈敏度</button>
+  </div>
+
+  <div class="cp on" id="cp-ckd">
+    <div class="g2">
+      <div class="card"><div class="ch">基本資料</div>
+        <div class="fg"><label class="fl">血清肌酸酐 Creatinine *</label><div class="iu"><input type="number" step="0.01" class="fi" id="ckd_cr" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">年齡 *</label><div class="iu"><input type="number" class="fi" id="ckd_age" placeholder="歲"><span class="uu">歲</span></div></div>
+        <div class="fg"><label class="fl">性別</label><div class="fro"><label class="ro"><input type="radio" name="ckd_sex" value="female" checked> 女性</label><label class="ro"><input type="radio" name="ckd_sex" value="male"> 男性</label></div></div>
+        <div class="fg"><label class="fl">Cystatin C（選填）</label><div class="iu"><input type="number" step="0.01" class="fi" id="ckd_cysc" placeholder="mg/L，提高精確度"><span class="uu">mg/L</span></div></div>
+        <div class="fg"><label class="fl">UACR 尿白蛋白肌酸酐比</label><div class="iu"><input type="number" class="fi" id="ckd_uacr" placeholder="mg/g"><span class="uu">mg/g</span></div></div>
+        <div class="fg"><label class="fl">UPCR 尿蛋白肌酸酐比</label><div class="iu"><input type="number" class="fi" id="ckd_upcr" placeholder="mg/g"><span class="uu">mg/g</span></div></div>
+      </div>
+      <div class="card"><div class="ch">其他腎功能指標</div>
+        <div class="fg"><label class="fl">BUN 尿素氮</label><div class="iu"><input type="number" class="fi" id="ckd_bun" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">BUN/Cr 比值</label><input type="text" class="fi" id="ckd_buncr" readonly placeholder="自動計算" style="background:var(--c3);color:var(--sky);"></div>
+        <div class="fg"><label class="fl">尿酸 Uric Acid</label><div class="iu"><input type="number" step="0.1" class="fi" id="ckd_ua" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">Potassium K+</label><div class="iu"><input type="number" step="0.1" class="fi" id="ckd_k" placeholder="mEq/L"><span class="uu">mEq/L</span></div></div>
+        <div class="fg"><label class="fl">Sodium Na+</label><div class="iu"><input type="number" class="fi" id="ckd_na" placeholder="mEq/L"><span class="uu">mEq/L</span></div></div>
+        <div class="fg"><label class="fl">尿蛋白試紙</label><select class="fsel" id="ckd_dip"><option value="">未檢測</option><option value="neg">陰性</option><option value="trace">微量(±)</option><option value="1+">1+</option><option value="2+">2+</option><option value="3+">3+</option></select></div>
+        <div class="fg"><label class="fl">糖尿病</label><select class="fsel" id="ckd_dm"><option value="no">無</option><option value="yes">有</option></select></div>
+        <div class="fg"><label class="fl">高血壓</label><select class="fsel" id="ckd_htn"><option value="no">無</option><option value="yes">有</option></select></div>
+      </div>
+    </div>
+    <div class="brow">
+      <button class="btn bt" onclick="calcCKD()">◎ 計算 eGFR</button>
+      <button class="btn bs" onclick="clr('ckd')">清除</button>
+    </div>
+    <div class="rp" id="rp-ckd">
+      <div class="rmain">
+        <div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;">eGFR — CKD-EPI 2021 (race-free)</div>
+        <div class="rbig" id="r-egfr">—</div>
+        <div id="r-ckds" style="font-size:12px;color:var(--t2);"></div>
+      </div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="ch">CKD 分期</div>
+        <div style="display:flex;gap:3px;">
+          <div style="flex:1;height:9px;border-radius:3px;background:#16a34a;transition:.5s;" id="cs-g1"></div>
+          <div style="flex:1;height:9px;border-radius:3px;background:#65a30d;opacity:.2;" id="cs-g2"></div>
+          <div style="flex:1;height:9px;border-radius:3px;background:#ca8a04;opacity:.2;" id="cs-g3a"></div>
+          <div style="flex:1;height:9px;border-radius:3px;background:#d97706;opacity:.2;" id="cs-g3b"></div>
+          <div style="flex:1;height:9px;border-radius:3px;background:#ea580c;opacity:.2;" id="cs-g4"></div>
+          <div style="flex:1;height:9px;border-radius:3px;background:#dc2626;opacity:.2;" id="cs-g5"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--ff-m);font-size:8.5px;color:var(--t3);margin-top:4px;"><span>G1≥90</span><span>G2 60</span><span>G3a 45</span><span>G3b 30</span><span>G4 15</span><span>G5</span></div>
+      </div>
+      <div class="rcells" id="ckd-cells"></div>
+      <div id="ckd-alerts"></div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="ch">KDIGO 風險矩陣</div>
+        <table class="dt"><thead><tr><th>eGFR分期</th><th>A1 (&lt;30)</th><th>A2 (30-299)</th><th>A3 (≥300)</th></tr></thead><tbody id="ckd-rmat"></tbody></table>
+      </div>
+      <div class="dis">CKD-EPI 2021 已移除種族係數。CKD 診斷需持續 ≥3 個月異常。AI 建議立即就醫：K+ &gt;6.0、eGFR 快速下降 &gt;5 mL/min/年、UACR ≥300 合併症狀。</div>
+    </div>
+  </div>
+
+  <div class="cp" id="cp-dm">
+    <div class="g2">
+      <div class="card"><div class="ch">血糖數值</div>
+        <div class="fg"><label class="fl">空腹血糖 FPG</label><div class="iu"><input type="number" class="fi" id="dm_fpg" placeholder="正常 &lt;100 mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">糖化血色素 HbA1c</label><div class="iu"><input type="number" step="0.1" class="fi" id="dm_hba1c" placeholder="正常 &lt;5.7%"><span class="uu">%</span></div></div>
+        <div class="fg"><label class="fl">飯後2h OGTT</label><div class="iu"><input type="number" class="fi" id="dm_pp" placeholder="正常 &lt;140"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">隨機血糖</label><div class="iu"><input type="number" class="fi" id="dm_rg" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">CGM 平均血糖（估算GMI）</label><div class="iu"><input type="number" class="fi" id="dm_cgm" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">胰島素 Insulin（空腹）</label><div class="iu"><input type="number" step="0.1" class="fi" id="dm_ins" placeholder="μIU/mL"><span class="uu">μIU/mL</span></div></div>
+        <div class="fg"><label class="fl">C-Peptide（空腹）</label><div class="iu"><input type="number" step="0.01" class="fi" id="dm_cpep" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
+      </div>
+      <div class="card"><div class="ch">臨床資料</div>
+        <div class="fg"><label class="fl">年齡</label><div class="iu"><input type="number" class="fi" id="dm_age" placeholder="歲"><span class="uu">歲</span></div></div>
+        <div class="fg"><label class="fl">BMI</label><div class="iu"><input type="number" step="0.1" class="fi" id="dm_bmi" placeholder="kg/m²"><span class="uu">kg/m²</span></div></div>
+        <div class="fg"><label class="fl">有症狀（多喝/多尿/體重減輕）</label><select class="fsel" id="dm_sx"><option value="no">無</option><option value="yes">有</option></select></div>
+        <div class="fg"><label class="fl">已確診類型</label><select class="fsel" id="dm_type"><option value="">未確診</option><option value="type1">第1型</option><option value="type2">第2型</option><option value="gest">妊娠糖尿病</option></select></div>
+        <div class="fg"><label class="fl">HbA1c 治療目標</label><select class="fsel" id="dm_target"><option value="7">&lt;7%（一般）</option><option value="6.5">&lt;6.5%（年輕/低低血糖風險）</option><option value="8">&lt;8%（老年/多共病）</option></select></div>
+        <div class="fg"><label class="fl">腎功能（eGFR）</label><div class="iu"><input type="number" class="fi" id="dm_egfr" placeholder="mL/min（藥物調整用）"><span class="uu">mL/min</span></div></div>
+        <div class="fg"><label class="fl">HOMA-IR = FPG×Insulin/405（自動）</label><input type="text" class="fi" id="dm_homa" readonly placeholder="需FPG+Insulin" style="background:var(--c3);color:var(--sky);"></div>
+      </div>
+    </div>
+    <div class="brow">
+      <button class="btn bt" onclick="calcDM()">◈ 評估糖尿病狀態</button>
+      <button class="btn bs" onclick="clr('dm')">清除</button>
+    </div>
+    <div class="rp" id="rp-dm">
+      <div class="rmain" id="dm-main"></div>
+      <div class="rcells" id="dm-cells"></div>
+      <div id="dm-alerts"></div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="ch">ADA 2026 診斷標準</div>
+        <table class="dt"><thead><tr><th>指標</th><th>正常</th><th>前期糖尿病</th><th>糖尿病診斷</th></tr></thead>
+        <tbody>
+          <tr><td>FPG</td><td class="ct">&lt;100</td><td class="ca">100–125</td><td class="cr">≥126（需複查）</td></tr>
+          <tr><td>HbA1c</td><td class="ct">&lt;5.7%</td><td class="ca">5.7–6.4%</td><td class="cr">≥6.5%</td></tr>
+          <tr><td>2h OGTT</td><td class="ct">&lt;140</td><td class="ca">140–199</td><td class="cr">≥200</td></tr>
+          <tr><td>隨機+症狀</td><td>—</td><td>—</td><td class="cr">≥200 mg/dL</td></tr>
+        </tbody></table>
+      </div>
+      <div class="dis">ADA 2026：無症狀者需兩次獨立異常確認。AI 建議立即就醫：FPG ≥200+症狀、HbA1c ≥10%、酮酸中毒跡象。</div>
+    </div>
+  </div>
+
+  <div class="cp" id="cp-cv">
+    <div class="g2">
+      <div class="card"><div class="ch">基本資料</div>
+        <div class="fg"><label class="fl">年齡（40-79 歲 PCE 適用）</label><div class="iu"><input type="number" class="fi" id="cv_age" placeholder="歲"><span class="uu">歲</span></div></div>
+        <div class="fg"><label class="fl">性別</label><div class="fro"><label class="ro"><input type="radio" name="cv_sex" value="male" checked> 男性</label><label class="ro"><input type="radio" name="cv_sex" value="female"> 女性</label></div></div>
+        <div class="fg"><label class="fl">收縮壓 SBP</label><div class="iu"><input type="number" class="fi" id="cv_sbp" placeholder="mmHg"><span class="uu">mmHg</span></div></div>
+        <div class="fg"><label class="fl">舒張壓 DBP</label><div class="iu"><input type="number" class="fi" id="cv_dbp" placeholder="mmHg"><span class="uu">mmHg</span></div></div>
+        <div class="fg"><label class="fl">Pulse壓差</label><input type="text" class="fi" id="cv_pp" readonly placeholder="自動" style="background:var(--c3);color:var(--sky);"></div>
+        <div class="fg"><label class="fl">吸菸</label><select class="fsel" id="cv_smoke"><option value="no">否</option><option value="yes">是</option></select></div>
+        <div class="fg"><label class="fl">糖尿病</label><select class="fsel" id="cv_dm"><option value="no">否</option><option value="yes">是</option></select></div>
+        <div class="fg"><label class="fl">高血壓藥物</label><select class="fsel" id="cv_htntx"><option value="no">未服用</option><option value="yes">服用中</option></select></div>
+      </div>
+      <div class="card"><div class="ch">血脂 &amp; 身體測量</div>
+        <div class="fg"><label class="fl">總膽固醇 TC</label><div class="iu"><input type="number" class="fi" id="cv_tc" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">HDL</label><div class="iu"><input type="number" class="fi" id="cv_hdl" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">LDL</label><div class="iu"><input type="number" class="fi" id="cv_ldl" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">非 HDL 膽固醇（自動）</label><input type="text" class="fi" id="cv_nhdl" readonly placeholder="TC-HDL" style="background:var(--c3);color:var(--sky);"></div>
+        <div class="fg"><label class="fl">TG 三酸甘油酯</label><div class="iu"><input type="number" class="fi" id="cv_tg" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">腰圍</label><div class="iu"><input type="number" class="fi" id="cv_waist" placeholder="cm"><span class="uu">cm</span></div></div>
+        <div class="fg"><label class="fl">hsCRP（選填）</label><div class="iu"><input type="number" step="0.01" class="fi" id="cv_crp" placeholder="mg/L"><span class="uu">mg/L</span></div></div>
+      </div>
+    </div>
+    <div class="brow">
+      <button class="btn bt" onclick="calcCV()">◇ 計算心血管風險</button>
+      <button class="btn bs" onclick="clr('cv')">清除</button>
+    </div>
+    <div class="rp" id="rp-cv">
+      <div class="rmain" id="cv-main"></div>
+      <div class="rcells" id="cv-cells"></div>
+      <div id="cv-ms"></div>
+      <div id="cv-alerts"></div>
+      <div class="dis">PCE 適用 40-79 歲無已知 ASCVD 者。AI 建議立即就醫：LDL ≥190（考慮FH）、TG ≥500（胰臟炎風險）、BP &gt;180/120。</div>
+    </div>
+  </div>
+
+  <div class="cp" id="cp-anemia">
+    <div class="g2">
+      <div class="card"><div class="ch">血液常規</div>
+        <div class="fg"><label class="fl">血色素 Hemoglobin *</label><div class="iu"><input type="number" step="0.1" class="fi" id="an_hb" placeholder="g/dL"><span class="uu">g/dL</span></div></div>
+        <div class="fg"><label class="fl">MCV</label><div class="iu"><input type="number" class="fi" id="an_mcv" placeholder="fL"><span class="uu">fL</span></div></div>
+        <div class="fg"><label class="fl">MCH</label><div class="iu"><input type="number" step="0.1" class="fi" id="an_mch" placeholder="pg"><span class="uu">pg</span></div></div>
+        <div class="fg"><label class="fl">MCHC</label><div class="iu"><input type="number" class="fi" id="an_mchc" placeholder="g/dL"><span class="uu">g/dL</span></div></div>
+        <div class="fg"><label class="fl">RBC</label><div class="iu"><input type="number" step="0.01" class="fi" id="an_rbc" placeholder="×10⁶/μL"><span class="uu">M/μL</span></div></div>
+        <div class="fg"><label class="fl">RDW</label><div class="iu"><input type="number" step="0.1" class="fi" id="an_rdw" placeholder="%"><span class="uu">%</span></div></div>
+        <div class="fg"><label class="fl">WBC</label><div class="iu"><input type="number" class="fi" id="an_wbc" placeholder="×10³/μL"><span class="uu">K/μL</span></div></div>
+        <div class="fg"><label class="fl">PLT</label><div class="iu"><input type="number" class="fi" id="an_plt" placeholder="×10³/μL"><span class="uu">K/μL</span></div></div>
+        <div class="fg"><label class="fl">Reticulocyte</label><div class="iu"><input type="number" step="0.01" class="fi" id="an_retic" placeholder="%"><span class="uu">%</span></div></div>
+        <div class="fg"><label class="fl">性別</label><div class="fro"><label class="ro"><input type="radio" name="an_sex" value="male" checked> 男性</label><label class="ro"><input type="radio" name="an_sex" value="female"> 女性</label></div></div>
+      </div>
+      <div class="card"><div class="ch">鐵代謝 &amp; B12</div>
+        <div class="fg"><label class="fl">血清鐵 Serum Iron</label><div class="iu"><input type="number" class="fi" id="an_si" placeholder="μg/dL"><span class="uu">μg/dL</span></div></div>
+        <div class="fg"><label class="fl">TIBC</label><div class="iu"><input type="number" class="fi" id="an_tibc" placeholder="μg/dL"><span class="uu">μg/dL</span></div></div>
+        <div class="fg"><label class="fl">Ferritin</label><div class="iu"><input type="number" class="fi" id="an_ferritin" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
+        <div class="fg"><label class="fl">Vitamin B12</label><div class="iu"><input type="number" class="fi" id="an_b12" placeholder="pg/mL"><span class="uu">pg/mL</span></div></div>
+        <div class="fg"><label class="fl">葉酸 Folate</label><div class="iu"><input type="number" step="0.1" class="fi" id="an_fol" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
+        <div class="fg"><label class="fl">LDH</label><div class="iu"><input type="number" class="fi" id="an_ldh" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+        <div class="fg"><label class="fl">Haptoglobin</label><div class="iu"><input type="number" class="fi" id="an_hap" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      </div>
+    </div>
+    <div class="brow"><button class="btn bt" onclick="calcAnemia()">◉ 分析貧血</button><button class="btn bs" onclick="clr('anemia')">清除</button></div>
+    <div class="rp" id="rp-anemia">
+      <div class="rmain" id="anemia-main"></div>
+      <div class="rcells" id="anemia-cells"></div>
+      <div id="anemia-alerts"></div>
+      <div class="dis">AI 建議立即就醫：Hb &lt;7（症狀性重度貧血）、急性溶血（Haptoglobin 極低、LDH 極高）、Ferritin &lt;10+症狀。</div>
+    </div>
+  </div>
+
+  <div class="cp" id="cp-liver">
+    <div class="g2">
+      <div class="card"><div class="ch">肝酵素 &amp; 合成</div>
+        <div class="fg"><label class="fl">AST (GOT)</label><div class="iu"><input type="number" class="fi" id="lv_ast" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+        <div class="fg"><label class="fl">ALT (GPT)</label><div class="iu"><input type="number" class="fi" id="lv_alt" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+        <div class="fg"><label class="fl">AST/ALT 比（自動）</label><input type="text" class="fi" id="lv_ratio" readonly placeholder="自動" style="background:var(--c3);color:var(--sky);"></div>
+        <div class="fg"><label class="fl">GGT</label><div class="iu"><input type="number" class="fi" id="lv_ggt" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+        <div class="fg"><label class="fl">ALP</label><div class="iu"><input type="number" class="fi" id="lv_alp" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+        <div class="fg"><label class="fl">T-Bilirubin</label><div class="iu"><input type="number" step="0.01" class="fi" id="lv_bili" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">D-Bilirubin（直接）</label><div class="iu"><input type="number" step="0.01" class="fi" id="lv_dbili" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">Albumin</label><div class="iu"><input type="number" step="0.1" class="fi" id="lv_alb" placeholder="g/dL"><span class="uu">g/dL</span></div></div>
+        <div class="fg"><label class="fl">PT/INR</label><div class="iu"><input type="number" step="0.01" class="fi" id="lv_inr" placeholder="INR"><span class="uu">INR</span></div></div>
+      </div>
+      <div class="card"><div class="ch">其他指標</div>
+        <div class="fg"><label class="fl">血小板 PLT</label><div class="iu"><input type="number" class="fi" id="lv_plt" placeholder="K/μL"><span class="uu">K/μL</span></div></div>
+        <div class="fg"><label class="fl">年齡</label><div class="iu"><input type="number" class="fi" id="lv_age" placeholder="歲"><span class="uu">歲</span></div></div>
+        <div class="fg"><label class="fl">AFP</label><div class="iu"><input type="number" class="fi" id="lv_afp" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
+        <div class="fg"><label class="fl">TP 總蛋白</label><div class="iu"><input type="number" step="0.1" class="fi" id="lv_tp" placeholder="g/dL"><span class="uu">g/dL</span></div></div>
+        <div class="fg"><label class="fl">HBsAg</label><select class="fsel" id="lv_hbsag"><option value="neg">陰性</option><option value="pos">陽性</option></select></div>
+        <div class="fg"><label class="fl">Anti-HCV</label><select class="fsel" id="lv_hcv"><option value="neg">陰性</option><option value="pos">陽性</option></select></div>
+        <div class="fg"><label class="fl">腹水</label><select class="fsel" id="lv_ascites"><option value="none">無</option><option value="mild">輕度</option><option value="severe">重度</option></select></div>
+        <div class="fg"><label class="fl">肝性腦病</label><select class="fsel" id="lv_he"><option value="none">無</option><option value="g12">Grade 1-2</option><option value="g34">Grade 3-4</option></select></div>
+        <div class="fg"><label class="fl">BMI</label><div class="iu"><input type="number" step="0.1" class="fi" id="lv_bmi" placeholder="kg/m²（MASLD用）"><span class="uu">kg/m²</span></div></div>
+      </div>
+    </div>
+    <div class="brow"><button class="btn bt" onclick="calcLiver()">◐ 評估肝功能</button><button class="btn bs" onclick="clr('liver')">清除</button></div>
+    <div class="rp" id="rp-liver">
+      <div class="rcells" id="liver-cells"></div>
+      <div id="liver-alerts"></div>
+      <div class="dis">AI 建議立即就醫：ALT/AST &gt;400 急升、INR &gt;2.0+出血、肝性腦病 G3-4、AFP &gt;200+HBsAg+。</div>
+    </div>
+  </div>
+
+  <div class="cp" id="cp-thyroid">
+    <div class="g2">
+      <div class="card"><div class="ch">甲狀腺功能</div>
+        <div class="fg"><label class="fl">TSH *</label><div class="iu"><input type="number" step="0.01" class="fi" id="th_tsh" placeholder="正常 0.4-4.0 mIU/L"><span class="uu">mIU/L</span></div></div>
+        <div class="fg"><label class="fl">Free T4</label><div class="iu"><input type="number" step="0.01" class="fi" id="th_ft4" placeholder="0.8-1.8 ng/dL"><span class="uu">ng/dL</span></div></div>
+        <div class="fg"><label class="fl">Free T3</label><div class="iu"><input type="number" step="0.01" class="fi" id="th_ft3" placeholder="2.3-4.2 pg/mL"><span class="uu">pg/mL</span></div></div>
+        <div class="fg"><label class="fl">Total T4</label><div class="iu"><input type="number" step="0.1" class="fi" id="th_t4" placeholder="5-12 μg/dL"><span class="uu">μg/dL</span></div></div>
+        <div class="fg"><label class="fl">Anti-TPO</label><div class="iu"><input type="number" class="fi" id="th_tpo" placeholder="正常 &lt;35 IU/mL"><span class="uu">IU/mL</span></div></div>
+        <div class="fg"><label class="fl">Anti-Tg</label><div class="iu"><input type="number" class="fi" id="th_tg" placeholder="IU/mL"><span class="uu">IU/mL</span></div></div>
+        <div class="fg"><label class="fl">TSH Receptor Ab（TRAB）</label><div class="iu"><input type="number" step="0.01" class="fi" id="th_trab" placeholder="IU/L &lt;1.75"><span class="uu">IU/L</span></div></div>
+        <div class="fg"><label class="fl">Calcitonin（甲狀腺髓樣癌）</label><div class="iu"><input type="number" step="0.1" class="fi" id="th_cal" placeholder="pg/mL"><span class="uu">pg/mL</span></div></div>
+      </div>
+      <div class="card"><div class="ch">臨床資料</div>
+        <div class="fg"><label class="fl">年齡</label><div class="iu"><input type="number" class="fi" id="th_age" placeholder="歲"><span class="uu">歲</span></div></div>
+        <div class="fg"><label class="fl">妊娠狀態</label><select class="fsel" id="th_preg"><option value="no">非妊娠</option><option value="t1">妊娠初期（T1）</option><option value="t2">妊娠中期（T2）</option><option value="t3">妊娠末期（T3）</option></select></div>
+        <div class="fg"><label class="fl">甲狀腺腫</label><select class="fsel" id="th_goiter"><option value="no">無</option><option value="diff">瀰漫性</option><option value="nodule">結節性</option></select></div>
+        <div class="fg"><label class="fl">心律不整</label><select class="fsel" id="th_afib"><option value="no">無</option><option value="yes">有</option></select></div>
+        <div class="fg"><label class="fl">正在服用 Levothyroxine</label><select class="fsel" id="th_levo"><option value="no">否</option><option value="yes">是</option></select></div>
+        <div class="fg"><label class="fl">Levothyroxine 劑量</label><div class="iu"><input type="number" class="fi" id="th_dose" placeholder="μg/天"><span class="uu">μg/d</span></div></div>
+      </div>
+    </div>
+    <div class="brow"><button class="btn bt" onclick="calcThyroid()">◑ 評估甲狀腺</button><button class="btn bs" onclick="clr('thyroid')">清除</button></div>
+    <div class="rp" id="rp-thyroid">
+      <div class="rmain" id="thyroid-main"></div>
+      <div class="rcells" id="thyroid-cells"></div>
+      <div id="thyroid-alerts"></div>
+      <div class="dis">AI 建議立即就醫：TSH &lt;0.01+FT4&gt;1.8（顯性甲亢）、TSH &gt;10（症狀性甲低）、妊娠甲低（影響胎兒發育）。</div>
+    </div>
+  </div>
+
+  <div class="cp" id="cp-bone">
+    <div class="g2">
+      <div class="card"><div class="ch">骨礦物質代謝</div>
+        <div class="fg"><label class="fl">血鈣 Calcium（總）</label><div class="iu"><input type="number" step="0.1" class="fi" id="bn_ca" placeholder="8.5-10.5 mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">離子鈣 Ionized Ca（選填）</label><div class="iu"><input type="number" step="0.01" class="fi" id="bn_ica" placeholder="1.12-1.32 mmol/L"><span class="uu">mmol/L</span></div></div>
+        <div class="fg"><label class="fl">白蛋白校正鈣（自動）</label><input type="text" class="fi" id="bn_cca" readonly placeholder="需Ca+Albumin" style="background:var(--c3);color:var(--sky);"></div>
+        <div class="fg"><label class="fl">磷 Phosphorus</label><div class="iu"><input type="number" step="0.1" class="fi" id="bn_p" placeholder="2.5-4.5 mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">Ca×P 乘積（自動）</label><input type="text" class="fi" id="bn_cap" readonly placeholder="需Ca+P" style="background:var(--c3);color:var(--sky);"></div>
+        <div class="fg"><label class="fl">PTH 副甲狀腺素</label><div class="iu"><input type="number" class="fi" id="bn_pth" placeholder="15-65 pg/mL"><span class="uu">pg/mL</span></div></div>
+        <div class="fg"><label class="fl">Vitamin D (25-OH)</label><div class="iu"><input type="number" class="fi" id="bn_vitd" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
+        <div class="fg"><label class="fl">Magnesium Mg</label><div class="iu"><input type="number" step="0.1" class="fi" id="bn_mg" placeholder="1.7-2.2 mg/dL"><span class="uu">mg/dL</span></div></div>
+        <div class="fg"><label class="fl">Alkaline Phosphatase ALP</label><div class="iu"><input type="number" class="fi" id="bn_alp" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+      </div>
+      <div class="card"><div class="ch">臨床資料</div>
+        <div class="fg"><label class="fl">eGFR（腎功能）</label><div class="iu"><input type="number" class="fi" id="bn_egfr" placeholder="mL/min"><span class="uu">mL/min</span></div></div>
+        <div class="fg"><label class="fl">Albumin（校正鈣用）</label><div class="iu"><input type="number" step="0.1" class="fi" id="bn_alb" placeholder="g/dL"><span class="uu">g/dL</span></div></div>
+        <div class="fg"><label class="fl">腎臟替代療法</label><select class="fsel" id="bn_rrt"><option value="no">否</option><option value="hd">血液透析 HD</option><option value="pd">腹膜透析 PD</option></select></div>
+        <div class="fg"><label class="fl">骨密度 T-score（DEXA）</label><div class="iu"><input type="number" step="0.1" class="fi" id="bn_tscore" placeholder="正常 &gt;-1.0"><span class="uu">SD</span></div></div>
+        <div class="fg"><label class="fl">骨折病史</label><select class="fsel" id="bn_fx"><option value="no">無</option><option value="fragility">低衝擊骨折</option><option value="hip">髖骨骨折</option></select></div>
+      </div>
+    </div>
+    <div class="brow"><button class="btn bt" onclick="calcBone()">◫ 評估骨礦物質</button><button class="btn bs" onclick="clr('bone')">清除</button></div>
+    <div class="rp" id="rp-bone">
+      <div class="rcells" id="bone-cells"></div>
+      <div id="bone-alerts"></div>
+      <div class="dis">KDIGO 2017：CKD G3b+ 患者需監測 Ca/P/PTH/Vit D。AI 建議立即就醫：校正鈣 &gt;12 mg/dL（高鈣危象）、校正鈣 &lt;7（症狀性低鈣）。</div>
+    </div>
+  </div>
+
+  <div class="cp" id="cp-sens">
+    <div class="g2">
+      <div class="card"><div class="ch">混淆矩陣輸入</div>
+        <div class="al ai" style="margin-bottom:12px;">TP＝真陽性 · FP＝假陽性 · FN＝假陰性 · TN＝真陰性</div>
+        <div class="g2">
+          <div class="fg"><label class="fl" style="color:var(--teal);">TP 真陽性</label><input type="number" class="fi" id="s_tp" placeholder="0"></div>
+          <div class="fg"><label class="fl" style="color:var(--amber);">FP 假陽性</label><input type="number" class="fi" id="s_fp" placeholder="0"></div>
+          <div class="fg"><label class="fl" style="color:var(--rose);">FN 假陰性</label><input type="number" class="fi" id="s_fn" placeholder="0"></div>
+          <div class="fg"><label class="fl" style="color:var(--sky);">TN 真陰性</label><input type="number" class="fi" id="s_tn" placeholder="0"></div>
+        </div>
+        <div class="fg"><label class="fl">盛行率（貝氏修正）</label><div class="iu"><input type="number" step="0.1" class="fi" id="s_prev" placeholder="%"><span class="uu">%</span></div></div>
+      </div>
+      <div class="card"><div class="ch">或直接輸入</div>
+        <div class="fg"><label class="fl">靈敏度 Se</label><div class="iu"><input type="number" step="0.1" class="fi" id="s_se" placeholder="%"><span class="uu">%</span></div></div>
+        <div class="fg"><label class="fl">特異度 Sp</label><div class="iu"><input type="number" step="0.1" class="fi" id="s_sp" placeholder="%"><span class="uu">%</span></div></div>
+        <div class="hint">輸入TP/FP/FN/TN 或 Se/Sp，擇一。</div>
+      </div>
+    </div>
+    <div class="brow"><button class="btn bt" onclick="calcSens()">⊕ 計算診斷效能</button><button class="btn bs" onclick="clr('sens')">清除</button></div>
+    <div class="rp" id="rp-sens">
+      <div class="card" style="margin-bottom:12px;background:var(--c2);">
+        <div class="ch">混淆矩陣</div>
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:2px;font-family:var(--ff-m);font-size:12px;">
+          <div style="padding:9px;"></div>
+          <div style="padding:9px;text-align:center;background:rgba(255,255,255,.04);border-radius:4px;font-size:9px;color:var(--t3);">預測陽性</div>
+          <div style="padding:9px;text-align:center;background:rgba(255,255,255,.04);border-radius:4px;font-size:9px;color:var(--t3);">預測陰性</div>
+          <div style="padding:9px;background:rgba(255,255,255,.04);border-radius:4px;font-size:9px;color:var(--t3);">實際陽性</div>
+          <div style="padding:12px;text-align:center;background:rgba(0,201,167,.1);border-radius:4px;" id="cm-tp"><div style="font-size:20px;font-weight:700;color:var(--teal);">—</div><div style="font-size:8px;color:var(--t3);">TP</div></div>
+          <div style="padding:12px;text-align:center;background:rgba(244,63,94,.08);border-radius:4px;" id="cm-fn"><div style="font-size:20px;font-weight:700;color:var(--rose);">—</div><div style="font-size:8px;color:var(--t3);">FN</div></div>
+          <div style="padding:9px;background:rgba(255,255,255,.04);border-radius:4px;font-size:9px;color:var(--t3);">實際陰性</div>
+          <div style="padding:12px;text-align:center;background:rgba(245,158,11,.08);border-radius:4px;" id="cm-fp"><div style="font-size:20px;font-weight:700;color:var(--amber);">—</div><div style="font-size:8px;color:var(--t3);">FP</div></div>
+          <div style="padding:12px;text-align:center;background:rgba(56,189,248,.08);border-radius:4px;" id="cm-tn"><div style="font-size:20px;font-weight:700;color:var(--sky);">—</div><div style="font-size:8px;color:var(--t3);">TN</div></div>
+        </div>
+      </div>
+      <div class="rcells" id="sens-cells" style="grid-template-columns:repeat(4,1fr);"></div>
+    </div>
+  </div>
+
+</div></div><!-- /s-calc -->
+
+<div class="sec" id="s-ai">
+<div class="si">
+  <div class="ph">
+    <div class="pt">🤖 AI 檢測</div>
+    <div class="ps">症狀智能評估 · Claude AI 輔助分析</div>
+    <div class="ptags"><span class="tag tr">AI 建議僅供參考</span><span class="tag ta">非醫療診斷</span></div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div style="background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.2);border-radius:var(--r);padding:16px;margin-bottom:18px;">
+    <div style="font-family:var(--ff-m);font-size:10px;letter-spacing:1.5px;color:var(--rose);text-transform:uppercase;margin-bottom:10px;">⚠️ 免責聲明 — 請詳閱後使用</div>
+    <div style="font-size:12.5px;color:var(--t2);line-height:1.85;">
+      1. 本工具由人工智能（Claude AI）提供症狀評估，<strong style="color:var(--t1);">所有結果均標示「AI 建議」字樣，不構成正式醫療診斷</strong>。<br>
+      2. AI 評估結果<strong style="color:var(--t1);">不得取代臨床醫師診斷</strong>，亦不得作為處方或治療依據。<br>
+      3. 若出現<strong style="color:#fda4af;">胸痛、呼吸困難、意識改變、大量出血</strong>等緊急症狀，請<strong style="color:var(--rose);">立即撥打 119 或前往急診</strong>，勿使用本工具延誤就醫。<br>
+      4. 本工具不儲存任何個人健康資訊，所有對話透過您的 API Key 與 Anthropic 伺服器傳輸，請勿輸入可識別個人身份的資訊。<br>
+      5. 本平台依台灣醫療法第 9 條及個人資料保護法，不提供診療行為，本網站不承擔使用 AI 建議所產生之任何醫療責任。
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="dis_agree" style="accent-color:var(--teal);width:14px;height:14px;">
+      <label for="dis_agree" style="font-size:12.5px;cursor:pointer;">我已閱讀並理解上述免責聲明，同意使用 AI 檢測功能</label>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="ch">API 設定 · 必須完成才能使用 AI 功能</div>
+    <div class="g2">
+      <div class="fg">
+        <label class="fl">Anthropic API Key</label>
+        <input type="password" class="fi" id="ai_key" placeholder="sk-ant-..." oninput="onApiKeyChange()">
+        <div class="hint">Key 儲存於本機，不上傳至本平台伺服器。<a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--teal);margin-left:4px;">取得 API Key →</a></div>
+      </div>
+      <div class="fg" style="align-self:end;">
+        <div class="api-test-row">
+          <button class="btn bs" onclick="saveKey()">💾 儲存 Key</button>
+          <button class="btn bv" onclick="testAPIKey()">🔬 測試連線</button>
+        </div>
+        <div class="test-status" id="ai-test-status"></div>
+        <div class="hint" style="margin-top:6px;">需先「測試成功」才會解鎖下方填寫欄位。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI FIELDS LOCK CONTAINER -->
+  <div id="ai-fields-container" class="ai-locked">
+    <div class="lock-badge" id="ai-lock-badge">🔒 請先設定並測試 API Key 才能使用</div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="ch">基本資料（選填，提升分析精確度）</div>
+    <div class="g3">
+      <div class="fg"><label class="fl">年齡</label><div class="iu"><input type="number" class="fi" id="ai_age" placeholder="歲"><span class="uu">歲</span></div></div>
+      <div class="fg"><label class="fl">性別</label><select class="fsel" id="ai_sex"><option value="">未填</option><option value="male">男性</option><option value="female">女性</option></select></div>
+      <div class="fg"><label class="fl">已知疾病史</label><input type="text" class="fi" id="ai_hx" placeholder="如：高血壓、糖尿病..."></div>
+      <div class="fg"><label class="fl">目前用藥</label><input type="text" class="fi" id="ai_med" placeholder="如：Metformin, Aspirin..."></div>
+      <div class="fg"><label class="fl">過敏史</label><input type="text" class="fi" id="ai_allergy" placeholder="藥物/食物過敏..."></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="ch">主要症狀（可複選）</div>
+    <div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1px;color:var(--rose);margin-bottom:8px;">⚠️ 緊急症狀（紅色）— 出現時請直接就醫</div>
+    <div class="sym-g" id="sym-tags"></div>
+    <div class="fg" style="margin-top:12px;"><label class="fl">症狀持續時間</label><select class="fsel" id="ai_dur"><option value="">未填</option><option value="數小時">數小時內</option><option value="1-3天">1-3天</option><option value="約1週">約1週</option><option value="2-4週">2-4週</option><option value="超過1個月">超過1個月</option><option value="超過3個月">超過3個月</option></select></div>
+    <div class="fg"><label class="fl">嚴重程度（自評 1-10）</label><input type="range" min="1" max="10" value="5" class="fi" id="ai_sev" style="padding:5px;accent-color:var(--teal);" oninput="document.getElementById('ai_sevv').textContent=this.value"> <span id="ai_sevv" style="font-family:var(--ff-m);color:var(--teal);">5</span></div>
+    <div class="fg"><label class="fl">補充說明（症狀特徵、觸發因素等）</label><textarea class="fi" id="ai_note" rows="3" placeholder="如：飯後加重、運動時發作、伴隨發燒38.5°C..." style="font-family:var(--ff-b);font-size:13px;"></textarea></div>
+    <div class="brow">
+      <button class="btn bt" onclick="runAI()">🤖 AI 評估症狀</button>
+      <button class="btn bs" onclick="clearAI()">清除</button>
+    </div>
+  </div>
+
+  </div><!-- /ai-fields-container -->
+
+  <div class="rp" id="rp-ai">
+    <div class="rmain" id="ai-main"></div>
+    <div class="rcells" id="ai-cells"></div>
+    <div id="ai-detail"></div>
+    <div class="dis">⚠️ 所有 AI 評估結果標示「AI 建議」字樣，僅供參考，不替代醫師診斷。緊急情況請直接撥打 119。本次評估內容不儲存於任何伺服器。</div>
+  </div>
+</div>
+</div><!-- /s-ai -->
+
+<div class="sec" id="s-dr">
+<div class="si">
+  <div class="ph" style="border-color:rgba(167,139,250,.2);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="dpulse"></span>
+      <div class="pt" style="color:var(--violet);">醫師專區</div>
+    </div>
+    <div class="ps">供醫療人員輸入受檢者健康檢查資料 · 一鍵判讀健保收案資格 · 支援資料庫儲存</div>
+    <div class="ptags">
+      <span class="tag tv">代謝症候群防治</span>
+      <span class="tag tb">Early CKD 收案</span>
+      <span class="tag ta">降血脂健保條件</span>
+      <span class="tag" style="background:rgba(167,139,250,.1);color:var(--violet);border:1px solid rgba(167,139,250,.2);">AI 醫師總評</span>
+    </div>
+  </div>
+
+  <!-- DB & API CONFIG -->
+  <div class="card" style="margin-bottom:14px;border-color:rgba(167,139,250,.15);">
+    <div class="ch" style="color:var(--violet);">系統設定</div>
+    <div class="dbtabs">
+      <button class="dbtab on" onclick="showDRTab('api')">🔑 API設定</button>
+      <button class="dbtab" onclick="showDRTab('supabase')">🗄️ Supabase</button>
+    </div>
+    <div class="dbp on" id="drt-api">
+      <div class="g2">
+        <div class="fg"><label class="fl">Anthropic API Key（AI 醫師功能）</label><input type="password" class="fi" id="dr_api" placeholder="sk-ant-... (不用AI可留空)"><div class="hint">不使用AI功能可留空，「判讀資料」仍可執行所有規則計算。</div></div>
+        <div class="fg"><label class="fl">醫師識別（用於記錄）</label><input type="text" class="fi" id="dr_docid" placeholder="如：Dr. Chen / 陳醫師"><div class="hint">用於資料庫記錄，不驗證。</div></div>
+      </div>
+      <div class="brow"><button class="btn bs" style="font-size:12px;" onclick="saveAPIKey()">💾 儲存設定</button></div>
+    </div>
+    <div class="dbp" id="drt-supabase">
+      <div class="al ai" style="margin-bottom:16px;">🗄️ Supabase 為免費開源後端服務（PostgreSQL）。連線後，受檢者資料直接存於<strong>您自己的資料庫</strong>，本平台完全不存取。</div>
+
+      <!-- STEP BY STEP GUIDE -->
+      <div style="margin-bottom:20px;">
+        <div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:14px;">📖 連線教學（5分鐘完成）</div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">1</div>
+          <div class="sb-step-t">建立 Supabase 帳號與專案</div>
+          <div class="sb-step-d">前往 <a href="https://supabase.com" target="_blank" style="color:var(--teal);">supabase.com</a> 免費註冊。點選「New project」，填入專案名稱（如 clincalc）、資料庫密碼（請妥善保存），選擇亞太伺服器（如 Singapore）。等待約 1-2 分鐘建立完成。</div>
+        </div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">2</div>
+          <div class="sb-step-t">建立資料表（SQL Editor）</div>
+          <div class="sb-step-d">在左側選單點選「SQL Editor」→「New query」，貼入下方 SQL 並執行：</div>
+          <button class="sb-copy-btn" onclick="copySql()">複製 SQL</button>
+          <div class="sb-code" id="sql-block">-- 建立受檢者資料表
+CREATE TABLE patients (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  doctor_id text NOT NULL,
+  pid text NOT NULL,
+  exam_date text,
+  sex text,
+  age integer,
+  data jsonb,
+  qualify_result jsonb,
+  ai_summary jsonb,
+  notes text
+);
+
+-- 建立索引加速查詢
+CREATE INDEX ON patients (pid);
+CREATE INDEX ON patients (doctor_id);
+CREATE INDEX ON patients (exam_date);
+
+-- 啟用 Row Level Security
+ALTER TABLE patients ENABLE ROW LEVEL SECURITY;
+
+-- 建立存取政策（anon key 可讀寫）
+CREATE POLICY "allow_all" ON patients FOR ALL USING (true);</div>
+          <div class="sb-step-d" style="margin-top:8px;">點選「Run」執行，出現「Success」即完成。</div>
+        </div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">3</div>
+          <div class="sb-step-t">取得 API 連線資訊</div>
+          <div class="sb-step-d">在 Supabase 側欄點選「Settings」→「API」：
+            <br>• <strong style="color:var(--t1);">Project URL</strong>：複製「Project URL」（格式：https://xxxxx.supabase.co）
+            <br>• <strong style="color:var(--t1);">Anon Key</strong>：複製「Project API keys」→「anon public」
+            <br>⚠️ 請勿將 service_role key 貼入（有完全管理權限，請妥善保管）
+          </div>
+        </div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">4</div>
+          <div class="sb-step-t">填入連線資訊並測試</div>
+          <div class="sb-step-d">將 URL 和 Key 貼入下方欄位，點選「儲存」後點選「測試連線」，出現綠色成功訊息即完成。</div>
+        </div>
+      </div>
+
+      <!-- CONNECTION FORM -->
+      <div class="card" style="margin-bottom:12px;">
+        <div class="ch">連線設定</div>
+        <div class="g2">
+          <div class="fg"><label class="fl">Supabase Project URL</label><input type="text" class="fi" id="sb_url" placeholder="https://xxxx.supabase.co"></div>
+          <div class="fg"><label class="fl">Supabase Anon Key（anon public）</label><input type="password" class="fi" id="sb_key" placeholder="eyJhbGciOiJIUzI1NiIs..."><div class="hint">anon key 為前端安全 key，不具管理員權限。</div></div>
+        </div>
+        <div class="brow">
+          <button class="btn bs" onclick="saveSB()">💾 儲存設定</button>
+          <button class="btn bt" onclick="testSB()">🔌 測試連線</button>
+        </div>
+        <div id="sb-status" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="al ad">
+        <strong>常見問題</strong><br>
+        ❓ <em>「連線失敗 404」</em>：資料表尚未建立，請先執行步驟 2 的 SQL。<br>
+        ❓ <em>「CORS 錯誤」</em>：請確認 Project URL 格式正確，不含尾巴斜線。<br>
+        ❓ <em>「401 Unauthorized」</em>：請確認貼入的是 anon key，而非 service_role key。<br>
+        ❓ 資料安全：Supabase 提供 Row Level Security（RLS），可進一步設定只有特定醫師能存取自己的資料。
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENT INFO -->
+  <div class="drblock">
+    <div class="drbt">📋 受檢者基本資料</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">受檢者編號 *</label><input type="text" class="fi" id="dr_pid" placeholder="如：20240001"></div>
+      <div class="fg"><label class="fl">出生日期（民國YYYMMDD）</label><input type="text" class="fi" id="dr_dob" placeholder="0850315"></div>
+      <div class="fg"><label class="fl">檢查日期（民國YYYMMDD）</label><input type="text" class="fi" id="dr_exam" placeholder="1131020"></div>
+      <div class="fg"><label class="fl">計算年齡（自動）</label><input type="text" class="fi" id="dr_age" readonly placeholder="自動" style="background:var(--c3);color:var(--sky);"></div>
+      <div class="fg"><label class="fl">性別</label><select class="fsel" id="dr_sex"><option value="">請選擇</option><option value="male">男性</option><option value="female">女性</option></select></div>
+    </div>
+    <div class="g5">
+      <div class="fg"><label class="fl">教育程度</label><select class="fsel" id="dr_edu"><option value="">未填</option><option value="國小">國小</option><option value="國中">國中</option><option value="高中">高中/職</option><option value="大學">大學</option><option value="研究所">研究所以上</option></select></div>
+      <div class="fg"><label class="fl">職業別</label><select class="fsel" id="dr_job"><option value="">未填</option><option value="農漁">農漁業</option><option value="勞工">勞工</option><option value="服務業">服務業</option><option value="商業">商業</option><option value="白領">行政/白領</option><option value="醫療">醫療人員</option><option value="退休">退休</option><option value="無業">無業/家管</option></select></div>
+      <div class="fg"><label class="fl">族群</label><select class="fsel" id="dr_eth"><option value="">未填</option><option value="漢族">漢族</option><option value="原住民">原住民</option><option value="其他">其他</option></select></div>
+      <div class="fg"><label class="fl">婚姻狀態</label><select class="fsel" id="dr_mar"><option value="">未填</option><option value="未婚">未婚</option><option value="已婚">已婚</option><option value="離婚">離婚/分居</option><option value="喪偶">喪偶</option></select></div>
+      <div class="fg"><label class="fl">醫師備註</label><input type="text" class="fi" id="dr_note" placeholder="臨床備忘..."></div>
+    </div>
+  </div>
+
+  <!-- VITALS -->
+  <div class="drblock">
+    <div class="drbt">📏 身體檢查</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">身高</label><div class="iu"><input type="number" class="fi" id="dr_ht" placeholder="cm" oninput="autoBMI()"><span class="uu">cm</span></div></div>
+      <div class="fg"><label class="fl">體重</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_wt" placeholder="kg" oninput="autoBMI()"><span class="uu">kg</span></div></div>
+      <div class="fg"><label class="fl">BMI（自動）</label><input type="text" class="fi" id="dr_bmi" readonly style="background:var(--c3);color:var(--teal);"></div>
+      <div class="fg"><label class="fl">收縮壓 SBP</label><div class="iu"><input type="number" class="fi" id="dr_sbp" placeholder="mmHg"><span class="uu">mmHg</span></div></div>
+      <div class="fg"><label class="fl">舒張壓 DBP</label><div class="iu"><input type="number" class="fi" id="dr_dbp" placeholder="mmHg"><span class="uu">mmHg</span></div></div>
+      <div class="fg"><label class="fl">心跳 HR</label><div class="iu"><input type="number" class="fi" id="dr_hr" placeholder="bpm"><span class="uu">bpm</span></div></div>
+      <div class="fg"><label class="fl">腰圍</label><div class="iu"><input type="number" class="fi" id="dr_waist" placeholder="cm"><span class="uu">cm</span></div></div>
+      <div class="fg"><label class="fl">臀圍（WHR用）</label><div class="iu"><input type="number" class="fi" id="dr_hip" placeholder="cm"><span class="uu">cm</span></div></div>
+      <div class="fg"><label class="fl">WHR（自動）</label><input type="text" class="fi" id="dr_whr" readonly style="background:var(--c3);color:var(--sky);"></div>
+      <div class="fg"><label class="fl">體脂率（若有）</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_bf" placeholder="%"><span class="uu">%</span></div></div>
+    </div>
+  </div>
+
+  <!-- BLOOD SUGAR -->
+  <div class="drblock">
+    <div class="drbt">🍬 血糖 &amp; 代謝</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">空腹血糖 FPG</label><div class="iu"><input type="number" class="fi" id="dr_fpg" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">HbA1c</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_hba1c" placeholder="%"><span class="uu">%</span></div></div>
+      <div class="fg"><label class="fl">胰島素（空腹）</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_ins" placeholder="μIU/mL"><span class="uu">μIU/mL</span></div></div>
+      <div class="fg"><label class="fl">C-Peptide</label><div class="iu"><input type="number" step="0.01" class="fi" id="dr_cpep" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
+      <div class="fg"><label class="fl">HOMA-IR（自動）</label><input type="text" class="fi" id="dr_homa" readonly style="background:var(--c3);color:var(--sky);"></div>
+    </div>
+  </div>
+
+  <!-- LIPIDS -->
+  <div class="drblock">
+    <div class="drbt">🩸 血脂</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">總膽固醇 TC</label><div class="iu"><input type="number" class="fi" id="dr_tc" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">TG 三酸甘油酯</label><div class="iu"><input type="number" class="fi" id="dr_tg" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">LDL</label><div class="iu"><input type="number" class="fi" id="dr_ldl" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">HDL</label><div class="iu"><input type="number" class="fi" id="dr_hdl" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">非HDL（自動）</label><input type="text" class="fi" id="dr_nhdl" readonly style="background:var(--c3);color:var(--sky);"></div>
+    </div>
+  </div>
+
+  <!-- LIVER / KIDNEY -->
+  <div class="drblock">
+    <div class="drbt">🫀 肝腎功能</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">AST (GOT)</label><div class="iu"><input type="number" class="fi" id="dr_ast" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+      <div class="fg"><label class="fl">ALT (GPT)</label><div class="iu"><input type="number" class="fi" id="dr_alt" placeholder="IU/L"><span class="uu">IU/L</span></div></div>
+      <div class="fg"><label class="fl">肌酸酐 Cr</label><div class="iu"><input type="number" step="0.01" class="fi" id="dr_cr" placeholder="mg/dL" oninput="autoEGFR()"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">eGFR（自動）</label><input type="text" class="fi" id="dr_egfr" readonly style="background:var(--c3);color:var(--teal);"></div>
+      <div class="fg"><label class="fl">尿酸 Uric Acid</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_ua" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">BUN</label><div class="iu"><input type="number" class="fi" id="dr_bun" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">UACR</label><div class="iu"><input type="number" class="fi" id="dr_uacr" placeholder="mg/g"><span class="uu">mg/g</span></div></div>
+      <div class="fg"><label class="fl">UPCR</label><div class="iu"><input type="number" class="fi" id="dr_upcr" placeholder="mg/g"><span class="uu">mg/g</span></div></div>
+      <div class="fg"><label class="fl">尿蛋白試紙</label><select class="fsel" id="dr_dip"><option value="">未檢測</option><option value="neg">陰性</option><option value="trace">微量</option><option value="1+">1+</option><option value="2+">2+</option><option value="3+">3+</option></select></div>
+      <div class="fg"><label class="fl">K+</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_k" placeholder="mEq/L"><span class="uu">mEq/L</span></div></div>
+    </div>
+  </div>
+
+  <!-- CBC -->
+  <div class="drblock">
+    <div class="drbt">🔬 血液常規（CBC）</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">Hb 血色素</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_hb" placeholder="g/dL"><span class="uu">g/dL</span></div></div>
+      <div class="fg"><label class="fl">WBC 白血球</label><div class="iu"><input type="number" class="fi" id="dr_wbc" placeholder="K/μL"><span class="uu">K/μL</span></div></div>
+      <div class="fg"><label class="fl">PLT 血小板</label><div class="iu"><input type="number" class="fi" id="dr_plt" placeholder="K/μL"><span class="uu">K/μL</span></div></div>
+      <div class="fg"><label class="fl">MCV</label><div class="iu"><input type="number" class="fi" id="dr_mcv" placeholder="fL"><span class="uu">fL</span></div></div>
+      <div class="fg"><label class="fl">Hematocrit Hct</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_hct" placeholder="%"><span class="uu">%</span></div></div>
+    </div>
+  </div>
+
+  <!-- HEPATITIS + THYROID -->
+  <div class="drblock">
+    <div class="drbt">🦠 肝炎標記 &amp; 甲狀腺</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">HBsAg</label><select class="fsel" id="dr_hbsag"><option value="">未檢測</option><option value="neg">陰性</option><option value="pos">陽性</option></select></div>
+      <div class="fg"><label class="fl">Anti-HCV</label><select class="fsel" id="dr_hcv"><option value="">未檢測</option><option value="neg">陰性</option><option value="pos">陽性</option></select></div>
+      <div class="fg"><label class="fl">HBsAb（抗體）</label><select class="fsel" id="dr_hbsab"><option value="">未檢測</option><option value="neg">陰性</option><option value="pos">陽性</option></select></div>
+      <div class="fg"><label class="fl">TSH</label><div class="iu"><input type="number" step="0.01" class="fi" id="dr_tsh" placeholder="mIU/L"><span class="uu">mIU/L</span></div></div>
+      <div class="fg"><label class="fl">Free T4</label><div class="iu"><input type="number" step="0.01" class="fi" id="dr_ft4" placeholder="ng/dL"><span class="uu">ng/dL</span></div></div>
+    </div>
+  </div>
+
+  <!-- BONE -->
+  <div class="drblock">
+    <div class="drbt">🦴 骨礦物質</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">Calcium 血鈣</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_ca" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">Phosphorus 磷</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_p" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">PTH</label><div class="iu"><input type="number" class="fi" id="dr_pth" placeholder="pg/mL"><span class="uu">pg/mL</span></div></div>
+      <div class="fg"><label class="fl">Vitamin D (25-OH)</label><div class="iu"><input type="number" class="fi" id="dr_vitd" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
+    </div>
+  </div>
+
+  <!-- STATIN ELIGIBILITY HISTORY -->
+  <div class="drblock">
+    <div class="drbt">💊 健保降血脂相關病史</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">急性冠狀動脈症候群 ACS</label><select class="fsel" id="dr_acs"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">冠狀動脈繞道/心導管介入</label><select class="fsel" id="dr_cabg"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">心血管疾病（心絞痛/缺血型腦血管）</label><select class="fsel" id="dr_cvd"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">糖尿病</label><select class="fsel" id="dr_dm"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">已確診高血脂症</label><select class="fsel" id="dr_hl"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">高血壓</label><select class="fsel" id="dr_htn"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">男≥45/女≥55或停經</label><select class="fsel" id="dr_agerf"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">早發性冠心病家族史</label><select class="fsel" id="dr_fh"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">吸菸</label><select class="fsel" id="dr_smoke"><option value="no">否</option><option value="yes">是</option></select></div>
+      <div class="fg"><label class="fl">CKD 慢性腎臟病</label><select class="fsel" id="dr_ckd"><option value="no">否</option><option value="yes">是</option></select></div>
+    </div>
+  </div>
+
+  <!-- LIFESTYLE -->
+  <div class="drblock">
+    <div class="drbt">🏃 生活習慣</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">飲酒</label><select class="fsel" id="dr_etoh"><option value="">未填</option><option value="no">不喝</option><option value="social">偶爾社交性</option><option value="mild">輕度（&lt;14/週）</option><option value="heavy">重度（≥14/週）</option></select></div>
+      <div class="fg"><label class="fl">運動頻率</label><select class="fsel" id="dr_ex"><option value="">未填</option><option value="none">幾乎不運動</option><option value="light">&lt;150分/週</option><option value="moderate">150-300分/週</option><option value="vigorous">&gt;300分/週</option></select></div>
+      <div class="fg"><label class="fl">飲食習慣</label><select class="fsel" id="dr_diet"><option value="">未填</option><option value="western">西式/高油高鹽</option><option value="traditional">傳統台式</option><option value="vegetarian">素食</option><option value="healthy">地中海/DASH式</option></select></div>
+      <div class="fg"><label class="fl">睡眠時數</label><div class="iu"><input type="number" step="0.5" class="fi" id="dr_sleep" placeholder="hr/天"><span class="uu">hr</span></div></div>
+      <div class="fg"><label class="fl">壓力程度（自評1-5）</label><select class="fsel" id="dr_stress"><option value="">未填</option><option value="1">1（低）</option><option value="2">2</option><option value="3">3（中）</option><option value="4">4</option><option value="5">5（高）</option></select></div>
+    </div>
+  </div>
+
+  <div class="brow" style="position:sticky;bottom:20px;background:rgba(6,8,16,.9);backdrop-filter:blur(12px);padding:14px;border-radius:var(--r);border:1px solid var(--bd);z-index:50;">
+    <button class="btn bt" style="font-size:14px;padding:11px 24px;" onclick="runDR(false)">📋 判讀資料</button>
+    <button class="btn bg-a" style="font-size:14px;padding:11px 24px;" onclick="runDR(true)">🤖 AI 醫師 + 判讀</button>
+    <button class="btn bs" onclick="saveDraft()">💾 暫存</button>
+    <button class="btn bg-s" onclick="saveToSB()">☁️ 儲存資料庫</button>
+    <button class="btn ba" onclick="clearDR()">清除</button>
+    <button class="btn bs" onclick="exportDR()">📤 匯出</button>
+  </div>
+
+  <div class="rp" id="rp-dr" style="margin-top:20px;">
+    <div id="dr-qualify"></div>
+    <div id="dr-ai" style="margin-top:14px;"></div>
+    <div class="dis">⚠️ 判讀結果依據公開健保規範與醫學指引，僅供醫療人員參考，實際收案請依最新健保公告為準。AI 醫師功能標示「AI 建議」字樣，不取代臨床判斷。</div>
+  </div>
+
+  <!-- DB SECTION -->
+  <div style="margin-top:32px;border-top:1px solid var(--bd);padding-top:24px;">
+    <div style="font-family:var(--ff-h);font-size:18px;font-weight:700;margin-bottom:4px;">🗄️ 資料庫管理</div>
+    <div style="font-size:12.5px;color:var(--t2);margin-bottom:16px;">醫師可查看歷史受檢者資料、醫學指引資料庫、自訂資料來源</div>
+    <div class="dbtabs">
+      <button class="dbtab on" onclick="showDBTab('records')">📁 受檢者記錄</button>
+      <button class="dbtab" onclick="showDBTab('refs')">📚 醫學指引資料庫</button>
+      <button class="dbtab" onclick="showDBTab('custom')">✏️ 自訂來源</button>
+    </div>
+
+    <!-- Records -->
+    <div class="dbp on" id="dbt-records">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text" class="fi" id="search_pid" placeholder="搜尋受檢者編號..." style="flex:1;max-width:260px;">
+        <button class="btn bt" style="padding:7px 16px;font-size:12px;" onclick="searchRecords()">搜尋</button>
+        <button class="btn bs" style="padding:7px 16px;font-size:12px;" onclick="loadRecords()">重新載入</button>
+      </div>
+      <div id="records-list"><div class="al ad">尚未連接 Supabase 或無歷史記錄。本機暫存記錄顯示於下方。</div></div>
+      <div id="local-records" style="margin-top:12px;"></div>
+    </div>
+
+    <!-- References DB -->
+    <div class="dbp" id="dbt-refs">
+      <input type="text" class="ref-search-bar" id="ref-search" placeholder="🔍 搜尋指引名稱、關鍵字..." oninput="filterRefs()">
+      <div class="ref-cat-filter" id="ref-cat-filter">
+        <button class="ref-cat-btn on" onclick="setCatFilter('all',this)">全部</button>
+        <button class="ref-cat-btn" onclick="setCatFilter('醫療指引',this)">醫療指引</button>
+        <button class="ref-cat-btn" onclick="setCatFilter('政府機關',this)">政府機關</button>
+        <button class="ref-cat-btn" onclick="setCatFilter('健保規範',this)">健保規範</button>
+        <button class="ref-cat-btn" onclick="setCatFilter('國際機構',this)">國際機構</button>
+        <button class="ref-cat-btn" onclick="setCatFilter('台灣學會',this)">台灣學會</button>
+        <button class="ref-cat-btn" onclick="setCatFilter('工具資源',this)">工具資源</button>
+      </div>
+      <div id="refs-list"></div>
+    </div>
+
+    <!-- Custom source -->
+    <div class="dbp" id="dbt-custom">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="ch">新增自訂資料來源</div>
+        <div class="g2">
+          <div class="fg"><label class="fl">標題</label><input type="text" class="fi" id="cs_title" placeholder="如：KDIGO 2024 CKD 指引"></div>
+          <div class="fg"><label class="fl">來源網址 *</label><input type="text" class="fi" id="cs_url" placeholder="https://...（請填入官方公開頁面）"></div>
+          <div class="fg"><label class="fl">類別</label><select class="fsel" id="cs_cat"><option value="guideline">醫療指引</option><option value="society">學會聲明</option><option value="gov">政府機關</option><option value="research">研究文獻</option><option value="formulary">健保藥典</option></select></div>
+          <div class="fg"><label class="fl">更新日期</label><input type="text" class="fi" id="cs_date" placeholder="如：2024-01"></div>
+        </div>
+        <div class="fg"><label class="fl">公開摘要（請勿複製受版權保護的全文）</label><textarea class="fi" id="cs_summary" rows="4" placeholder="在此貼上或填寫公開摘要重點..." style="font-family:var(--ff-b);font-size:12.5px;"></textarea></div>
+        <div class="al ay" style="margin-bottom:12px;">⚠️ 著作權聲明：請確認來源為公開可引用之官方頁面，僅摘取公開摘要，勿複製受版權保護的完整原文。</div>
+        <button class="btn bt" onclick="addCustomSource()">➕ 新增來源</button>
+      </div>
+      <div id="custom-list"></div>
+    </div>
+  </div>
+</div>
+</div><!-- /s-dr -->
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="spin"></div>
+  <div class="ltxt" id="loader-txt">處理中...</div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="mbg" id="modal-login">
+  <div class="mbox">
+    <div class="mt">👨‍⚕️ 醫師登入</div>
+    <div class="ms">輸入醫師密碼以使用醫師專區功能</div>
+    <div class="fg"><label class="fl">密碼</label><input type="password" class="fi" id="dr_pwd" placeholder="醫師密碼" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="al ar" id="login-err" style="display:none;margin-bottom:8px;">❌ 密碼錯誤</div>
+    <div class="brow">
+      <button class="btn bt" onclick="doLogin()" style="flex:1;">登入</button>
+      <button class="btn bs" onclick="closeModal()">取消</button>
+    </div>
+    <div style="text-align:center;font-family:var(--ff-m);font-size:10px;color:var(--t3);margin-top:12px;">示範密碼：doctor2024</div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="mbg" id="modal-detail">
+  <div class="mbox" style="width:600px;max-height:80vh;overflow-y:auto;">
+    <div id="detail-content"></div>
+    <div class="brow" style="margin-top:16px;"><button class="btn bs" onclick="document.getElementById('modal-detail').classList.remove('on')">關閉</button></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const DR_PWD='doctor2024';
+let isDoctor=false,selSym=[],sbUrl='',sbKey='',drDocId='';
+
+// ─── NAV ───
+function showSec(id){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  const s=document.getElementById('s-'+id);if(s){s.classList.add('on');window.scrollTo(0,0);}
+  document.querySelectorAll('.ntab').forEach(t=>{if((t.getAttribute('onclick')||'').includes("'"+id+"'"))t.classList.add('on');});
+}
+function goDr(){if(!isDoctor){document.getElementById('modal-login').classList.add('on');setTimeout(()=>document.getElementById('dr_pwd').focus(),80);}else{showSec('dr');}}
+function showCalc(id){
+  showSec('calc');
+  document.querySelectorAll('.cp').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));
+  const p=document.getElementById('cp-'+id);if(p)p.classList.add('on');
+  document.querySelectorAll('.ctab').forEach(t=>{if((t.getAttribute('onclick')||'').includes("'"+id+"'"))t.classList.add('on');});
+}
+function showDRTab(id){
+  document.querySelectorAll('#s-dr .dbtab').forEach((t,i)=>{if(i<2)t.classList.toggle('on',(i===0&&id==='api')||(i===1&&id==='supabase'));});
+  document.querySelectorAll('#s-dr .dbp:not([id^="dbt"])').forEach(p=>p.classList.remove('on'));
+  const p=document.getElementById('drt-'+id);if(p){p.classList.add('on');}
+}
+function showDBTab(id){
+  document.querySelectorAll('#dbt-records,#dbt-refs,#dbt-custom').forEach(p=>p.classList.remove('on'));
+  const p=document.getElementById('dbt-'+id);if(p)p.classList.add('on');
+  if(id==='refs')renderRefs();
+  if(id==='records')loadRecords();
+  if(id==='custom')renderCustom();
+  // fix tabs
+  document.querySelectorAll('[onclick*="showDBTab"]').forEach(t=>t.classList.toggle('on',(t.getAttribute('onclick')||'').includes("'"+id+"'")));
+}
+
+// ─── MODAL ───
+function closeModal(){document.getElementById('modal-login').classList.remove('on');document.getElementById('dr_pwd').value='';document.getElementById('login-err').style.display='none';}
+function doLogin(){
+  if(document.getElementById('dr_pwd').value===DR_PWD){
+    isDoctor=true;closeModal();
+    document.getElementById('drBtn').innerHTML='<span class="dpulse"></span>醫師模式';
+    document.getElementById('drBtn').classList.add('on');
+    showSec('dr');
+    loadStoredSB();
+  }else{document.getElementById('login-err').style.display='flex';}
+}
+
+// ─── LOADER ───
+function showLoad(t){document.getElementById('loader-txt').textContent=t||'計算中...';document.getElementById('loader').classList.add('on');}
+function hideLoad(){document.getElementById('loader').classList.remove('on');}
+
+// ─── HELPERS ───
+function v(id){const e=document.getElementById(id);return e?parseFloat(e.value)||0:0;}
+function sv(id){const e=document.getElementById(id);return e?e.value:'';}
+function rv(n){const e=document.querySelector(`input[name="${n}"]:checked`);return e?e.value:'';}
+function fmt(n,d=1){return isNaN(n)||n===null?'—':Number(n).toFixed(d);}
+function pct(n){return isNaN(n)||n===null?'—':(n*100).toFixed(1)+'%';}
+function cell(l,val,cls='',sub=''){return`<div class="rcell"><div class="rl">${l}</div><div class="rv ${cls}">${val}</div>${sub?`<div class="rs">${sub}</div>`:''}</div>`;}
+function al(t,txt){return`<div class="al ${t}">${txt}</div>`;}
+function clr(id){
+  document.querySelectorAll(`#cp-${id} .fi`).forEach(e=>e.value='');
+  document.querySelectorAll(`#cp-${id} .fsel`).forEach(e=>e.selectedIndex=0);
+  const rp=document.getElementById(`rp-${id}`);if(rp)rp.classList.remove('on');
+}
+
+// ─── eGFR ───
+function calcEGFR(cr,age,sex){
+  if(!cr||!age)return null;
+  if(sex==='female'){const k=0.7,a=-0.241;return 142*Math.pow(Math.min(cr/k,1),a)*Math.pow(Math.max(cr/k,1),-1.200)*Math.pow(0.9938,age)*1.012;}
+  const k=0.9,a=-0.302;return 142*Math.pow(Math.min(cr/k,1),a)*Math.pow(Math.max(cr/k,1),-1.200)*Math.pow(0.9938,age);
+}
+function getStage(e){
+  if(e>=90)return{s:'G1（正常或高）',k:'g1',c:'ct'};
+  if(e>=60)return{s:'G2（輕度下降）',k:'g2',c:'ct'};
+  if(e>=45)return{s:'G3a（輕中度）',k:'g3a',c:'ca'};
+  if(e>=30)return{s:'G3b（中重度）',k:'g3b',c:'ca'};
+  if(e>=15)return{s:'G4（重度）',k:'g4',c:'cr'};
+  return{s:'G5（腎衰竭）',k:'g5',c:'cr'};
+}
+function getAStage(u){
+  if(!u)return{s:'未提供',c:''};
+  if(u>=300)return{s:'A3（嚴重）',c:'cr'};
+  if(u>=30)return{s:'A2（中度）',c:'ca'};
+  return{s:'A1（正常）',c:'ct'};
+}
+
+// ─── CKD CALC ───
+function calcCKD(){
+  const cr=v('ckd_cr'),age=v('ckd_age'),sex=rv('ckd_sex')||'female';
+  if(!cr||!age){alert('請輸入 Creatinine 和年齡');return;}
+  const egfr=calcEGFR(cr,age,sex);
+  const {s:stage,k:sk,c:sc}=getStage(egfr);
+  const uacr=v('ckd_uacr'),{s:aStage,c:ac}=getAStage(uacr);
+  const k_=v('ckd_k'),na=v('ckd_na'),bun=v('ckd_bun'),ua=v('ckd_ua');
+  const buncr=cr>0&&bun>0?bun/cr:null;
+  document.getElementById('ckd_buncr').value=buncr?fmt(buncr,1):'';
+  document.getElementById('r-egfr').innerHTML=`${fmt(egfr)} <span style="font-size:14px;opacity:.4;">mL/min/1.73m²</span>`;
+  document.getElementById('r-ckds').textContent=stage;
+  ['g1','g2','g3a','g3b','g4','g5'].forEach(s=>{const el=document.getElementById('cs-'+s);if(el)el.style.opacity=s===sk?'1':'0.15';});
+  let c=cell('eGFR',`${fmt(egfr,1)}`,sc,stage);
+  c+=cell('UACR',uacr>0?`${uacr} mg/g`:'未提供',ac,aStage);
+  if(bun>0)c+=cell('BUN',`${bun} mg/dL`,bun>30?'ca':'ct',bun>30?'偏高':'');
+  if(ua>0)c+=cell('尿酸',`${ua} mg/dL`,ua>7?'ca':'ct');
+  if(k_>0)c+=cell('K+',`${k_} mEq/L`,k_>5.5?'cr':k_<3.5?'ca':'ct',k_>5.5?'⚠️高血鉀':k_<3.5?'低血鉀':'');
+  if(na>0)c+=cell('Na+',`${na} mEq/L`,na<135?'ca':na>145?'ca':'ct');
+  if(buncr)c+=cell('BUN/Cr',fmt(buncr,1),buncr>20?'ca':'ct',buncr>20?'腎前性？':'');
+  document.getElementById('ckd-cells').innerHTML=c;
+  let a='';
+  if(egfr<15)a+=al('ar','⚠️ eGFR <15 (G5) — AI 建議立即就醫，評估腎臟替代療法');
+  else if(egfr<30)a+=al('ar','⚠️ eGFR 15-29 (G4) — AI 建議就醫，腎臟科轉診');
+  else if(egfr<45)a+=al('ay','eGFR 30-44 (G3b) — 建議腎臟科追蹤，3-6月監測');
+  else a+=al('ag','✓ eGFR 正常或輕度異常，定期追蹤');
+  if(uacr>=300)a+=al('ar',`⚠️ UACR ${uacr} (A3) — AI 建議就醫，嚴重蛋白尿`);
+  else if(uacr>=30)a+=al('ay',`UACR ${uacr} (A2) — 評估 ACEi/ARB`);
+  if(k_>5.5)a+=al('ar',`⚠️ K+ ${k_} — AI 建議立即就醫，高血鉀`);
+  document.getElementById('ckd-alerts').innerHTML=a;
+  const riskMap={G1:['低','中','高'],G2:['低','中','高'],G3a:['中','高','極高'],G3b:['高','極高','極高'],G4:['極高','極高','極高'],G5:['極高','極高','極高']};
+  const rkc={'低':'ct','中':'ca','高':'cr','極高':'cr'};
+  const gk=sk==='g1'?'G1':sk==='g2'?'G2':sk==='g3a'?'G3a':sk==='g3b'?'G3b':sk==='g4'?'G4':'G5';
+  document.getElementById('ckd-rmat').innerHTML=Object.entries(riskMap).map(([g,r])=>`<tr style="${g===gk?'background:rgba(0,201,167,.05);':''}"><td>${g}</td>${r.map(x=>`<td class="${rkc[x]}">${x}</td>`).join('')}</tr>`).join('');
+  document.getElementById('rp-ckd').classList.add('on');
+  document.getElementById('rp-ckd').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── DM ───
+function calcDM(){
+  const fpg=v('dm_fpg'),hba1c=v('dm_hba1c'),pp=v('dm_pp'),rg=v('dm_rg'),cgm=v('dm_cgm');
+  const ins=v('dm_ins'),bmi=v('dm_bmi'),egfr_dm=v('dm_egfr');
+  const hasSx=sv('dm_sx')==='yes',target=sv('dm_target');
+  const homa=fpg>0&&ins>0?fpg*ins/405:null;
+  if(homa)document.getElementById('dm_homa').value=fmt(homa,2);
+  const gmi=cgm>0?3.31+0.02392*cgm:null;
+  const dm_f=fpg>=126,dm_h=hba1c>=6.5,dm_p=pp>=200,dm_r=rg>=200&&hasSx;
+  const pre_f=fpg>=100&&fpg<126,pre_h=hba1c>=5.7&&hba1c<6.5,pre_p=pp>=140&&pp<200;
+  const dmc=[dm_f,dm_h,dm_p,dm_r].filter(Boolean).length,prc=[pre_f,pre_h,pre_p].filter(Boolean).length;
+  let diag='資料不足',dc='cs',dsc='';
+  if(dmc>=1){diag=dmc>=2||dm_r?'符合糖尿病診斷':'可能糖尿病（建議複查）';dc='cr';dsc='ADA 2026：無症狀者需兩次獨立異常確認';}
+  else if(prc>=1){diag='前期糖尿病';dc='ca';dsc='建議生活型態介入，每年追蹤';}
+  else if(fpg>0||hba1c>0){diag='血糖正常範圍';dc='ct';}
+  document.getElementById('dm-main').innerHTML=`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;">糖尿病評估 · ADA 2026</div><div class="rbig ${dc}">${diag}</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">${dsc}</div>`;
+  let c='';
+  if(fpg>0)c+=cell('FPG',`${fpg}`,dm_f?'cr':pre_f?'ca':'ct',dm_f?'糖尿病':pre_f?'前期':'正常');
+  if(hba1c>0)c+=cell('HbA1c',`${hba1c}%`,dm_h?'cr':pre_h?'ca':'ct',dm_h?'糖尿病':pre_h?'前期':'正常');
+  if(gmi)c+=cell('GMI估算',`${fmt(gmi,1)}%`,gmi>=6.5?'cr':'ct',`CGM均值${cgm}mg/dL`);
+  if(homa)c+=cell('HOMA-IR',fmt(homa,2),homa>2.5?'ca':'ct',homa>2.5?'胰島素阻抗↑':'');
+  if(target&&hba1c>0){const gap=hba1c-parseFloat(target);c+=cell('HbA1c目標差',gap>0?`+${fmt(gap,1)}%`:gap<-1?`${fmt(gap,1)}%`:'達標',gap>0.5?'ca':'ct');}
+  if(bmi>0)c+=cell('BMI',`${bmi}`,bmi>=27.5?'ca':'ct',bmi>=27.5?'ADA:考慮GLP-1':'');
+  if(egfr_dm>0)c+=cell('eGFR',`${egfr_dm}`,egfr_dm<60?'cr':'ct',egfr_dm<45?'Metformin慎用':egfr_dm<60?'降劑量評估':'');
+  document.getElementById('dm-cells').innerHTML=c;
+  let a='';
+  if(hba1c>=10)a+=al('ar','⚠️ HbA1c ≥10% — AI 建議就醫，血糖控制極差');
+  if(fpg>=200)a+=al('ar','⚠️ FPG ≥200 — AI 建議就醫評估');
+  if(dm_h||dm_f){if(bmi>=27.5)a+=al('ai','📋 ADA 2026：BMI ≥27.5 可優先考慮 GLP-1 RA（如 Semaglutide）');a+=al('ai','📋 ADA 2026：診斷時即考慮 CGM 使用，評估 SGLT2i（CKD保護）');}
+  if(prc>=1)a+=al('ay','💡 前期：生活介入可降低 50-60% 進展。建議體重減 ≥7%、每週 ≥150 分鐘中強度運動');
+  if(homa>2.5)a+=al('ay','⚠️ HOMA-IR 偏高，胰島素阻抗，建議減重與評估 Metformin');
+  document.getElementById('dm-alerts').innerHTML=a;
+  document.getElementById('rp-dm').classList.add('on');
+  document.getElementById('rp-dm').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── CV ───
+function calcCV(){
+  const age=v('cv_age'),sex=rv('cv_sex')||'male';
+  const tc=v('cv_tc'),hdl=v('cv_hdl'),ldl=v('cv_ldl'),tg=v('cv_tg');
+  const sbp=v('cv_sbp'),dbp=v('cv_dbp'),waist=v('cv_waist'),crp=v('cv_crp');
+  const smoke=sv('cv_smoke')==='yes',dm=sv('cv_dm')==='yes',htntx=sv('cv_htntx')==='yes';
+  // auto pp and nhdl
+  if(sbp&&dbp)document.getElementById('cv_pp').value=sbp-dbp;
+  if(tc&&hdl)document.getElementById('cv_nhdl').value=tc-hdl;
+  let ascvd=null;
+  if(age>=40&&age<=79&&tc>0&&hdl>0&&sbp>0){
+    const la=Math.log(age),lt=Math.log(tc),lh=Math.log(hdl),ls=Math.log(sbp);
+    let sum,base;
+    if(sex==='male'){sum=12.344*la+11.853*lt-2.664*la*lt-7.990*lh+1.769*la*lh+1.797*ls+(htntx?1.764:0)+(smoke?7.837:0)-1.795*la*(smoke?1:0)+(dm?0.658:0)-61.18;base=0.9144;}
+    else{sum=-29.799*la+4.884*la*la+13.540*lt-3.114*la*lt-13.578*lh+3.149*la*lh+2.019*ls+(htntx?1.957:0)+(smoke?7.574:0)-1.665*la*(smoke?1:0)+(dm?0.661:0)+29.799;base=0.9665;}
+    ascvd=Math.max(0,Math.min(100,(1-Math.pow(base,Math.exp(sum)))*100));
+  }
+  const ms_w=waist>0&&(sex==='male'?waist>=90:waist>=80);
+  const ms_t=tg>=150,ms_h=hdl>0&&(sex==='male'?hdl<40:hdl<50),ms_b=sbp>=130||dbp>=85,ms_d=dm;
+  const msc=[ms_w,ms_t,ms_h,ms_b,ms_d].filter(Boolean).length;
+  let bpc='',bpcc='ct';
+  if(sbp>180||dbp>120){bpc='高血壓危象';bpcc='cr';}
+  else if(sbp>=140||dbp>=90){bpc='高血壓二期';bpcc='cr';}
+  else if(sbp>=130){bpc='高血壓一期';bpcc='ca';}
+  else if(sbp>=120){bpc='血壓偏高';bpcc='ca';}
+  else if(sbp>0){bpc='正常';bpcc='ct';}
+  const riskLvl=ascvd===null?'':ascvd>=20?'極高危':ascvd>=7.5?'高危':ascvd>=5?'中危':'低危';
+  document.getElementById('cv-main').innerHTML=`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;">ASCVD 10年風險 (PCE)</div><div class="rbig ${ascvd===null?'cs':ascvd>=7.5?'cr':'ct'}">${ascvd!==null?fmt(ascvd,1)+'%':'資料不足（需TC/HDL/SBP，年齡40-79）'}</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">${riskLvl}</div>`;
+  let c='';
+  if(ascvd!==null)c+=cell('ASCVD',`${fmt(ascvd,1)}%`,ascvd>=7.5?'cr':'ct',riskLvl);
+  if(sbp>0)c+=cell('血壓',`${sbp}/${dbp}`,bpcc,bpc);
+  if(ldl>0)c+=cell('LDL',`${ldl} mg/dL`,ldl>=190?'cr':ldl>=130?'ca':'ct',ldl>=190?'考慮FH':'');
+  if(tg>0)c+=cell('TG',`${tg} mg/dL`,tg>=500?'cr':tg>=200?'ca':'ct',tg>=500?'⚠️胰炎風險':'');
+  if(hdl>0)c+=cell('HDL',`${hdl} mg/dL`,(sex==='male'?hdl<40:hdl<50)?'ca':'ct');
+  c+=cell('代謝症候群',`${msc}/5`,msc>=3?'cr':'ct',msc>=3?'符合（台灣標準）':'未達標準');
+  if(crp>0)c+=cell('hsCRP',`${crp} mg/L`,crp>=2?'ca':'ct',crp>=2?'中至高炎症':'低炎症');
+  document.getElementById('cv-cells').innerHTML=c;
+  if(msc>0){const its=[ms_w&&`腰圍${waist}`,ms_t&&`TG${tg}`,ms_h&&`HDL${hdl}`,ms_b&&`BP${sbp}/${dbp}`,ms_d&&'糖尿病'].filter(Boolean);document.getElementById('cv-ms').innerHTML=al(msc>=3?'ar':'ay',`${msc>=3?'⚠️代謝症候群：':'部分代謝異常：'}${its.join('·')}`);}
+  else document.getElementById('cv-ms').innerHTML='';
+  let a='';
+  if(sbp>180)a+=al('ar',`⚠️ BP ${sbp}/${dbp} — AI 建議立即就醫，高血壓危象`);
+  if(ldl>=190)a+=al('ay','⚠️ LDL ≥190 — 考慮家族性高膽固醇血症，AI 建議就醫');
+  if(tg>=500)a+=al('ar',`⚠️ TG ≥500 — AI 建議就醫，急性胰臟炎風險`);
+  if(ascvd>=7.5)a+=al('ai','📋 ACC/AHA：10年風險 ≥7.5%，建議高強度 Statin（Rosuvastatin 20-40mg）');
+  if(crp>=2&&ascvd!==null&&ascvd<7.5)a+=al('ai','📋 hsCRP ≥2mg/L：考慮 Reynolds Risk Score 重新評估');
+  document.getElementById('cv-alerts').innerHTML=a;
+  document.getElementById('rp-cv').classList.add('on');
+  document.getElementById('rp-cv').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── ANEMIA ───
+function calcAnemia(){
+  const hb=v('an_hb'),mcv=v('an_mcv'),mchc=v('an_mchc'),rbc=v('an_rbc'),rdw=v('an_rdw');
+  const si=v('an_si'),tibc=v('an_tibc'),ferritin=v('an_ferritin'),retic=v('an_retic');
+  const b12=v('an_b12'),fol=v('an_fol'),ldh=v('an_ldh'),hap=v('an_hap'),wbc=v('an_wbc'),plt=v('an_plt');
+  const sex=rv('an_sex')||'male';
+  if(!hb){alert('請輸入 Hb');return;}
+  const cut=sex==='male'?13.5:12.0;
+  let sev='無貧血',sc='ct';
+  if(hb<cut){if(hb>=10){sev='輕度貧血';sc='ca';}else if(hb>=8){sev='中度貧血';sc='ca';}else{sev='重度貧血';sc='cr';}}
+  let type='',tc2='cs';
+  if(mcv>0){if(mcv<80){type='小球性';tc2='cr';}else if(mcv<=100){type='正球性';tc2='ca';}else{type='大球性';tc2='cb';}}
+  const mentzer=mcv>0&&rbc>0?mcv/rbc:null;
+  const tsat=si>0&&tibc>0?si/tibc*100:null;
+  let cause='';
+  if(mcv<80){if(ferritin>0&&ferritin<(sex==='male'?30:13))cause='IDA可能';else if(mentzer!==null&&mentzer<13)cause='地中海型貧血可能';}
+  else if(mcv>100){if(b12>0&&b12<200)cause='B12缺乏';else if(fol>0&&fol<3)cause='葉酸缺乏';else cause='B12/葉酸缺乏/肝病/藥物';}
+  else if(mcv>0){if(retic>2.5)cause='溶血/失血（Retic↑）';else cause='腎因性/慢性病/早期缺鐵';}
+  const hemolysis=ldh>0&&ldh>600&&hap>0&&hap<25;
+  document.getElementById('anemia-main').innerHTML=`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;">貧血分析</div><div class="rbig ${sc}">Hb ${hb} g/dL</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">${sev}${type?` · ${type}貧血`:''}${cause?` · ${cause}`:''}</div>`;
+  let c=cell('Hb',`${hb} g/dL`,sc,sev);
+  if(mcv>0)c+=cell('MCV',`${mcv} fL`,tc2,type);
+  if(mentzer!==null)c+=cell('Mentzer',fmt(mentzer,2),mentzer<13?'ca':'ct',mentzer<13?'地中海型':'IDA');
+  if(tsat!==null)c+=cell('Transferrin Sat',pct(tsat/100),tsat<16?'cr':'ct',tsat<16?'缺鐵':'');
+  if(ferritin>0)c+=cell('Ferritin',`${ferritin} ng/mL`,ferritin<15?'cr':ferritin>200?'ca':'ct',ferritin<15?'缺鐵':ferritin>200?'（可能慢性病）':'');
+  if(rdw>0)c+=cell('RDW',`${rdw}%`,rdw>14.5?'ca':'ct',rdw>14.5?'混合型？':'');
+  if(b12>0)c+=cell('B12',`${b12} pg/mL`,b12<200?'cr':b12<300?'ca':'ct',b12<200?'缺乏':'');
+  if(fol>0)c+=cell('葉酸',`${fol} ng/mL`,fol<3?'cr':'ct',fol<3?'缺乏':'');
+  if(hemolysis)c+=cell('溶血指標','↑ 溶血可能','cr','LDH↑+Hapto↓');
+  document.getElementById('anemia-cells').innerHTML=c;
+  let a='';
+  if(hb<7)a+=al('ar',`⚠️ Hb ${hb} — AI 建議立即就醫，重度貧血`);
+  else if(hb<8)a+=al('ay',`⚠️ Hb ${hb} — AI 建議就醫評估`);
+  if(mentzer!==null&&mentzer<13)a+=al('ay','⚠️ Mentzer <13 — 地中海型貧血可能，建議 Hb 電泳確認');
+  if(hemolysis)a+=al('ar','⚠️ 溶血指標異常（LDH↑、Haptoglobin↓）— AI 建議就醫，評估溶血原因');
+  if(b12>0&&b12<200)a+=al('ai','B12 缺乏：評估飲食、惡性貧血（Anti-IF Ab）、Metformin 相關');
+  document.getElementById('anemia-alerts').innerHTML=a;
+  document.getElementById('rp-anemia').classList.add('on');
+  document.getElementById('rp-anemia').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── LIVER ───
+function calcLiver(){
+  const ast=v('lv_ast'),alt=v('lv_alt'),ggt=v('lv_ggt'),alp=v('lv_alp'),bili=v('lv_bili'),dbili=v('lv_dbili');
+  const alb=v('lv_alb'),inr=v('lv_inr'),plt=v('lv_plt'),age=v('lv_age'),afp=v('lv_afp'),bmi=v('lv_bmi'),tp=v('lv_tp');
+  const hbsag=sv('lv_hbsag'),hcv=sv('lv_hcv'),ascites=sv('lv_ascites'),he=sv('lv_he');
+  const ratio=ast>0&&alt>0?ast/alt:null;
+  if(ratio)document.getElementById('lv_ratio').value=fmt(ratio,2);
+  let fib4=null,apri=null,cp=0;
+  if(ast>0&&alt>0&&plt>0&&age>0)fib4=(age*ast)/(plt*Math.sqrt(alt));
+  if(ast>0&&plt>0)apri=(ast/40)/(plt/100);
+  if(bili>0||alb>0||inr>0){
+    cp+=(bili<2?1:bili<=3?2:3);
+    if(alb>0)cp+=(alb>3.5?1:alb>=2.8?2:3);
+    if(inr>0)cp+=(inr<1.7?1:inr<=2.2?2:3);
+    cp+=(ascites==='none'?1:ascites==='mild'?2:3);
+    cp+=(he==='none'?1:he==='g12'?2:3);
+  }
+  const masld=bmi>=25&&(alt>40||ast>40)&&hbsag==='neg'&&hcv==='neg';
+  let c='';
+  if(ast>0)c+=cell('AST',`${ast} IU/L`,ast>400?'cr':ast>80?'ca':ast>40?'ca':'ct',ast>40?'偏高':'');
+  if(alt>0)c+=cell('ALT',`${alt} IU/L`,alt>400?'cr':alt>80?'ca':alt>40?'ca':'ct',alt>40?'偏高':'');
+  if(ratio)c+=cell('AST/ALT',fmt(ratio,2),ratio>2?'ca':'ct',ratio>2?'酒精性/肝硬化？':'');
+  if(fib4!==null)c+=cell('FIB-4',fmt(fib4,2),fib4>=3.25?'cr':fib4>=1.30?'ca':'ct',fib4>=3.25?'高纖維化':fib4>=1.30?'不確定':'低風險');
+  if(apri!==null)c+=cell('APRI',fmt(apri,2),apri>=2?'cr':apri>=1?'ca':'ct',apri>=2?'顯著纖維化':'');
+  if(cp>0)c+=cell('Child-Pugh',`${cp}分 ${cp<=6?'A':cp<=9?'B':'C'}`,cp>=10?'cr':cp>=7?'ca':'ct');
+  if(bili>0)c+=cell('T-Bili',`${bili} mg/dL`,bili>3?'cr':bili>1.2?'ca':'ct');
+  if(alb>0)c+=cell('Albumin',`${alb} g/dL`,alb<3.5?'ca':'ct',alb<3.5?'肝合成↓':'');
+  if(inr>0)c+=cell('INR',fmt(inr,2),inr>1.5?'cr':inr>1.2?'ca':'ct',inr>1.5?'凝血↓':'');
+  if(afp>0)c+=cell('AFP',`${afp}`,afp>20?'cr':afp>7?'ca':'ct',afp>20&&hbsag==='pos'?'⚠️HCC風險':'');
+  if(masld)c+=cell('MASLD','風險升高','ca','BMI≥25+肝酵素↑+無B/C肝');
+  document.getElementById('liver-cells').innerHTML=c;
+  let a='';
+  if(alt>400||ast>400)a+=al('ar','⚠️ 肝酵素急升 — AI 建議立即就醫，急性肝炎/藥物性損傷');
+  if(inr>2.0)a+=al('ar',`⚠️ INR ${inr} — AI 建議立即就醫，嚴重凝血障礙`);
+  if(afp>200&&hbsag==='pos')a+=al('ar',`⚠️ AFP ${afp}+HBsAg+ — HCC 風險，AI 建議就醫`);
+  if(fib4!==null&&fib4>=3.25)a+=al('ay',`⚠️ FIB-4 ${fmt(fib4,2)} — 高纖維化，建議胃鏡/肝臟超音波`);
+  if(hbsag==='pos')a+=al('ai','📋 HBsAg+：定期HBV DNA、腹部超音波。評估抗病毒治療（台灣健保給付）');
+  if(hcv==='pos')a+=al('ai','📋 Anti-HCV+：確認HCV RNA，DAA療程（台灣健保12週療程）');
+  if(masld)a+=al('ay','MASLD（代謝相關脂肪肝）：生活型態介入、控制體重，FIB-4評估纖維化程度');
+  document.getElementById('liver-alerts').innerHTML=a;
+  document.getElementById('rp-liver').classList.add('on');
+  document.getElementById('rp-liver').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── THYROID ───
+function calcThyroid(){
+  const tsh=v('th_tsh'),ft4=v('th_ft4'),ft3=v('th_ft3'),t4=v('th_t4'),tpo=v('th_tpo');
+  const trab=v('th_trab'),cal_=v('th_cal'),dose=v('th_dose');
+  const preg=sv('th_preg'),goiter=sv('th_goiter'),afib=sv('th_afib'),levo=sv('th_levo');
+  if(!tsh){alert('請輸入 TSH');return;}
+  // Adjust TSH reference for pregnancy
+  const tshRef=preg==='t1'?2.5:preg?3.0:4.0;
+  const tshLow=preg?0.1:0.4;
+  let diag='',dc='ct',dsub='';
+  if(tsh<0.01){if(ft4>1.8||ft3>4.2){diag='顯性甲亢（甲狀腺機能亢進）';dc='cr';dsub='TSH極低+FT4/FT3升高';}else{diag='亞臨床甲亢';dc='ca';dsub='TSH低，FT4/FT3正常';}}
+  else if(tsh<tshLow){diag='TSH偏低';dc='ca';dsub=preg?'妊娠：需密切追蹤':'輕度異常，定期複查';}
+  else if(tsh>10){diag='顯性甲低（甲狀腺機能低下）';dc='cr';dsub='需 Levothyroxine 治療';}
+  else if(tsh>tshRef){diag=preg?'妊娠甲低（需積極治療）':'亞臨床甲低';dc=preg?'cr':'ca';dsub=preg?'影響胎兒神經發育':'TSH升高，FT4正常';}
+  else{diag='甲狀腺功能正常';dc='ct';dsub=`TSH ${tsh} 在正常範圍`;}
+  // Graves suggestion
+  if(tsh<0.1&&trab>1.75)dsub+=' · TRAb陽性（Graves病可能）';
+  document.getElementById('thyroid-main').innerHTML=`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;">甲狀腺評估 · ATA 2023</div><div class="rbig ${dc}">TSH ${tsh} mIU/L</div><div style="font-size:12px;color:var(--t2);margin-top:4px;">${diag} — ${dsub}</div>`;
+  let c=cell('TSH',`${tsh} mIU/L`,dc,diag);
+  if(ft4>0)c+=cell('Free T4',`${ft4} ng/dL`,ft4>1.8?'cr':ft4<0.8?'ca':'ct',ft4>1.8?'偏高':ft4<0.8?'偏低':'');
+  if(ft3>0)c+=cell('Free T3',`${ft3} pg/mL`,ft3>4.2?'cr':ft3<2.3?'ca':'ct');
+  if(tpo>0)c+=cell('Anti-TPO',`${tpo} IU/mL`,tpo>35?'ca':'ct',tpo>35?'橋本氏可能':'');
+  if(trab>0)c+=cell('TRAb',`${trab} IU/L`,trab>1.75?'cr':'ct',trab>1.75?'Graves可能':'');
+  if(dose>0&&levo==='yes'){const target=preg?'0.4-2.5':'0.5-4.0';c+=cell('Levo劑量',`${dose} μg/d`,'cb',`TSH目標 ${target}`);}
+  if(cal_>0)c+=cell('Calcitonin',`${cal_} pg/mL`,cal_>10?'cr':'ct',cal_>10?'⚠️甲狀腺髓樣癌？':'');
+  document.getElementById('thyroid-cells').innerHTML=c;
+  let a='';
+  if(tsh<0.01&&ft4>1.8)a+=al('ar','⚠️ 顯性甲亢 — AI 建議就醫，評估 MMI/PTU 或 I131');
+  if(tsh>10)a+=al('ar','⚠️ 顯性甲低 — AI 建議就醫，需 Levothyroxine');
+  if(preg&&tsh>2.5)a+=al('ar','⚠️ 妊娠甲低 — AI 建議立即就醫，Levothyroxine 劑量調整');
+  if(tpo>35)a+=al('ay','橋本氏甲狀腺炎：每6-12月追蹤 TSH。進展為甲低時需治療');
+  if(trab>1.75)a+=al('ai','TRAb 陽性：Graves 病診斷支持，評估抗甲狀腺藥物治療');
+  if(afib==='yes'&&tsh<0.4)a+=al('ay','⚠️ TSH 偏低 + 心律不整：需排除甲亢引發房顫');
+  document.getElementById('thyroid-alerts').innerHTML=a;
+  document.getElementById('rp-thyroid').classList.add('on');
+  document.getElementById('rp-thyroid').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── BONE ───
+function calcBone(){
+  const ca=v('bn_ca'),p=v('bn_p'),pth=v('bn_pth'),vitd=v('bn_vitd'),alb=v('bn_alb'),mg=v('bn_mg'),alp=v('bn_alp');
+  const egfr=v('bn_egfr'),tscore=v('bn_tscore'),rrt=sv('bn_rrt');
+  const cca=ca>0&&alb>0?ca+0.8*(4-alb):null;
+  if(cca)document.getElementById('bn_cca').value=fmt(cca,2);
+  const cap=ca>0&&p>0?ca*p:null;
+  if(cap)document.getElementById('bn_cap').value=fmt(cap,1);
+  let c='';
+  if(cca!==null)c+=cell('校正鈣',`${fmt(cca,2)} mg/dL`,cca>12?'cr':cca>10.5?'ca':cca<7?'cr':cca<8.5?'ca':'ct',cca>12?'高鈣危象':cca<7?'低鈣危象':cca<8.5?'低鈣':'正常');
+  else if(ca>0)c+=cell('血鈣',`${ca} mg/dL`,ca>10.5?'ca':ca<8.5?'ca':'ct');
+  if(p>0)c+=cell('磷',`${p} mg/dL`,p>4.5?'ca':p<2.5?'ca':'ct',p>4.5?'高磷':p<2.5?'低磷':'正常');
+  if(cap)c+=cell('Ca×P',fmt(cap,1),cap>55?'cr':cap>50?'ca':'ct',cap>55?'⚠️血管鈣化風險':'');
+  if(pth>0){const tgt=egfr>0&&egfr<60?(egfr>=45?35:egfr>=30?70:150):65;c+=cell('PTH',`${pth} pg/mL`,pth>tgt*2?'cr':pth>tgt?'ca':'ct',`目標<${tgt}`);}
+  if(vitd>0)c+=cell('Vit D',`${vitd} ng/mL`,vitd<20?'cr':vitd<30?'ca':'ct',vitd<20?'缺乏':vitd<30?'不足':'充足');
+  if(mg>0)c+=cell('Mg',`${mg} mg/dL`,mg<1.7?'ca':mg>2.5?'ca':'ct',mg<1.7?'低鎂':'');
+  if(tscore!==0&&tscore!==undefined&&sv('bn_tscore')!=='')c+=cell('T-score',`${tscore}`,tscore<=-2.5?'cr':tscore<=-1?'ca':'ct',tscore<=-2.5?'骨質疏鬆':tscore<=-1?'骨量減少':'正常');
+  document.getElementById('bone-cells').innerHTML=c;
+  let a='';
+  if(cca!==null&&cca>12)a+=al('ar',`⚠️ 校正鈣 ${fmt(cca,2)} — AI 建議立即就醫，高鈣危象`);
+  if(cca!==null&&cca<7)a+=al('ar',`⚠️ 校正鈣 ${fmt(cca,2)} — AI 建議立即就醫，症狀性低鈣`);
+  if(egfr>0&&egfr<60){a+=al('ai',`📋 CKD G${egfr<30?'4-5':egfr<45?'3b':'3a'}：KDIGO 建議監測 Ca/P/PTH/Vit D`);}
+  if(vitd>0&&vitd<20)a+=al('ay','Vit D 缺乏：補充 D3 2000-4000 IU/天，3個月後複查');
+  if(cap!==null&&cap>55)a+=al('ar',`⚠️ Ca×P ${fmt(cap,1)} >55 — 異位鈣化風險，需積極降磷`);
+  document.getElementById('bone-alerts').innerHTML=a;
+  document.getElementById('rp-bone').classList.add('on');
+  document.getElementById('rp-bone').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── SENSITIVITY ───
+function calcSens(){
+  let tp=v('s_tp'),fp=v('s_fp'),fn=v('s_fn'),tn=v('s_tn');
+  const se_d=v('s_se'),sp_d=v('s_sp'),prev=v('s_prev');
+  let se,sp,n=null;
+  if(tp+fp+fn+tn>0){n=tp+fp+fn+tn;se=tp/(tp+fn);sp=tn/(tn+fp);}
+  else if(se_d>0&&sp_d>0){se=se_d/100;sp=sp_d/100;}
+  else{alert('請輸入混淆矩陣或靈敏度/特異度');return;}
+  const lr_p=se/(1-sp),lr_n=(1-se)/sp,youden=se+sp-1;
+  const acc=n?((tp||0)+(tn||0))/n:null;
+  let ppvb=null,npvb=null;
+  if(prev>0){const p=prev/100;ppvb=se*p/(se*p+(1-sp)*(1-p));npvb=sp*(1-p)/(sp*(1-p)+(1-se)*p);}
+  const ppv=n?tp/(tp+fp):null,npv=n?tn/(tn+fn):null;
+  ['tp','fn','fp','tn'].forEach(k=>{const el=document.getElementById('cm-'+k),vals={tp,fn,fp,tn};if(el){const v2=vals[k];el.querySelector('div').textContent=v2!==null&&v2!==undefined?v2:'—';}});
+  let c='';
+  c+=cell('靈敏度 Se',pct(se),se>=0.9?'ct':se>=0.7?'ca':'cr',se>=0.9?'優（篩檢）':'');
+  c+=cell('特異度 Sp',pct(sp),sp>=0.95?'ct':sp>=0.8?'ca':'cr',sp>=0.95?'優（確診）':'');
+  if(ppv!==null)c+=cell('PPV',pct(ppv),ppv>=0.8?'ct':'ca');
+  if(npv!==null)c+=cell('NPV',pct(npv),npv>=0.9?'ct':'ca');
+  if(ppvb!==null)c+=cell(`PPV（盛行率${prev}%）`,pct(ppvb),ppvb>=0.8?'ct':'ca','貝氏修正');
+  if(npvb!==null)c+=cell(`NPV（盛行率${prev}%）`,pct(npvb),npvb>=0.9?'ct':'ca','貝氏修正');
+  c+=cell('LR+',fmt(lr_p,2),lr_p>=10?'ct':lr_p>=5?'ca':'cr',lr_p>=10?'強確診力':'');
+  c+=cell('LR−',fmt(lr_n,3),lr_n<=0.1?'ct':lr_n<=0.2?'ca':'cr',lr_n<=0.1?'強排除力':'');
+  c+=cell("Youden's J",fmt(youden,3),youden>=0.7?'ct':youden>=0.5?'ca':'cr');
+  if(acc!==null)c+=cell('準確率',pct(acc),acc>=0.9?'ct':'ca');
+  document.getElementById('sens-cells').innerHTML=c;
+  document.getElementById('rp-sens').classList.add('on');
+  document.getElementById('rp-sens').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── AI CHECK ───
+const SYMS_URGENT=['胸痛','呼吸困難','意識不清','大量出血'];
+const SYMS_ALL=['頭痛','頭暈','胸痛','心悸','呼吸困難','咳嗽','發燒','腹痛','噁心嘔吐','腹瀉','便秘','血尿','水腫','疲勞','體重減輕','口渴多尿','視力模糊','手腳麻木','關節疼痛','皮膚黃染','失眠','頻尿','脫髮','皮疹','頸部僵硬','淋巴結腫大','意識不清','大量出血','盜汗','食慾不振','排便習慣改變','胸悶','背痛','小便顏色異常'];
+(()=>{const c=document.getElementById('sym-tags');if(!c)return;c.innerHTML=SYMS_ALL.map(s=>{const u=SYMS_URGENT.includes(s);return`<span class="stag ${u?'urgent':''}" onclick="togSym(this,'${s}')">${u?'⚠️':''}${s}</span>`;}).join('');})();
+function togSym(el,s){const i=selSym.indexOf(s);if(i===-1){selSym.push(s);el.classList.add('on');}else{selSym.splice(i,1);el.classList.remove('on');}}
+function clearAI(){selSym=[];document.querySelectorAll('.stag').forEach(e=>e.classList.remove('on'));['ai_note','ai_age','ai_med','ai_hx','ai_allergy'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});document.getElementById('ai_sev').value=5;document.getElementById('ai_sevv').textContent=5;document.getElementById('rp-ai').classList.remove('on');}
+// ─── API KEY LOCK/UNLOCK ───
+let aiApiUnlocked = false;
+
+function onApiKeyChange(){
+  const k = document.getElementById('ai_key').value;
+  if(!k){ setAILocked(true); }
+}
+
+function setAILocked(locked){
+  const container = document.getElementById('ai-fields-container');
+  const badge = document.getElementById('ai-lock-badge');
+  aiApiUnlocked = !locked;
+  if(locked){
+    container.className = 'ai-locked';
+    badge.className = 'lock-badge';
+    badge.textContent = '🔒 請先設定並測試 API Key 才能使用';
+  } else {
+    container.className = 'ai-unlocked';
+    badge.className = 'lock-badge unlocked';
+    badge.textContent = '🔓 API Key 已驗證，功能已解鎖';
+  }
+}
+
+async function testAPIKey(){
+  const k = document.getElementById('ai_key').value || localStorage.getItem('cc_key');
+  if(!k){ alert('請先輸入 Anthropic API Key'); return; }
+  const statusEl = document.getElementById('ai-test-status');
+  statusEl.className = 'test-status';
+  statusEl.textContent = '⏳ 測試中...';
+  statusEl.style.display = 'inline-block';
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'ping'}]})
+    });
+    if(res.ok || res.status === 200){
+      statusEl.className = 'test-status ok';
+      statusEl.textContent = '✓ 連線成功！功能已解鎖';
+      localStorage.setItem('cc_key', k);
+      document.getElementById('dr_api').value = k;
+      setAILocked(false);
+    } else {
+      const e = await res.json();
+      statusEl.className = 'test-status fail';
+      statusEl.textContent = '❌ ' + (e.error?.message || `錯誤 ${res.status}`);
+      setAILocked(true);
+    }
+  } catch(e){
+    statusEl.className = 'test-status fail';
+    statusEl.textContent = '❌ 連線失敗：' + e.message;
+    setAILocked(true);
+  }
+}
+
+function saveKey(){const k=document.getElementById('ai_key').value;if(k){localStorage.setItem('cc_key',k);alert('✓ API Key 已儲存至本機');}}
+async function runAI(){
+  if(!document.getElementById('dis_agree').checked){alert('請先閱讀並勾選同意免責聲明');return;}
+  const key=document.getElementById('ai_key').value||localStorage.getItem('cc_key');
+  if(!key){alert('請輸入 Anthropic API Key');return;}
+  if(!selSym.length){alert('請選擇至少一個症狀');return;}
+  const urgentSelected=selSym.some(s=>SYMS_URGENT.includes(s));
+  if(urgentSelected&&!confirm('⚠️ 您選擇了可能緊急的症狀。若症狀嚴重，請立即前往急診或撥打119，而非使用AI評估。\n\n是否仍要繼續 AI 評估（輕症參考用）？'))return;
+  showLoad('Claude AI 症狀分析中...');
+  try{
+    const age=sv('ai_age'),sex=sv('ai_sex'),dur=sv('ai_dur'),sev=document.getElementById('ai_sev').value;
+    const hx=sv('ai_hx'),med=sv('ai_med'),allergy=sv('ai_allergy'),note=sv('ai_note');
+    const prompt=`你是台灣醫療AI助手（繁體中文），分析症狀並提供建議。所有建議需標示「AI建議」字樣。
+受檢者：年齡${age||'未填'}，性別${sex||'未填'}，病史：${hx||'無'}，用藥：${med||'無'}，過敏：${allergy||'無'}
+症狀：${selSym.join('、')}。持續：${dur||'未填'}。嚴重度自評：${sev}/10。補充：${note||'無'}
+
+請以JSON回應：{"urgency":1-5,"label":"緊急程度描述","conditions":["可能診斷1","2","3"],"dept":"建議科別","home":["居家建議1","2","3"],"ai_see":["AI建議就醫情況1","2"],"warning":"若有緊急警示則填入，否則為null","follow":"後續追蹤建議"}`;
+    const r=await callClaude(key,prompt,1000);
+    const j=parseJ(r);
+    if(j){
+      const uc={1:'#00c9a7',2:'#65a30d',3:'#f59e0b',4:'#dc2626',5:'#dc2626'};
+      document.getElementById('ai-main').innerHTML=`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;">AI 症狀評估（僅供參考）</div><div class="rbig" style="color:${uc[j.urgency]||uc[3]};font-size:22px;">${j.label||'待評估'}</div>${j.warning?`<div class="al ar" style="margin-top:10px;">⚠️ AI 建議立即就醫：${j.warning}</div>`:''} ${j.urgency>=4?'<div class="al ar" style="margin-top:8px;">⚠️ AI 建議立即前往急診或撥打 119</div>':''}`;
+      document.getElementById('ai-cells').innerHTML=cell('緊急程度',`${j.urgency}/5`,j.urgency>=4?'cr':j.urgency>=3?'ca':'ct')+cell('建議科別',j.dept||'家醫科','cb');
+      let d='';
+      if(j.conditions?.length)d+=`<div class="aiblock"><div class="aih">可能相關疾病（AI 建議參考，非診斷）</div>${j.conditions.map(c=>`<div class="aipt"><div class="aidot"></div>${c}</div>`).join('')}</div>`;
+      if(j.home?.length)d+=`<div class="aiblock"><div class="aih">居家照護建議</div>${j.home.map(c=>`<div class="aipt"><div class="aidot"></div>${c}</div>`).join('')}</div>`;
+      if(j.ai_see?.length)d+=`<div class="aiblock" style="border-color:rgba(244,63,94,.3);"><div class="aih" style="color:var(--rose);">AI 建議就醫的情況</div>${j.ai_see.map(c=>`<div class="aipt"><div class="aidot" style="background:var(--rose);"></div>${c}</div>`).join('')}</div>`;
+      if(j.follow)d+=`<div class="aiblock"><div class="aih">後續追蹤</div><div class="aipt"><div class="aidot"></div>${j.follow}</div></div>`;
+      document.getElementById('ai-detail').innerHTML=d;
+      document.getElementById('rp-ai').classList.add('on');
+      document.getElementById('rp-ai').scrollIntoView({behavior:'smooth'});
+    }
+  }catch(e){alert('AI 評估失敗：'+e.message);}finally{hideLoad();}
+}
+
+// ─── DR SECTION ───
+let drSBMode=false;
+['dr_dob','dr_exam'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',autoAge);});
+['dr_ht','dr_wt'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>{autoBMI();autoWHR();});});
+document.getElementById('dr_hip')?.addEventListener('input',autoWHR);
+['dr_fpg','dr_ins'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',autoHOMA);});
+['dr_tc','dr_hdl'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',autoNHDL);});
+document.getElementById('dr_cr')?.addEventListener('input',autoEGFR);
+document.getElementById('dr_sex')?.addEventListener('change',autoEGFR);
+
+function autoAge(){
+  const dob=sv('dr_dob'),exam=sv('dr_exam');
+  if(dob.length>=7&&exam.length>=7){
+    const dy=parseInt(exam.slice(0,3))+1911,dm=parseInt(exam.slice(3,5)),dd=parseInt(exam.slice(5,7));
+    const by=parseInt(dob.slice(0,3))+1911,bm=parseInt(dob.slice(3,5)),bd=parseInt(dob.slice(5,7));
+    const age=dy-by-(dm<bm||(dm===bm&&dd<bd)?1:0);
+    document.getElementById('dr_age').value=age>0?age:'';
+    autoEGFR();
+  }
+}
+function autoBMI(){
+  const ht=v('dr_ht'),wt=v('dr_wt');
+  if(ht&&wt)document.getElementById('dr_bmi').value=(wt/((ht/100)**2)).toFixed(1);
+}
+function autoWHR(){
+  const w=v('dr_waist'),h=v('dr_hip');
+  if(w&&h)document.getElementById('dr_whr').value=(w/h).toFixed(2);
+}
+function autoHOMA(){
+  const fpg=v('dr_fpg'),ins=v('dr_ins');
+  if(fpg&&ins)document.getElementById('dr_homa').value=(fpg*ins/405).toFixed(2);
+}
+function autoNHDL(){
+  const tc=v('dr_tc'),hdl=v('dr_hdl');
+  if(tc&&hdl)document.getElementById('dr_nhdl').value=tc-hdl;
+}
+function autoEGFR(){
+  const cr=v('dr_cr'),sex=sv('dr_sex');
+  const ageEl=document.getElementById('dr_age');
+  const age=ageEl?parseInt(ageEl.value)||0:0;
+  if(cr&&sex&&age){const e=calcEGFR(cr,age,sex);if(e)document.getElementById('dr_egfr').value=e.toFixed(1);}
+}
+
+function getDRData(){
+  const ageEl=document.getElementById('dr_age');
+  const age=ageEl?parseInt(ageEl.value)||null:null;
+  const ht=v('dr_ht'),wt=v('dr_wt');
+  const bmi=ht&&wt?+(wt/((ht/100)**2)).toFixed(1):null;
+  return{
+    pid:sv('dr_pid'),exam_date:sv('dr_exam'),dob:sv('dr_dob'),sex:sv('dr_sex'),age,
+    ht,wt,bmi,sbp:v('dr_sbp')||null,dbp:v('dr_dbp')||null,hr:v('dr_hr')||null,
+    waist:v('dr_waist')||null,hip:v('dr_hip')||null,bf:v('dr_bf')||null,
+    fpg:v('dr_fpg')||null,hba1c:v('dr_hba1c')||null,ins:v('dr_ins')||null,cpep:v('dr_cpep')||null,
+    tc:v('dr_tc')||null,tg:v('dr_tg')||null,ldl:v('dr_ldl')||null,hdl:v('dr_hdl')||null,
+    ast:v('dr_ast')||null,alt:v('dr_alt')||null,cr:v('dr_cr')||null,
+    egfr_calc:v('dr_cr')&&age&&sv('dr_sex')?+(calcEGFR(v('dr_cr'),age,sv('dr_sex'))||0).toFixed(1):null,
+    uacr:v('dr_uacr')||null,upcr:v('dr_upcr')||null,dip:sv('dr_dip'),
+    ua:v('dr_ua')||null,bun:v('dr_bun')||null,k:v('dr_k')||null,
+    hb:v('dr_hb')||null,wbc:v('dr_wbc')||null,plt:v('dr_plt')||null,mcv:v('dr_mcv')||null,hct:v('dr_hct')||null,
+    hbsag:sv('dr_hbsag'),hcv:sv('dr_hcv'),hbsab:sv('dr_hbsab'),
+    tsh:v('dr_tsh')||null,ft4:v('dr_ft4')||null,ca:v('dr_ca')||null,p:v('dr_p')||null,pth:v('dr_pth')||null,vitd:v('dr_vitd')||null,
+    acs:sv('dr_acs')==='yes',cabg:sv('dr_cabg')==='yes',cvd:sv('dr_cvd')==='yes',
+    dm:sv('dr_dm')==='yes',hl:sv('dr_hl')==='yes',htn:sv('dr_htn')==='yes',
+    age_rf:sv('dr_agerf')==='yes',fh:sv('dr_fh')==='yes',smoke:sv('dr_smoke')==='yes',ckd:sv('dr_ckd')==='yes',
+    edu:sv('dr_edu'),job:sv('dr_job'),eth:sv('dr_eth'),mar:sv('dr_mar'),
+    etoh:sv('dr_etoh'),ex:sv('dr_ex'),diet:sv('dr_diet'),sleep:v('dr_sleep')||null,stress:sv('dr_stress'),
+    note:sv('dr_note'),doctor:sv('dr_docid')||drDocId,
+  };
+}
+
+function judgeDR(d){
+  const results=[];
+  // 1. MetS
+  const ms_w=d.waist>0&&(d.sex==='male'?d.waist>=90:d.waist>=80);
+  const ms_t=d.tg>=150,ms_h=d.hdl>0&&(d.sex==='male'?d.hdl<40:d.hdl<50);
+  const ms_b=d.sbp>=130||d.dbp>=85,ms_d=d.dm||d.fpg>=100||d.hba1c>=5.7;
+  const msC=[ms_w,ms_t,ms_h,ms_b,ms_d].filter(Boolean).length;
+  const msQ=ms_w&&msC>=3;
+  results.push({name:'🏥 健保代謝症候群防治計畫 收案資格',qualified:msQ,partial:!ms_w&&msC>=3,
+    items:[
+      {ok:ms_w,text:`腹部肥胖（男≥90/女≥80 cm）— 現值：${d.waist||'未填'} cm`+(ms_w?' ✓':'')},
+      {ok:ms_t,text:`TG ≥150 mg/dL — 現值：${d.tg||'未填'}${ms_t?' ✓':''}`},
+      {ok:ms_h,text:`HDL 男&lt;40/女&lt;50 — 現值：${d.hdl||'未填'}${ms_h?' ✓':''}`},
+      {ok:ms_b,text:`BP ≥130/85 mmHg — 現值：${d.sbp||'—'}/${d.dbp||'—'}${ms_b?' ✓':''}`},
+      {ok:ms_d,text:`FPG ≥100 / HbA1c ≥5.7 / 糖尿病 — ${d.fpg||d.hba1c||'—'}${ms_d?' ✓':''}`},
+    ],
+    note:msQ?`✓ 符合收案（腹圍必備+${msC}項）`:`腰圍：${ms_w?'✓符合':'✗未達'} | 符合${msC}/5項，需腰圍+任意3項`
+  });
+  // 2. Early CKD
+  const egfr=d.egfr_calc||null;
+  const ckd_g3=egfr!==null&&egfr>=30&&egfr<60;
+  const ckd_prot=d.uacr>=30||d.upcr>=150||(d.dip&&['1+','2+','3+'].includes(d.dip));
+  const ckd_rf=d.dm||d.htn||d.ckd;
+  const ckdQ=ckd_g3||(egfr!==null&&egfr<90&&ckd_prot&&ckd_rf);
+  results.push({name:'🫘 初期慢性腎臟病（Early CKD）照護計畫 收案資格',qualified:ckdQ,partial:ckd_prot&&!ckd_g3,
+    items:[
+      {ok:ckd_g3,text:`eGFR 30-59（G3a/G3b）— 現值：${egfr?egfr.toFixed(1):'未填（需Cr/年齡/性別）'}`+(ckd_g3?' ✓':'')},
+      {ok:ckd_prot,text:`持續蛋白尿 UACR≥30/UPCR≥150/試紙1+ — UACR:${d.uacr||'—'} 試紙:${d.dip||'—'}`+(ckd_prot?' ✓':'')},
+      {ok:ckd_rf,warn:!ckd_rf,text:`合併危險因子（糖尿病/高血壓/CKD）— ${[d.dm&&'糖尿病',d.htn&&'高血壓',d.ckd&&'CKD'].filter(Boolean).join('/')||'未填'}`+(ckd_rf?' ✓':'')},
+    ],
+    note:ckdQ?`✓ 符合收案。建議每3月追蹤eGFR/UACR/血壓/K+`:`eGFR ${egfr?egfr.toFixed(1):'未知'}，${ckd_prot?'有蛋白尿':'無明顯蛋白尿'}，${ckd_rf?'有危險因子':'無危險因子'}`
+  });
+  // 3. Statin
+  const rf_htn=d.htn,rf_age=d.age_rf,rf_fh=d.fh,rf_hdl=d.hdl>0&&d.hdl<40,rf_smoke=d.smoke;
+  const rfC=[rf_htn,rf_age,rf_fh,rf_hdl,rf_smoke].filter(Boolean).length;
+  const c1=d.acs||d.cabg||d.cvd;
+  const c2=d.dm&&d.ldl>=100;
+  const c3a=d.hl&&rfC>=2&&d.ldl>=130;
+  const c3b=d.hl&&rfC<=1&&d.ldl>=160;
+  const lipidQ=c1||c2||c3a||c3b;
+  let ldl_tgt='';
+  if(c1)ldl_tgt='LDL 目標 &lt;70 mg/dL（極高危）';
+  else if(c2)ldl_tgt='LDL 目標 &lt;100 mg/dL（糖尿病）';
+  else if(c3a||c3b)ldl_tgt='LDL 目標 &lt;130 mg/dL';
+  results.push({name:'💊 全民健保降膽固醇藥物（Statin）開立條件',qualified:lipidQ,partial:false,
+    items:[
+      {ok:c1,text:`條件一：ACS/冠狀動脈介入/心血管疾病 — ${[d.acs&&'ACS',d.cabg&&'CABG',d.cvd&&'CVD'].filter(Boolean).join('/')||'否'}`+(c1?' ✓':'')},
+      {ok:c2,text:`條件二：糖尿病+LDL≥100 — DM:${d.dm?'是':'否'} LDL:${d.ldl||'—'}`+(c2?' ✓':'')},
+      {ok:c3a,text:`條件三A：高血脂症+≥2危險因子+LDL≥130 — RF:${rfC}個 LDL:${d.ldl||'—'}`+(c3a?' ✓':'')},
+      {ok:c3b,text:`條件三B：高血脂症+≤1危險因子+LDL≥160 — RF:${rfC}個 LDL:${d.ldl||'—'}`+(c3b?' ✓':'')},
+      {ok:false,warn:true,text:`危險因子（${rfC}/5）：${[rf_htn&&'高血壓',rf_age&&'年齡',rf_fh&&'家族史',rf_hdl&&'HDL&lt;40',rf_smoke&&'吸菸'].filter(Boolean).join('、')||'無'}`},
+    ],
+    note:lipidQ?`✓ 符合健保Statin開立條件。${ldl_tgt}`:`目前不符合。LDL:${d.ldl||'—'} 危險因子${rfC}個`
+  });
+  return results;
+}
+
+async function runDR(withAI){
+  const key=(document.getElementById('dr_api')?.value||localStorage.getItem('cc_key'));
+  const d=getDRData();
+  showLoad(withAI?'AI 醫師判讀中...':'規則判讀中...');
+  try{
+    const qualify=judgeDR(d);
+    let html='';
+    if(d.pid)html+=`<div class="al ad" style="margin-bottom:10px;">📋 受檢者：${d.pid}　日期：${d.exam_date||'—'}　性別：${d.sex==='male'?'男性':d.sex==='female'?'女性':'—'}　年齡：${d.age||'—'}歲　eGFR：${d.egfr_calc||'—'}</div>`;
+    qualify.forEach(q=>{
+      const ok=q.qualified,pt=q.partial;
+      html+=`<div class="qbox" style="border-left-color:${ok?'var(--teal)':pt?'var(--amber)':'var(--t3)'};">
+        <div class="qhead"><div class="qtit">${q.name}</div><span class="tag ${ok?'tt':pt?'ta':''}">${ok?'✓ 符合':pt?'⚠️ 部分符合':'✗ 不符合'}</span></div>
+        <div class="qis">${q.items.map(i=>`<div class="qi"><div class="qdot ${i.ok?'qok':i.warn?'qwarn':'qno'}"></div><div>${i.text}</div></div>`).join('')}</div>
+        ${q.note?`<div class="qnote">${q.note}</div>`:''}
+      </div>`;
+    });
+    // Quick summary
+    if(d.egfr_calc||d.fpg||d.ldl){
+      const {s:st}=d.egfr_calc?getStage(d.egfr_calc):{s:''};
+      html+=`<div class="card" style="margin-top:12px;"><div class="ch">關鍵數值快覽</div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:9px;">${[
+        d.bmi?`<div class="rcell"><div class="rl">BMI</div><div class="rv ${d.bmi>=27?'ca':'ct'}">${d.bmi}</div></div>`:'',
+        d.egfr_calc?`<div class="rcell"><div class="rl">eGFR</div><div class="rv ${d.egfr_calc<60?'cr':d.egfr_calc<90?'ca':'ct'}">${d.egfr_calc}</div><div class="rs">${st}</div></div>`:'',
+        d.hba1c?`<div class="rcell"><div class="rl">HbA1c</div><div class="rv ${d.hba1c>=6.5?'cr':d.hba1c>=5.7?'ca':'ct'}">${d.hba1c}%</div></div>`:'',
+        d.ldl?`<div class="rcell"><div class="rl">LDL</div><div class="rv ${d.ldl>=190?'cr':d.ldl>=130?'ca':'ct'}">${d.ldl}</div></div>`:'',
+        d.sbp?`<div class="rcell"><div class="rl">BP</div><div class="rv ${d.sbp>=140?'cr':d.sbp>=130?'ca':'ct'}">${d.sbp}/${d.dbp}</div></div>`:'',
+      ].filter(Boolean).join('')}</div></div>`;
+    }
+    document.getElementById('dr-qualify').innerHTML=html;
+    if(withAI){
+      if(!key){document.getElementById('dr-ai').innerHTML=al('ay','未設定 API Key，無法使用 AI 醫師。請至「系統設定」填入。');hideLoad();document.getElementById('rp-dr').classList.add('on');document.getElementById('rp-dr').scrollIntoView({behavior:'smooth'});return;}
+      const prompt=`你是台灣家醫科/腎臟科AI醫師（繁體中文），分析健檢資料並提供專業建議。所有建議需標示「AI建議」字樣。
+健檢資料：${JSON.stringify(d,null,0)}
+判讀結果：${qualify.map(q=>q.name+'：'+(q.qualified?'符合':'不符合')).join('；')}
+請提供：1.整體健康風險評估（2-3句）2.最需關注的3個問題 3.具體生活及用藥建議3條 4.建議追蹤項目及頻率
+JSON：{"overall":"整體評估","top3":["問題1","問題2","問題3"],"lifestyle":["AI建議1","AI建議2","AI建議3"],"follow_up":["追蹤1頻率","追蹤2頻率","追蹤3頻率"],"urgent":null或"緊急就醫原因"}`;
+      const r=await callClaude(key,prompt,1500);
+      const j=parseJ(r);
+      if(j){
+        document.getElementById('dr-ai').innerHTML=`<div class="aiblock" style="border-color:rgba(167,139,250,.3);">
+          <div class="aih" style="color:var(--violet);">🤖 AI 醫師總評（僅供醫師參考，標示「AI建議」）</div>
+          ${j.urgent?`<div class="al ar" style="margin-bottom:12px;">⚠️ AI 建議立即就醫：${j.urgent}</div>`:''}
+          <div style="font-size:13px;color:var(--t1);margin-bottom:12px;line-height:1.8;">${j.overall||''}</div>
+          ${j.top3?.length?`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1px;color:var(--t3);text-transform:uppercase;margin:12px 0 8px;">最需關注問題</div>${j.top3.map(t=>`<div class="aipt"><div class="aidot"></div>${t}</div>`).join('')}`:''}
+          ${j.lifestyle?.length?`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1px;color:var(--t3);text-transform:uppercase;margin:12px 0 8px;">生活及用藥建議（AI建議）</div>${j.lifestyle.map(t=>`<div class="aipt"><div class="aidot"></div>${t}</div>`).join('')}`:''}
+          ${j.follow_up?.length?`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1px;color:var(--t3);text-transform:uppercase;margin:12px 0 8px;">建議追蹤（AI建議）</div>${j.follow_up.map(t=>`<div class="aipt"><div class="aidot" style="background:var(--amber);"></div>${t}</div>`).join('')}`:''}
+        </div>`;
+      }else{document.getElementById('dr-ai').innerHTML=al('ay','AI 回應解析失敗，請再試一次');}
+    }else document.getElementById('dr-ai').innerHTML='';
+    document.getElementById('rp-dr').classList.add('on');
+    document.getElementById('rp-dr').scrollIntoView({behavior:'smooth'});
+  }catch(e){alert('判讀失敗：'+e.message);}finally{hideLoad();}
+}
+
+function saveDraft(){
+  const d=getDRData();
+  const drafts=JSON.parse(localStorage.getItem('cc_drafts')||'[]');
+  drafts.unshift({...d,saved_at:new Date().toISOString()});
+  if(drafts.length>20)drafts.pop();
+  localStorage.setItem('cc_drafts',JSON.stringify(drafts));
+  alert('✓ 已暫存（最多20筆）');
+}
+function clearDR(){
+  document.querySelectorAll('#s-dr .fi').forEach(e=>{if(!e.readOnly)e.value='';});
+  document.querySelectorAll('#s-dr .fsel').forEach(e=>e.selectedIndex=0);
+  ['dr_bmi','dr_egfr','dr_whr','dr_homa','dr_nhdl','dr_age'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('rp-dr').classList.remove('on');
+}
+function exportDR(){
+  const d=getDRData();const now=new Date().toLocaleString('zh-TW');
+  const blob=new Blob([JSON.stringify({exported:now,...d},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`clincalc_${d.pid||'report'}_${Date.now()}.json`;a.click();
+}
+
+// ─── SUPABASE ───
+function saveSB(){sbUrl=sv('sb_url');sbKey=sv('sb_key');localStorage.setItem('cc_sb_url',sbUrl);localStorage.setItem('cc_sb_key',sbKey);alert('✓ Supabase 設定已儲存');}
+function loadStoredSB(){
+  sbUrl=localStorage.getItem('cc_sb_url')||'';sbKey=localStorage.getItem('cc_sb_key')||'';
+  const uk=localStorage.getItem('cc_key')||'';drDocId=localStorage.getItem('cc_docid')||'';
+  if(sbUrl)document.getElementById('sb_url').value=sbUrl;
+  if(sbKey)document.getElementById('sb_key').value=sbKey;
+  if(uk){document.getElementById('ai_key').value=uk;document.getElementById('dr_api').value=uk;}
+  if(drDocId)document.getElementById('dr_docid').value=drDocId;
+}
+function saveAPIKey(){
+  const key=sv('dr_api');const docid=sv('dr_docid');
+  if(key)localStorage.setItem('cc_key',key);
+  if(docid){localStorage.setItem('cc_docid',docid);drDocId=docid;}
+  document.getElementById('ai_key').value=key;
+  alert('✓ 已儲存');
+}
+async function testSB(){
+  const url=sv('sb_url'),key=sv('sb_key');
+  if(!url||!key){alert('請填入 URL 和 Key');return;}
+  showLoad('測試 Supabase 連線...');
+  try{
+    const r=await fetch(`${url}/rest/v1/patients?limit=1`,{headers:{'apikey':key,'Authorization':`Bearer ${key}`}});
+    if(r.ok){document.getElementById('sb-status').innerHTML=al('ag','✓ Supabase 連線成功！資料表已就緒。');}
+    else if(r.status===404){document.getElementById('sb-status').innerHTML=al('ay','⚠️ 連線成功但資料表不存在，請先執行上方 SQL 建立資料表。');}
+    else{document.getElementById('sb-status').innerHTML=al('ar',`❌ 連線失敗（${r.status}），請確認 URL 和 Key。`);}
+  }catch(e){document.getElementById('sb-status').innerHTML=al('ar','❌ 連線失敗：'+e.message);}
+  finally{hideLoad();}
+}
+async function saveToSB(){
+  if(!sbUrl||!sbKey){alert('請先設定 Supabase URL 和 Key');return;}
+  const d=getDRData();
+  if(!d.pid){alert('請填入受檢者編號');return;}
+  showLoad('儲存至 Supabase...');
+  try{
+    const qualify=judgeDR(d);
+    const r=await fetch(`${sbUrl}/rest/v1/patients`,{method:'POST',
+      headers:{'apikey':sbKey,'Authorization':`Bearer ${sbKey}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({doctor_id:d.doctor||drDocId,pid:d.pid,exam_date:d.exam_date,data:d,qualify_result:qualify,notes:d.note})
+    });
+    if(r.ok||r.status===201){alert('✓ 已成功儲存至 Supabase！');}
+    else{const err=await r.json();alert('儲存失敗：'+JSON.stringify(err));}
+  }catch(e){alert('儲存失敗：'+e.message);}
+  finally{hideLoad();}
+}
+async function loadRecords(){
+  const localDrafts=JSON.parse(localStorage.getItem('cc_drafts')||'[]');
+  if(localDrafts.length){
+    document.getElementById('local-records').innerHTML=`<div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1px;color:var(--t3);text-transform:uppercase;margin-bottom:8px;">本機暫存記錄（最近${localDrafts.length}筆）</div>`+
+    localDrafts.map((d,i)=>`<div class="dbcard" onclick="showDetail(${i})">
+      <div class="dbcard-h"><div class="dbcard-t">${d.pid||'（無編號）'}</div><span class="tag ${d.sex==='male'?'tb':'tv'}">${d.sex==='male'?'男':'女'} ${d.age||'—'}歲</span></div>
+      <div class="dbcard-m">日期：${d.exam_date||'—'}　eGFR：${d.egfr_calc||'—'}　HbA1c：${d.hba1c||'—'}%　LDL：${d.ldl||'—'}</div>
+      <div style="font-size:10.5px;color:var(--t3);margin-top:5px;">暫存：${new Date(d.saved_at).toLocaleString('zh-TW')}</div>
+    </div>`).join('');
+  }
+  if(!sbUrl||!sbKey){document.getElementById('records-list').innerHTML=al('ad','尚未連接 Supabase，顯示本機暫存記錄。');return;}
+  showLoad('載入 Supabase 記錄...');
+  try{
+    const r=await fetch(`${sbUrl}/rest/v1/patients?order=created_at.desc&limit=50`,{headers:{'apikey':sbKey,'Authorization':`Bearer ${sbKey}`}});
+    if(!r.ok){document.getElementById('records-list').innerHTML=al('ay','無法載入記錄，請確認連線設定');return;}
+    const data=await r.json();
+    document.getElementById('records-list').innerHTML=data.length?data.map(rec=>`<div class="dbcard" onclick='showSBDetail(${JSON.stringify(rec).replace(/'/g,"&#39;")})'>
+      <div class="dbcard-h"><div class="dbcard-t">${rec.pid||'（無編號）'}</div><span class="tag tt">已儲存</span></div>
+      <div class="dbcard-m">日期：${rec.exam_date||'—'}　醫師：${rec.doctor_id||'—'}</div>
+      ${rec.notes?`<div class="dbcard-m" style="margin-top:4px;">${rec.notes}</div>`:''}
+      <div style="font-size:10px;color:var(--t3);margin-top:4px;">${new Date(rec.created_at).toLocaleString('zh-TW')}</div>
+    </div>`).join(''):al('ad','Supabase 中尚無記錄');
+  }catch(e){document.getElementById('records-list').innerHTML=al('ar','載入失敗：'+e.message);}
+  finally{hideLoad();}
+}
+async function searchRecords(){
+  const pid=sv('search_pid');if(!pid){loadRecords();return;}
+  if(!sbUrl||!sbKey){alert('請先連接 Supabase');return;}
+  showLoad('搜尋中...');
+  try{
+    const r=await fetch(`${sbUrl}/rest/v1/patients?pid=eq.${encodeURIComponent(pid)}&order=created_at.desc`,{headers:{'apikey':sbKey,'Authorization':`Bearer ${sbKey}`}});
+    const data=await r.json();
+    document.getElementById('records-list').innerHTML=data.length?data.map(rec=>`<div class="dbcard"><div class="dbcard-t">${rec.pid}</div><div class="dbcard-m">${rec.exam_date} · eGFR:${rec.data?.egfr_calc||'—'} · HbA1c:${rec.data?.hba1c||'—'}%</div></div>`).join(''):al('ad','未找到符合記錄');
+  }catch(e){alert('搜尋失敗：'+e.message);}finally{hideLoad();}
+}
+function showDetail(i){
+  const drafts=JSON.parse(localStorage.getItem('cc_drafts')||'[]');
+  const d=drafts[i];if(!d)return;
+  document.getElementById('detail-content').innerHTML=`<div class="mt">${d.pid||'（無編號）'}</div><div class="ms">${d.exam_date||'—'} · ${d.sex==='male'?'男':'女'} ${d.age||'—'}歲</div><pre style="font-family:var(--ff-m);font-size:10px;color:var(--t2);overflow:auto;max-height:400px;background:var(--c2);padding:12px;border-radius:6px;">${JSON.stringify(d,null,2)}</pre>`;
+  document.getElementById('modal-detail').classList.add('on');
+}
+function showSBDetail(rec){
+  document.getElementById('detail-content').innerHTML=`<div class="mt">${rec.pid||'（無編號）'}</div><div class="ms">${rec.exam_date||'—'}</div><pre style="font-family:var(--ff-m);font-size:10px;color:var(--t2);overflow:auto;max-height:400px;background:var(--c2);padding:12px;border-radius:6px;">${JSON.stringify(rec.data,null,2)}</pre>`;
+  document.getElementById('modal-detail').classList.add('on');
+}
+
+// ─── REFS DB ───
+const REFS=[
+  {id:'ada2026',title:'ADA 2026 Standards of Care in Diabetes',cat:'醫療指引',date:'2026-01',url:'https://diabetesjournals.org/care/issue/49/Supplement_1',summary:'2026年重大更新：(1) CGM 診斷時即考慮使用；(2) GLP-1 RA 首次推薦用於第1型糖尿病合併肥胖；(3) 高危患者血壓目標更新為 &lt;120 mmHg；(4) SGLT2i 擴大 CKD 保護適應症；(5) 新增心理健康/焦慮篩檢。',status:'最新'},
+  {id:'kdigo2024',title:'KDIGO 2024 CKD Evaluation and Management Guideline',cat:'醫療指引',date:'2024',url:'https://kdigo.org/guidelines/ckd-evaluation-and-management/',summary:'CKD-EPI 2021 race-free eGFR 公式。強化 SGLT2i 在 CKD 的心腎保護角色。UACR &lt;30/30-300/>300 三級分層。建議所有 CKD G3b-G5 轉介腎臟科。',status:'有效'},
+  {id:'aha2022',title:'ACC/AHA 2022 High Blood Pressure Guideline',cat:'醫療指引',date:'2022',url:'https://www.ahajournals.org/doi/10.1161/HYP.0000000000000065',summary:'定義高血壓 ≥130/80 mmHg。引入 PCE 工具決定是否啟動降壓藥。強調生活型態介入優先。高危患者目標 &lt;130/80 mmHg。',status:'有效'},
+  {id:'kdigo2017bone',title:'KDIGO 2017 CKD-MBD Guideline',cat:'醫療指引',date:'2017',url:'https://kdigo.org/guidelines/ckd-mbd/',summary:'CKD G3b+ 監測 Ca/P/PTH/Vit D。Ca×P 乘積目標 &lt;55 mg²/dL²。PTH 目標依分期調整。避免含鈣磷結合劑過量。',status:'有效'},
+  {id:'ata2023',title:'ATA 2023 Thyroid Guidelines',cat:'醫療指引',date:'2023',url:'https://www.thyroid.org/thyroid-professionals/clinical-thyroidology/',summary:'TSH 正常值 0.4-4.0 mIU/L。妊娠初期目標 &lt;2.5，中末期 &lt;3.0。Graves 病首選 ATD 治療。橋本氏甲狀腺炎每年 TSH 監測。',status:'有效'},
+  {id:'nhi_ms',title:'台灣全民健保代謝症候群防治計畫',cat:'政府機關',date:'2024',url:'https://www.nhi.gov.tw/Content_List.aspx?n=9AB97CA2A0A7C57D',summary:'收案資格：腹部肥胖（男≥90/女≥80 cm，必備）+ 任意3項代謝異常（TG≥150/HDL偏低/BP≥130/85/FPG≥100）。健保給付衛教及追蹤。',status:'有效'},
+  {id:'nhi_ckd',title:'台灣全民健保早期慢性腎臟病照護計畫',cat:'政府機關',date:'2023',url:'https://www.nhi.gov.tw/',summary:'收案對象：eGFR 30-59 (G3) 或 eGFR 60-89+持續蛋白尿+危險因子（糖尿病/高血壓）。每3月追蹤腎功能/UACR/血壓。強調延緩腎功能惡化、降低透析風險。',status:'有效'},
+  {id:'nhi_statin',title:'全民健保降膽固醇藥物（Statin）給付規定',cat:'健保規範',date:'2024',url:'https://www.nhi.gov.tw/Content_List.aspx?n=9AB97CA2A0A7C57D',summary:'給付條件：① ACS/冠狀動脈介入/CVD；② 糖尿病+LDL≥100；③ 高血脂症+危險因子（≥2個RF:LDL≥130；≤1個RF:LDL≥160）。危險因子：高血壓/年齡/家族史/HDL&lt;40/吸菸。',status:'有效'},
+  {id:'who_anemia',title:'WHO Haemoglobin Concentrations for Anaemia Diagnosis',cat:'國際機構',date:'2011',url:'https://www.who.int/publications/i/item/9789241598033',summary:'成人貧血定義：男性 Hb &lt;13.5 g/dL，女性 &lt;12.0 g/dL，妊娠期女性 &lt;11.0 g/dL。輕度：10-12/10-13，中度：8-9.9，重度：&lt;8。',status:'有效'},
+  {id:'easl2023',title:'EASL Clinical Practice Guidelines on Non-Invasive Tests (MAFLD/MASLD)',cat:'醫療指引',date:'2023',url:'https://easl.eu/publication/easl-clinical-practice-guidelines-on-non-invasive-tests-for-evaluation-of-liver-disease-severity-and-prognosis/',summary:'FIB-4 &lt;1.30 低纖維化風險，≥3.25 高纖維化。APRI ≥2 顯著纖維化。MASLD（原NAFLD）定義更新：代謝危險因子+肝脂肪變性+無其他病因。',status:'有效'},
+  // ─── 台灣學會 ───
+  {id:'tas2024dm',title:'台灣糖尿病學會 2024 第2型糖尿病臨床照護指引',cat:'台灣學會',date:'2024',url:'https://www.endo-dm.org.tw/dia/ALLDOC/dia2019_01/dia2019_01.asp',summary:'HbA1c 目標個人化（一般 <7%，衰弱老人 <8.5%）。SGLT2i/GLP-1 RA 優先用於合併 ASCVD/CKD/HF 的糖尿病患者。CGM 建議用於第1型及多次注射第2型。',status:'最新'},
+  {id:'tsn2023ckd',title:'台灣腎臟醫學會 CKD 診療準則 2023',cat:'台灣學會',date:'2023',url:'https://www.tsn.org.tw/UI/C/ClinicalGuideline.aspx',summary:'採用 CKD-EPI 2021 race-free 公式計算 eGFR。UACR 分層：正常 <30、微量 30-300、大量 >300 mg/g。SGLT2i 建議用於 eGFR ≥20 + 蛋白尿患者。血壓目標 <130/80 mmHg。',status:'有效'},
+  {id:'tsh2023htn',title:'台灣高血壓學會 2023 高血壓指引',cat:'台灣學會',date:'2023',url:'https://www.hypertension.org.tw/',summary:'定義：≥140/90 mmHg。高危患者（DM/CKD/CVD）目標 <130/80。生活型態介入：限鈉 <6g/日、DASH 飲食、規律運動、戒菸、限酒。台灣白袍高血壓盛行率約 15-20%。',status:'有效'},
+  {id:'tla2024lipid',title:'台灣脂質學會 2024 血脂異常臨床治療指引',cat:'台灣學會',date:'2024',url:'https://www.tla.org.tw/',summary:'ASCVD 極高危：LDL 目標 <55 mg/dL。高危（DM+靶器官損傷）：LDL <70 mg/dL。一般高危：LDL <100 mg/dL。Statin + Ezetimibe + PCSK9i 三線治療策略。',status:'最新'},
+  // ─── 政府機關 ───
+  {id:'nhi_icd',title:'健保署 ICD-10-CM 台灣版（TW-ICD-10-CM）對照表',cat:'政府機關',date:'2024',url:'https://www.nhi.gov.tw/Content_List.aspx?n=D529DDFE5448BEAC',summary:'台灣健保申報使用之 ICD-10-CM 編碼查詢工具。包含主要診斷碼、合併症碼對應。每年10月更新，臨床申報必備參考。',status:'有效'},
+  {id:'nhi_drug',title:'全民健保藥品查詢系統（健保署）',cat:'政府機關',date:'2024',url:'https://www.nhi.gov.tw/QueryN/Query1.aspx',summary:'健保給付藥品查詢：成分名、商品名、健保碼、給付規定、共同負擔。可查詢是否符合健保給付條件及限制事項。每月更新。',status:'有效'},
+  {id:'tfda_drug',title:'食藥署藥品說明書查詢（TFDA）',cat:'政府機關',date:'2024',url:'https://www.fda.gov.tw/TC/site.aspx?sid=3',summary:'台灣核准藥品仿單、適應症、劑量、禁忌、副作用完整資訊。是台灣藥品法規核准資料的最終依據。',status:'有效'},
+  // ─── 工具資源 ───
+  {id:'mdcalc',title:'MDCalc — 臨床計算器集合（英文）',cat:'工具資源',date:'2024',url:'https://www.mdcalc.com',summary:'收錄 500+ 經過同儕審閱的臨床評分工具，包含 CHADS2-VASc、CHA2DS2-VASc、SOFA、APACHE II、Framingham Risk Score 等。附原始文獻引用及臨床使用說明。',status:'有效'},
+  {id:'drugs_com',title:'Drugs.com — 藥物交互作用查詢（英文）',cat:'工具資源',date:'2024',url:'https://www.drugs.com/drug_interactions.html',summary:'藥物交互作用查詢工具，支援多種藥物同時檢查。分為嚴重（Severe）、中等（Moderate）、輕微（Minor）三級。臨床開立多種藥物前建議查詢。',status:'有效'},
+  {id:'uptodate_free',title:'台灣大學圖書館 UpToDate 連線說明',cat:'工具資源',date:'2024',url:'https://www.lib.ntu.edu.tw/',summary:'台灣各大醫學院校圖書館提供 UpToDate 校園授權。臨床決策支援最完整的循證醫學資料庫，含 30,000+ 主題文章，每 4-6 週更新一次。請透過校園 VPN 或圖書館連線使用。',status:'有效'},
+  {id:'pubmed',title:'PubMed / MEDLINE — 醫學文獻資料庫（NLM）',cat:'工具資源',date:'2024',url:'https://pubmed.ncbi.nlm.nih.gov',summary:'美國國家醫學圖書館提供之免費醫學文獻資料庫，收錄 3,500 萬+篇文章。支援 MeSH 詞彙查詢、臨床查詢過濾器（RCT/系統回顧）。是醫學研究搜尋的基礎工具。',status:'有效'},
+];
+let refCatFilter = 'all';
+
+function setCatFilter(cat, btn){
+  refCatFilter = cat;
+  document.querySelectorAll('.ref-cat-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  filterRefs();
+}
+
+function filterRefs(){
+  const q = (document.getElementById('ref-search')?.value || '').toLowerCase();
+  const filtered = REFS.filter(r => {
+    const catOk = refCatFilter === 'all' || r.cat === refCatFilter;
+    const textOk = !q || r.title.toLowerCase().includes(q) || r.summary.toLowerCase().includes(q) || r.cat.toLowerCase().includes(q);
+    return catOk && textOk;
+  });
+  document.getElementById('refs-list').innerHTML = filtered.length ?
+    filtered.map(r=>`<div class="dbcard" onclick="openRef('${r.id}')">
+      <div class="dbcard-h">
+        <div class="dbcard-t">${r.title}</div>
+        <span class="tag ${r.status==='最新'?'tt':'tb'}">${r.status}</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:7px;">
+        <span class="tag ta">${r.cat}</span>
+        <span style="font-family:var(--ff-m);font-size:9px;color:var(--t3);">${r.date}</span>
+      </div>
+      <div class="dbcard-m">${r.summary}</div>
+      <div class="dbcard-url">🔗 <a href="${r.url}" target="_blank" onclick="event.stopPropagation()">${r.url}</a></div>
+    </div>`).join('') :
+    `<div class="al ad">找不到符合「${q || refCatFilter}」的資料</div>`;
+}
+
+function renderRefs(){
+  filterRefs();
+}
+
+function copySql(){
+  const sql = document.getElementById('sql-block').textContent;
+  navigator.clipboard.writeText(sql).then(()=>{ alert('✓ SQL 已複製到剪貼簿'); }).catch(()=>{ alert('請手動複製上方 SQL'); });
+}
+function openRef(id){
+  const r=REFS.find(x=>x.id===id);if(!r)return;
+  document.getElementById('detail-content').innerHTML=`<div class="mt">${r.title}</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;"><span class="tag ta">${r.cat}</span><span class="tag tb">${r.date}</span><span class="tag ${r.status==='最新'?'tt':'tb'}">${r.status}</span></div>
+    <div class="al ai" style="margin-bottom:12px;"><div>${r.summary}</div></div>
+    <div class="dbcard-url" style="font-size:13px;">🔗 來源：<a href="${r.url}" target="_blank" style="color:var(--teal);">${r.url}</a></div>
+    <div class="dis" style="margin-top:12px;">著作權聲明：本摘要來自公開摘要頁面，完整原文請至上方連結查閱。本系統不複製受版權保護的完整指引內容。</div>`;
+  document.getElementById('modal-detail').classList.add('on');
+}
+// Custom sources
+let customSources=JSON.parse(localStorage.getItem('cc_custom_src')||'[]');
+function renderCustom(){
+  document.getElementById('custom-list').innerHTML=customSources.length?customSources.map((s,i)=>`<div class="dbcard">
+    <div class="dbcard-h"><div class="dbcard-t">${s.title}</div><span class="tag ta">自訂</span></div>
+    <div style="font-family:var(--ff-m);font-size:9px;color:var(--t3);margin-bottom:6px;">${s.cat} · ${s.date||'—'}</div>
+    <div class="dbcard-m">${s.summary}</div>
+    <div class="dbcard-url">🔗 <a href="${s.url}" target="_blank">${s.url}</a></div>
+    <button class="btn ba" style="margin-top:10px;padding:4px 10px;font-size:11px;" onclick="delCustom(${i})">移除</button>
+  </div>`).join(''):al('ad','尚無自訂來源');
+}
+function addCustomSource(){
+  const t=sv('cs_title'),u=sv('cs_url'),s=sv('cs_summary'),c=sv('cs_cat'),d=sv('cs_date');
+  if(!t||!u){alert('請填入標題和網址');return;}
+  customSources.unshift({title:t,url:u,summary:s,cat:c,date:d,added:new Date().toISOString()});
+  localStorage.setItem('cc_custom_src',JSON.stringify(customSources));
+  ['cs_title','cs_url','cs_summary','cs_date'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderCustom();alert('✓ 已新增自訂來源');
+}
+function delCustom(i){if(confirm('確定移除？')){customSources.splice(i,1);localStorage.setItem('cc_custom_src',JSON.stringify(customSources));renderCustom();}}
+
+// ─── API UTILS ───
+async function callClaude(key,prompt,maxT=1000){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxT,messages:[{role:'user',content:prompt}]})
+  });
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`API 錯誤 ${res.status}`);}
+  return(await res.json()).content?.[0]?.text||'';
+}
+function parseJ(txt){
+  try{const s=txt.indexOf('{'),e=txt.lastIndexOf('}');if(s>-1&&e>s)return JSON.parse(txt.slice(s,e+1));}catch(e){}
+  return null;
+}
+// Load stored keys
+try{
+  const k=localStorage.getItem('cc_key');
+  if(k){
+    ['ai_key','dr_api'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=k;});
+    // If key was stored, still require re-test on page load for security
+    // But show hint that key is present
+    const statusEl = document.getElementById('ai-test-status');
+    if(statusEl){ statusEl.className='test-status ok'; statusEl.textContent='ℹ️ 發現已儲存的 Key，請點「測試連線」驗證後解鎖'; statusEl.style.display='inline-block'; }
+  }
+  // Initialize lock state
+  setAILocked(true);
+}catch(e){}
+</script>
+</body>
+</html>
