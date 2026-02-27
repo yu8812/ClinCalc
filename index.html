@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ClinCalc — 臨床決策輔助平台 v5</title>
+<title>ClinCalc — 臨床決策輔助平台 v7</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -289,6 +289,26 @@ body{font-family:var(--ff-b);background:var(--c0);color:var(--t1);min-height:100
 .ref-search-bar:focus{border-color:var(--teal);}
 .ref-search-bar::placeholder{color:var(--t3);}
 
+/* PROVIDER CARDS */
+.provider-card{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);padding:14px 12px;
+  cursor:pointer;text-align:center;transition:all .2s;position:relative;}
+.provider-card:hover{border-color:rgba(0,201,167,.2);transform:translateY(-1px);}
+.provider-card.active{border-color:var(--teal);background:rgba(0,201,167,.05);box-shadow:0 0 0 1px rgba(0,201,167,.15);}
+.provider-card.active::after{content:'✓';position:absolute;top:6px;right:8px;font-family:var(--ff-m);font-size:10px;color:var(--teal);}
+.pc-icon{font-size:22px;margin-bottom:6px;}
+.pc-name{font-family:var(--ff-h);font-size:13px;font-weight:700;margin-bottom:2px;}
+.pc-sub{font-size:10px;color:var(--t3);font-family:var(--ff-m);margin-bottom:4px;}
+.pc-model{font-size:9.5px;color:var(--t2);font-family:var(--ff-m);padding:2px 6px;background:rgba(0,0,0,.3);border-radius:4px;display:inline-block;}
+
+/* DEID TAGS */
+.deid-block-tag{padding:5px 10px;background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.15);
+  border-radius:5px;font-size:11.5px;color:#fda4af;font-family:var(--ff-m);text-align:center;}
+
+/* PROVIDER FIELDS */
+.pf-section{animation:fadeUp .2s ease;}
+.pf-label{font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--teal);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
+
 /* DEPLOY */
 .deploy{background:linear-gradient(135deg,rgba(56,189,248,.05),rgba(0,201,167,.03));
   border:1px solid rgba(56,189,248,.15);border-radius:var(--r);padding:18px;margin-bottom:14px;}
@@ -326,8 +346,8 @@ body{font-family:var(--ff-b);background:var(--c0);color:var(--t1);min-height:100
 <nav class="tnav">
   <a class="tlogo" href="#" onclick="showSec('home');return false;">
     <div class="tlogo-m">C+</div>
-    <div class="tlogo-t">ClinCalcc</div>
-    <span class="tlogo-v">v26</span>
+    <div class="tlogo-t">ClinCalc</div>
+    <span class="tlogo-v">v6</span>
   </a>
   <button class="ntab on" onclick="showSec('home')">首頁</button>
   <button class="ntab" onclick="showSec('calc')">計算工具</button>
@@ -345,7 +365,7 @@ body{font-family:var(--ff-b);background:var(--c0);color:var(--t1);min-height:100
   <div class="hero">
     <div class="eyebrow">臨床決策輔助平台 · 完全免費 · 無需安裝</div>
     <h1 class="h1">精準計算<br><span>臨床決策</span></h1>
-    <p class="hsub">整合 ADA 2026、KDIGO 2024、ACC/AHA 2022 最新指引。所有計算工具完全免費，輸入網址即可使用，資料不離開您的裝置。</p>
+    <p class="hsub">整合 ADA 2026、KDIGO 2024 最新指引。支援 Claude / GPT / Gemini / Supabase AI 四大提供商，去識別化資料儲存，完全免費，資料不離開您的裝置。</p>
     <div class="hbtns">
       <button class="btn bt" onclick="showSec('calc')" style="font-size:14px;padding:11px 26px;">🔬 計算工具</button>
       <button class="btn bs" onclick="showSec('ai')" style="font-size:14px;padding:11px 26px;">🤖 AI 檢測</button>
@@ -370,7 +390,7 @@ body{font-family:var(--ff-b);background:var(--c0);color:var(--t1);min-height:100
     <div class="fc" onclick="showCalc('sens')"><div class="fc-i">⊕</div><div class="fc-t">靈敏度 / 特異度</div><div class="fc-d">Se/Sp/PPV/NPV/LR+/LR−/Youden J、貝氏修正</div><span class="fc-rf">統計分析</span></div>
     <div class="fc" onclick="goDr()"><div class="fc-i">◈</div><div class="fc-t" style="color:var(--violet);">醫師專區</div><div class="fc-d">完整健檢判讀、健保收案資格、資料庫、AI醫師總評</div><span class="fc-rf" style="border-color:rgba(167,139,250,.2);color:var(--violet);">醫師專用</span></div>
   </div>
-  <!--<div class="si" style="padding-top:0;">
+  <div class="si" style="padding-top:0;">
     <div class="deploy">
       <div style="font-family:var(--ff-h);font-size:15px;font-weight:700;margin-bottom:10px;color:var(--sky);">🌐 免費部署教學 — 讓任何人都能輸入網址使用</div>
       <div style="font-size:12.5px;color:var(--t2);line-height:1.9;">
@@ -381,7 +401,7 @@ body{font-family:var(--ff-b);background:var(--c0);color:var(--t1);min-height:100
           💡 後端 PostgreSQL / Supabase（醫師模式用）：建立 Supabase 專案 → 複製 URL 和 anon key → 貼入醫師設定 → 啟用雲端儲存
         </div>
       </div>
-    </div>-->
+    </div>
   </div>
 </div>
 
@@ -801,17 +821,63 @@ body{font-family:var(--ff-b);background:var(--c0);color:var(--t1);min-height:100
 
   <!-- DB & API CONFIG -->
   <div class="card" style="margin-bottom:14px;border-color:rgba(167,139,250,.15);">
-    <div class="ch" style="color:var(--violet);">系統設定</div>
+    <div class="ch" style="color:var(--violet);">⚙️ 系統設定 <span id="provider-badge-dr"></span></div>
     <div class="dbtabs">
-      <button class="dbtab on" onclick="showDRTab('api')">🔑 API設定</button>
+      <button class="dbtab on" onclick="showDRTab('api')">🤖 AI 提供商</button>
       <button class="dbtab" onclick="showDRTab('supabase')">🗄️ Supabase</button>
+      <button class="dbtab" onclick="showDRTab('privacy')">🔒 隱私設定</button>
     </div>
+
+    <!-- ── AI Provider Tab ── -->
     <div class="dbp on" id="drt-api">
-      <div class="g2">
-        <div class="fg"><label class="fl">Anthropic API Key（AI 醫師功能）</label><input type="password" class="fi" id="dr_api" placeholder="sk-ant-... (不用AI可留空)"><div class="hint">不使用AI功能可留空，「判讀資料」仍可執行所有規則計算。</div></div>
-        <div class="fg"><label class="fl">醫師識別（用於記錄）</label><input type="text" class="fi" id="dr_docid" placeholder="如：Dr. Chen / 陳醫師"><div class="hint">用於資料庫記錄，不驗證。</div></div>
+      <!-- Provider Selector -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="ch">選擇 AI 提供商</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+          <div class="provider-card" id="pc-claude" onclick="selectProvider('claude')">
+            <div class="pc-icon">🤖</div>
+            <div class="pc-name">Claude</div>
+            <div class="pc-sub">Anthropic</div>
+            <div class="pc-model">Haiku / Sonnet</div>
+          </div>
+          <div class="provider-card" id="pc-openai" onclick="selectProvider('openai')">
+            <div class="pc-icon">⚡</div>
+            <div class="pc-name">GPT</div>
+            <div class="pc-sub">OpenAI</div>
+            <div class="pc-model">4o-mini / 4o</div>
+          </div>
+          <div class="provider-card" id="pc-gemini" onclick="selectProvider('gemini')">
+            <div class="pc-icon">✨</div>
+            <div class="pc-name">Gemini</div>
+            <div class="pc-sub">Google AI Studio</div>
+            <div class="pc-model">1.5 Flash（免費）</div>
+          </div>
+          <div class="provider-card" id="pc-supabase" onclick="selectProvider('supabase')">
+            <div class="pc-icon">🗄️</div>
+            <div class="pc-name">Supabase AI</div>
+            <div class="pc-sub">免費 Edge Function</div>
+            <div class="pc-model">Groq / llama3</div>
+          </div>
+        </div>
+
+        <!-- Dynamic key fields per provider -->
+        <div id="provider-fields"><!-- rendered by renderProviderFields() --></div>
+
+        <div class="brow" style="margin-top:12px;">
+          <button class="btn bt" onclick="testCurrentProvider()">🔬 測試連線</button>
+          <button class="btn bs" onclick="saveAllProviderSettings()">💾 儲存所有設定</button>
+        </div>
+        <div id="provider-test-status" style="margin-top:8px;"></div>
       </div>
-      <div class="brow"><button class="btn bs" style="font-size:12px;" onclick="saveAPIKey()">💾 儲存設定</button></div>
+
+      <!-- Legacy fields (keep for compatibility) -->
+      <div class="fg" style="display:none;"><input type="password" id="dr_api" value=""></div>
+
+      <div class="fg">
+        <label class="fl">醫師識別（用於記錄，不對外顯示）</label>
+        <input type="text" class="fi" id="dr_docid" placeholder="如：Dr-A01（勿使用真實姓名）">
+        <div class="hint">⚠️ 依個資法：請使用匿名代號，不建議填入真實姓名。</div>
+      </div>
     </div>
     <div class="dbp" id="drt-supabase">
       <div class="al ai" style="margin-bottom:16px;">🗄️ Supabase 為免費開源後端服務（PostgreSQL）。連線後，受檢者資料直接存於<strong>您自己的資料庫</strong>，本平台完全不存取。</div>
@@ -899,23 +965,327 @@ CREATE POLICY "allow_all" ON patients FOR ALL USING (true);</div>
         ❓ 資料安全：Supabase 提供 Row Level Security（RLS），可進一步設定只有特定醫師能存取自己的資料。
       </div>
     </div>
+
+    <!-- ── Privacy / De-ID / Retention Tab ── -->
+    <div class="dbp" id="drt-privacy">
+      <!-- De-identification Info -->
+      <div class="al ag" style="margin-bottom:16px;">
+        🔒 <strong>去識別化模式已啟用</strong>：系統自動移除所有可識別個人身份的欄位（姓名、身分證號、電話、地址等），僅保留必要的數值與檢驗結果。
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="ch">🚫 禁止儲存的欄位</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+          <div class="deid-block-tag">姓名 / 全名</div>
+          <div class="deid-block-tag">身分證字號</div>
+          <div class="deid-block-tag">手機 / 電話</div>
+          <div class="deid-block-tag">居住地址</div>
+          <div class="deid-block-tag">電子信箱</div>
+          <div class="deid-block-tag">完整出生日期</div>
+          <div class="deid-block-tag">LINE ID / SNS</div>
+          <div class="deid-block-tag">護照號碼</div>
+          <div class="deid-block-tag">健保卡號</div>
+        </div>
+        <div style="font-size:12px;color:var(--t2);">✅ 允許儲存：匿名病患編號（假名化）、年齡（區間）、數值檢驗結果、日期（年月）、診斷碼（ICD-10）</div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="ch">🗑️ 資料保留期限設定</div>
+        <div class="g2" style="margin-bottom:12px;">
+          <div class="fg">
+            <label class="fl">資料保留天數</label>
+            <div class="iu">
+              <input type="number" class="fi" id="retention_days" min="30" max="3650" placeholder="365"
+                oninput="updateRetentionPreview()" style="padding-right:36px;">
+              <span class="uu">天</span>
+            </div>
+            <div class="hint">最短 30 天，最長 10 年（3650 天）。依台灣醫療法規，病歷保存至少 7 年。</div>
+          </div>
+          <div class="fg">
+            <label class="fl">到期後動作</label>
+            <select class="fsel" id="retention_action" onchange="updateRetentionPreview()">
+              <option value="auto_delete">自動刪除（推薦）</option>
+              <option value="notify">到期提醒，不自動刪除</option>
+              <option value="archive">封存（標記為過期，不刪除）</option>
+            </select>
+            <div class="hint">自動刪除僅影響本機暫存。Supabase 資料需設定 pg_cron 或手動執行 SQL。</div>
+          </div>
+        </div>
+        <div id="retention-preview" class="al ai" style="margin-bottom:12px;"></div>
+        <div class="brow">
+          <button class="btn bt" onclick="saveRetentionSettings()">💾 儲存保留設定</button>
+          <button class="btn bs" onclick="runLocalPurge()">🧹 立即清理過期本機記錄</button>
+          <button class="btn bv" onclick="showRetentionSQL()">📋 Supabase 清理 SQL</button>
+        </div>
+        <div id="retention-purge-result" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="ch">🔍 資料稽核工具</div>
+        <div style="font-size:12.5px;color:var(--t2);margin-bottom:12px;">
+          在儲存前，系統會自動掃描資料是否包含潛在的個人識別資訊（PII）。
+          您也可以手動貼入 JSON 進行稽核。
+        </div>
+        <textarea class="fi" id="audit_input" rows="4" placeholder='貼入受檢者資料 JSON 進行去識別化稽核...' style="font-family:var(--ff-m);font-size:11px;margin-bottom:8px;"></textarea>
+        <div class="brow">
+          <button class="btn bt" onclick="runDeIDPreview()">🔍 預覽去識別化結果</button>
+          <button class="btn bs" onclick="document.getElementById('audit_input').value=JSON.stringify(getDRData(),null,2)">填入目前健檢資料</button>
+        </div>
+        <div id="deid-preview-result" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- Supabase AI (Free) Section -->
+      <div class="card">
+        <div class="ch">🗄️ Supabase AI 免費分析（Edge Function + Groq）</div>
+        <div class="al ai" style="margin-bottom:12px;">
+          Supabase Edge Function + Groq API 可提供<strong>完全免費</strong>的 AI 分析。Groq 免費方案每天 14,400 次請求，支援 Llama 3.1 8B 模型。
+        </div>
+        <div style="font-family:var(--ff-m);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px;">部署步驟</div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">1</div>
+          <div class="sb-step-t">申請 Groq 免費 API Key</div>
+          <div class="sb-step-d">前往 <a href="https://console.groq.com/keys" target="_blank" style="color:var(--teal);">console.groq.com/keys</a> 免費申請（不需信用卡）。Groq 使用硬體加速，Llama 3.1 速度極快。</div>
+        </div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">2</div>
+          <div class="sb-step-t">在 Supabase 設定密鑰</div>
+          <div class="sb-step-d">Supabase 後台 → Settings → Edge Functions → 新增 Secret：名稱 <code style="font-family:var(--ff-m);font-size:10px;background:var(--c0);padding:2px 5px;border-radius:3px;">GROQ_API_KEY</code>，值為您的 Groq key。</div>
+        </div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">3</div>
+          <div class="sb-step-t">部署 Edge Function（複製以下程式碼）</div>
+          <div class="sb-step-d">安裝 Supabase CLI：<code style="font-family:var(--ff-m);font-size:10px;background:var(--c0);padding:2px 5px;border-radius:3px;">npm install -g supabase</code>，然後執行 <code style="font-family:var(--ff-m);font-size:10px;background:var(--c0);padding:2px 5px;border-radius:3px;">supabase functions deploy ai-analyze</code></div>
+          <button class="sb-copy-btn" onclick="copyEdgeFunction()">複製程式碼</button>
+          <div id="edge-fn-code" style="font-family:var(--ff-m);font-size:10px;color:#a5f3fc;background:var(--c0);border:1px solid var(--bd);border-radius:6px;padding:12px;margin:8px 0;overflow-x:auto;white-space:pre;line-height:1.65;"></div>
+        </div>
+
+        <div class="sb-step">
+          <div class="sb-step-num">4</div>
+          <div class="sb-step-t">測試 Supabase AI 連線</div>
+          <div class="sb-step-d">確認 Supabase 連線已設定後，點選下方測試按鈕。</div>
+        </div>
+
+        <div class="brow" style="margin-top:12px;">
+          <button class="btn bg-s" onclick="testSupabaseAI()">🔬 測試 Supabase AI</button>
+          <button class="btn bv" onclick="selectProvider('supabase')">✓ 切換到 Supabase AI 模式</button>
+        </div>
+        <div id="supabase-ai-status" style="margin-top:8px;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- PATIENT INFO -->
   <div class="drblock">
     <div class="drbt">📋 受檢者基本資料</div>
-    <div class="g5">
-      <div class="fg"><label class="fl">受檢者編號 *</label><input type="text" class="fi" id="dr_pid" placeholder="如：20240001"></div>
-      <div class="fg"><label class="fl">出生日期（民國YYYMMDD）</label><input type="text" class="fi" id="dr_dob" placeholder="0850315"></div>
-      <div class="fg"><label class="fl">檢查日期（民國YYYMMDD）</label><input type="text" class="fi" id="dr_exam" placeholder="1131020"></div>
-      <div class="fg"><label class="fl">計算年齡（自動）</label><input type="text" class="fi" id="dr_age" readonly placeholder="自動" style="background:var(--c3);color:var(--sky);"></div>
-      <div class="fg"><label class="fl">性別</label><select class="fsel" id="dr_sex"><option value="">請選擇</option><option value="male">男性</option><option value="female">女性</option></select></div>
+    <!-- 日期輸入模式切換 -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <span style="font-size:11.5px;color:var(--t2);font-weight:500;">出生日期輸入方式：</span>
+      <label class="ro"><input type="radio" name="dob_mode" value="picker" checked onchange="toggleDobMode('picker')"> 年月日選擇</label>
+      <label class="ro"><input type="radio" name="dob_mode" value="text" onchange="toggleDobMode('text')"> 直接輸入西元年</label>
+    </div>
+    <!-- 模式A：年月日選擇器 -->
+    <div id="dob-picker-mode">
+      <div class="g5" style="margin-bottom:10px;">
+        <div class="fg"><label class="fl">受檢者編號 *</label><input type="text" class="fi" id="dr_pid" placeholder="如：20240001"></div>
+        <div class="fg"><label class="fl">出生年（西元）</label>
+          <select class="fsel" id="dob_y" onchange="calcAgeFromPicker()">
+<option value="">年</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+            <option value="2014">2014</option>
+            <option value="2013">2013</option>
+            <option value="2012">2012</option>
+            <option value="2011">2011</option>
+            <option value="2010">2010</option>
+            <option value="2009">2009</option>
+            <option value="2008">2008</option>
+            <option value="2007">2007</option>
+            <option value="2006">2006</option>
+            <option value="2005">2005</option>
+            <option value="2004">2004</option>
+            <option value="2003">2003</option>
+            <option value="2002">2002</option>
+            <option value="2001">2001</option>
+            <option value="2000">2000</option>
+            <option value="1999">1999</option>
+            <option value="1998">1998</option>
+            <option value="1997">1997</option>
+            <option value="1996">1996</option>
+            <option value="1995">1995</option>
+            <option value="1994">1994</option>
+            <option value="1993">1993</option>
+            <option value="1992">1992</option>
+            <option value="1991">1991</option>
+            <option value="1990">1990</option>
+            <option value="1989">1989</option>
+            <option value="1988">1988</option>
+            <option value="1987">1987</option>
+            <option value="1986">1986</option>
+            <option value="1985">1985</option>
+            <option value="1984">1984</option>
+            <option value="1983">1983</option>
+            <option value="1982">1982</option>
+            <option value="1981">1981</option>
+            <option value="1980">1980</option>
+            <option value="1979">1979</option>
+            <option value="1978">1978</option>
+            <option value="1977">1977</option>
+            <option value="1976">1976</option>
+            <option value="1975">1975</option>
+            <option value="1974">1974</option>
+            <option value="1973">1973</option>
+            <option value="1972">1972</option>
+            <option value="1971">1971</option>
+            <option value="1970">1970</option>
+            <option value="1969">1969</option>
+            <option value="1968">1968</option>
+            <option value="1967">1967</option>
+            <option value="1966">1966</option>
+            <option value="1965">1965</option>
+            <option value="1964">1964</option>
+            <option value="1963">1963</option>
+            <option value="1962">1962</option>
+            <option value="1961">1961</option>
+            <option value="1960">1960</option>
+            <option value="1959">1959</option>
+            <option value="1958">1958</option>
+            <option value="1957">1957</option>
+            <option value="1956">1956</option>
+            <option value="1955">1955</option>
+            <option value="1954">1954</option>
+            <option value="1953">1953</option>
+            <option value="1952">1952</option>
+            <option value="1951">1951</option>
+            <option value="1950">1950</option>
+            <option value="1949">1949</option>
+            <option value="1948">1948</option>
+            <option value="1947">1947</option>
+            <option value="1946">1946</option>
+            <option value="1945">1945</option>
+            <option value="1944">1944</option>
+            <option value="1943">1943</option>
+            <option value="1942">1942</option>
+            <option value="1941">1941</option>
+            <option value="1940">1940</option>
+            <option value="1939">1939</option>
+            <option value="1938">1938</option>
+            <option value="1937">1937</option>
+            <option value="1936">1936</option>
+            <option value="1935">1935</option>
+            <option value="1934">1934</option>
+            <option value="1933">1933</option>
+            <option value="1932">1932</option>
+            <option value="1931">1931</option>
+            <option value="1930">1930</option>
+            <option value="1929">1929</option>
+            <option value="1928">1928</option>
+            <option value="1927">1927</option>
+            <option value="1926">1926</option>
+            <option value="1925">1925</option>
+            <option value="1924">1924</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">出生月</label>
+          <select class="fsel" id="dob_m" onchange="calcAgeFromPicker()">
+<option value="">月</option>
+            <option value="1">1月</option>
+            <option value="2">2月</option>
+            <option value="3">3月</option>
+            <option value="4">4月</option>
+            <option value="5">5月</option>
+            <option value="6">6月</option>
+            <option value="7">7月</option>
+            <option value="8">8月</option>
+            <option value="9">9月</option>
+            <option value="10">10月</option>
+            <option value="11">11月</option>
+            <option value="12">12月</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">出生日</label>
+          <select class="fsel" id="dob_d" onchange="calcAgeFromPicker()">
+<option value="">日</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="26">26</option>
+            <option value="27">27</option>
+            <option value="28">28</option>
+            <option value="29">29</option>
+            <option value="30">30</option>
+            <option value="31">31</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">計算年齡（自動）</label><input type="text" class="fi" id="dr_age" readonly placeholder="自動" style="background:var(--c3);color:var(--sky);"></div>
+      </div>
+      <div class="g5">
+        <div class="fg"><label class="fl">檢查日期</label><input type="date" class="fi" id="dr_exam_date" onchange="calcAgeFromPicker();syncExamDate()"></div>
+        <div class="fg"><label class="fl">性別</label><select class="fsel" id="dr_sex"><option value="">請選擇</option><option value="male">男性</option><option value="female">女性</option></select></div>
+        <div class="fg"><label class="fl">空腹時間</label>
+          <select class="fsel" id="dr_fasting">
+            <option value="">未填</option><option value="4">≥4小時</option><option value="8">≥8小時（標準）</option><option value="10">≥10小時</option><option value="12">≥12小時</option>
+          </select>
+        </div>
+        <div class="fg" style="display:none;"><input type="hidden" id="dr_exam" value=""><input type="hidden" id="dr_dob" value=""></div>
+      </div>
+    </div>
+    <!-- 模式B：直接輸入 -->
+    <div id="dob-text-mode" style="display:none;">
+      <div class="g5">
+        <div class="fg"><label class="fl">受檢者編號 *</label><input type="text" class="fi" id="dr_pid_b" placeholder="如：20240001"></div>
+        <div class="fg"><label class="fl">出生日期（西元 YYYYMMDD）</label><input type="text" class="fi" id="dr_dob_text" placeholder="19850315" maxlength="8" oninput="calcAgeFromText()"></div>
+        <div class="fg"><label class="fl">檢查日期（西元 YYYYMMDD）</label><input type="text" class="fi" id="dr_exam_text" placeholder="20241020" maxlength="8" oninput="calcAgeFromText()"></div>
+        <div class="fg"><label class="fl">計算年齡（自動）</label><input type="text" class="fi" id="dr_age_b" readonly placeholder="自動" style="background:var(--c3);color:var(--sky);"></div>
+        <div class="fg"><label class="fl">性別</label><select class="fsel" id="dr_sex_b"><option value="">請選擇</option><option value="male">男性</option><option value="female">女性</option></select></div>
+      </div>
     </div>
     <div class="g5">
       <div class="fg"><label class="fl">教育程度</label><select class="fsel" id="dr_edu"><option value="">未填</option><option value="國小">國小</option><option value="國中">國中</option><option value="高中">高中/職</option><option value="大學">大學</option><option value="研究所">研究所以上</option></select></div>
       <div class="fg"><label class="fl">職業別</label><select class="fsel" id="dr_job"><option value="">未填</option><option value="農漁">農漁業</option><option value="勞工">勞工</option><option value="服務業">服務業</option><option value="商業">商業</option><option value="白領">行政/白領</option><option value="醫療">醫療人員</option><option value="退休">退休</option><option value="無業">無業/家管</option></select></div>
       <div class="fg"><label class="fl">族群</label><select class="fsel" id="dr_eth"><option value="">未填</option><option value="漢族">漢族</option><option value="原住民">原住民</option><option value="其他">其他</option></select></div>
       <div class="fg"><label class="fl">婚姻狀態</label><select class="fsel" id="dr_mar"><option value="">未填</option><option value="未婚">未婚</option><option value="已婚">已婚</option><option value="離婚">離婚/分居</option><option value="喪偶">喪偶</option></select></div>
+      <div class="fg"><label class="fl">工作日平均睡眠</label><div class="iu"><input type="number" step="0.5" min="0" max="24" class="fi" id="dr_sleep_work" placeholder="hr"><span class="uu">hr</span></div></div>
+    </div>
+    <div class="g5">
+      <div class="fg"><label class="fl">自覺症狀</label><textarea class="fi" id="dr_symptoms" rows="2" placeholder="如：頭暈、疲倦、夜尿…（可選填）" style="font-family:var(--ff-b);font-size:12px;"></textarea></div>
+      <div class="fg"><label class="fl">既往病史</label><textarea class="fi" id="dr_pmh" rows="2" placeholder="如：糖尿病、高血壓、心臟手術…" style="font-family:var(--ff-b);font-size:12px;"></textarea></div>
+      <div class="fg"><label class="fl">目前用藥</label><textarea class="fi" id="dr_meds" rows="2" placeholder="如：Metformin、Amlodipine…" style="font-family:var(--ff-b);font-size:12px;"></textarea></div>
+      <div class="fg"><label class="fl">過敏史</label><input type="text" class="fi" id="dr_allergy" placeholder="如：Penicillin…"></div>
       <div class="fg"><label class="fl">醫師備註</label><input type="text" class="fi" id="dr_note" placeholder="臨床備忘..."></div>
     </div>
   </div>
@@ -935,6 +1305,55 @@ CREATE POLICY "allow_all" ON patients FOR ALL USING (true);</div>
       <div class="fg"><label class="fl">WHR（自動）</label><input type="text" class="fi" id="dr_whr" readonly style="background:var(--c3);color:var(--sky);"></div>
       <div class="fg"><label class="fl">體脂率（若有）</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_bf" placeholder="%"><span class="uu">%</span></div></div>
     </div>
+    <div class="g5">
+      <div class="fg"><label class="fl">理想體重（自動）</label><input type="text" class="fi" id="dr_ibw" readonly style="background:var(--c3);color:var(--amber);" placeholder="自動計算"></div>
+      <div class="fg"><label class="fl">體重差（現值-理想）</label><input type="text" class="fi" id="dr_wt_diff" readonly style="background:var(--c3);color:var(--sky);"></div>
+      <div class="fg"><label class="fl">BMI 分類</label><input type="text" class="fi" id="dr_bmi_cat" readonly style="background:var(--c3);color:var(--violet);"></div>
+    </div>
+  </div>
+
+  <!-- PHYSICAL EXAM -->
+  <div class="drblock">
+    <div class="drbt">🩺 理學檢查</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">視力（右眼）</label><input type="text" class="fi" id="dr_va_r" placeholder="如：1.0 或 0.6/矯正1.0"></div>
+      <div class="fg"><label class="fl">視力（左眼）</label><input type="text" class="fi" id="dr_va_l" placeholder="如：0.8"></div>
+      <div class="fg"><label class="fl">聽力（右耳）</label>
+        <select class="fsel" id="dr_hear_r">
+          <option value="">未檢測</option><option value="正常">正常</option><option value="輕度異常">輕度異常</option><option value="中度異常">中度異常</option><option value="重度異常">重度異常</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">聽力（左耳）</label>
+        <select class="fsel" id="dr_hear_l">
+          <option value="">未檢測</option><option value="正常">正常</option><option value="輕度異常">輕度異常</option><option value="中度異常">中度異常</option><option value="重度異常">重度異常</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">理學檢查異常發現</label><input type="text" class="fi" id="dr_pe_note" placeholder="如：頸部淋巴結腫大…"></div>
+    </div>
+  </div>
+
+  <!-- SPECIAL EXAMS -->
+  <div class="drblock">
+    <div class="drbt">📸 特殊檢查</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">心電圖（ECG）</label>
+        <select class="fsel" id="dr_ecg">
+          <option value="">未檢測</option><option value="正常">正常竇性心律</option><option value="竇性心搏過速">竇性心搏過速</option><option value="心房顫動">心房顫動</option><option value="ST變化">ST段變化</option><option value="左心室肥大">左心室肥大</option><option value="傳導異常">傳導異常</option><option value="其他異常">其他異常</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">ECG 補充說明</label><input type="text" class="fi" id="dr_ecg_note" placeholder="如：完全右束支傳導阻滯…"></div>
+      <div class="fg"><label class="fl">胸部 X 光</label>
+        <select class="fsel" id="dr_xray">
+          <option value="">未檢測</option><option value="正常">正常</option><option value="心臟擴大">心臟擴大</option><option value="肺浸潤">肺浸潤/肺炎</option><option value="肺結節">肺結節</option><option value="肺氣腫">肺氣腫</option><option value="胸腔積液">胸腔積液</option><option value="其他異常">其他異常</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">X光補充說明</label><input type="text" class="fi" id="dr_xray_note" placeholder="如：右上肺 0.8cm 結節，建議CT追蹤…"></div>
+      <div class="fg"><label class="fl">口腔檢查</label>
+        <select class="fsel" id="dr_oral">
+          <option value="">未檢測</option><option value="正常">正常</option><option value="齲齒">齲齒</option><option value="牙周病">牙周病</option><option value="口腔黏膜異常">口腔黏膜異常</option><option value="其他">其他異常</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <!-- BLOOD SUGAR -->
@@ -942,6 +1361,7 @@ CREATE POLICY "allow_all" ON patients FOR ALL USING (true);</div>
     <div class="drbt">🍬 血糖 &amp; 代謝</div>
     <div class="g5">
       <div class="fg"><label class="fl">空腹血糖 FPG</label><div class="iu"><input type="number" class="fi" id="dr_fpg" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
+      <div class="fg"><label class="fl">飯後血糖（2hr PPG）</label><div class="iu"><input type="number" class="fi" id="dr_ppg" placeholder="mg/dL"><span class="uu">mg/dL</span></div></div>
       <div class="fg"><label class="fl">HbA1c</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_hba1c" placeholder="%"><span class="uu">%</span></div></div>
       <div class="fg"><label class="fl">胰島素（空腹）</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_ins" placeholder="μIU/mL"><span class="uu">μIU/mL</span></div></div>
       <div class="fg"><label class="fl">C-Peptide</label><div class="iu"><input type="number" step="0.01" class="fi" id="dr_cpep" placeholder="ng/mL"><span class="uu">ng/mL</span></div></div>
@@ -1013,6 +1433,56 @@ CREATE POLICY "allow_all" ON patients FOR ALL USING (true);</div>
     </div>
   </div>
 
+  <!-- URINALYSIS -->
+  <div class="drblock">
+    <div class="drbt">🧪 尿液常規檢查</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">尿液外觀</label>
+        <select class="fsel" id="dr_urine_color">
+          <option value="">未填</option><option value="淡黃清澈">淡黃清澈（正常）</option><option value="深黃">深黃</option><option value="血尿">血尿/棕色</option><option value="混濁">混濁</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">尿pH</label><div class="iu"><input type="number" step="0.5" min="4" max="9" class="fi" id="dr_urine_ph" placeholder="4.5-8.5"><span class="uu"></span></div></div>
+      <div class="fg"><label class="fl">尿比重</label><div class="iu"><input type="number" step="0.001" min="1.001" max="1.035" class="fi" id="dr_urine_sg" placeholder="1.010"><span class="uu"></span></div></div>
+      <div class="fg"><label class="fl">尿糖</label>
+        <select class="fsel" id="dr_urine_glu">
+          <option value="">未填</option><option value="neg">陰性</option><option value="1+">1+</option><option value="2+">2+</option><option value="3+">3+</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">尿酮體</label>
+        <select class="fsel" id="dr_urine_ket">
+          <option value="">未填</option><option value="neg">陰性</option><option value="trace">微量</option><option value="pos">陽性</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">白血球酯酶</label>
+        <select class="fsel" id="dr_urine_le">
+          <option value="">未填</option><option value="neg">陰性</option><option value="pos">陽性</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">亞硝酸鹽</label>
+        <select class="fsel" id="dr_urine_nit">
+          <option value="">未填</option><option value="neg">陰性</option><option value="pos">陽性</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">RBC（鏡檢）</label><input type="text" class="fi" id="dr_urine_rbc" placeholder="如：0-2/HPF"></div>
+      <div class="fg"><label class="fl">WBC（鏡檢）</label><input type="text" class="fi" id="dr_urine_wbc_m" placeholder="如：0-5/HPF"></div>
+      <div class="fg"><label class="fl">其他尿液異常</label><input type="text" class="fi" id="dr_urine_note" placeholder="如：圓柱體、結晶…"></div>
+    </div>
+  </div>
+
+  <!-- TUMOR MARKERS -->
+  <div class="drblock">
+    <div class="drbt">🔬 腫瘤標記（選填）</div>
+    <div class="g5">
+      <div class="fg"><label class="fl">CEA</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_cea" placeholder="ng/mL（正常&lt;5）"><span class="uu">ng/mL</span></div></div>
+      <div class="fg"><label class="fl">AFP</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_afp" placeholder="ng/mL（正常&lt;20）"><span class="uu">ng/mL</span></div></div>
+      <div class="fg"><label class="fl">CA-125</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_ca125" placeholder="U/mL（正常&lt;35）"><span class="uu">U/mL</span></div></div>
+      <div class="fg"><label class="fl">CA 19-9</label><div class="iu"><input type="number" step="0.1" class="fi" id="dr_ca199" placeholder="U/mL（正常&lt;37）"><span class="uu">U/mL</span></div></div>
+      <div class="fg"><label class="fl">PSA（男性）</label><div class="iu"><input type="number" step="0.01" class="fi" id="dr_psa" placeholder="ng/mL（正常&lt;4）"><span class="uu">ng/mL</span></div></div>
+    </div>
+    <div class="hint" style="margin-top:4px;">⚠️ 腫瘤標記需結合臨床症狀與影像判讀，單一數值升高不代表罹癌，需由醫師整合評估。</div>
+  </div>
+
   <!-- STATIN ELIGIBILITY HISTORY -->
   <div class="drblock">
     <div class="drbt">💊 健保降血脂相關病史</div>
@@ -1034,17 +1504,38 @@ CREATE POLICY "allow_all" ON patients FOR ALL USING (true);</div>
   <div class="drblock">
     <div class="drbt">🏃 生活習慣</div>
     <div class="g5">
-      <div class="fg"><label class="fl">飲酒</label><select class="fsel" id="dr_etoh"><option value="">未填</option><option value="no">不喝</option><option value="social">偶爾社交性</option><option value="mild">輕度（&lt;14/週）</option><option value="heavy">重度（≥14/週）</option></select></div>
-      <div class="fg"><label class="fl">運動頻率</label><select class="fsel" id="dr_ex"><option value="">未填</option><option value="none">幾乎不運動</option><option value="light">&lt;150分/週</option><option value="moderate">150-300分/週</option><option value="vigorous">&gt;300分/週</option></select></div>
+      <div class="fg"><label class="fl">抽菸狀況</label>
+        <select class="fsel" id="dr_smoke_detail">
+          <option value="">未填</option><option value="never">從未抽菸</option><option value="ex">已戒菸</option><option value="light">輕度（&lt;10支/天）</option><option value="moderate">中度（10-20支/天）</option><option value="heavy">重度（&gt;20支/天）</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">菸齡（年）</label><div class="iu"><input type="number" class="fi" id="dr_smoke_yrs" placeholder="年（已戒者填總菸齡）"><span class="uu">年</span></div></div>
+      <div class="fg"><label class="fl">飲酒狀況</label>
+        <select class="fsel" id="dr_etoh">
+          <option value="">未填</option><option value="no">不喝</option><option value="social">偶爾社交性</option><option value="mild">輕度（&lt;14標準杯/週）</option><option value="heavy">重度（≥14標準杯/週）</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">嚼檳榔</label>
+        <select class="fsel" id="dr_betel">
+          <option value="">未填</option><option value="never">從未</option><option value="ex">已戒</option><option value="occasional">偶爾</option><option value="daily">每日</option><option value="heavy">每日多量</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">運動頻率</label>
+        <select class="fsel" id="dr_ex">
+          <option value="">未填</option><option value="none">幾乎不運動</option><option value="light">&lt;150分/週</option><option value="moderate">150-300分/週</option><option value="vigorous">&gt;300分/週</option>
+        </select>
+      </div>
+    </div>
+    <div class="g5">
       <div class="fg"><label class="fl">飲食習慣</label><select class="fsel" id="dr_diet"><option value="">未填</option><option value="western">西式/高油高鹽</option><option value="traditional">傳統台式</option><option value="vegetarian">素食</option><option value="healthy">地中海/DASH式</option></select></div>
-      <div class="fg"><label class="fl">睡眠時數</label><div class="iu"><input type="number" step="0.5" class="fi" id="dr_sleep" placeholder="hr/天"><span class="uu">hr</span></div></div>
+      <div class="fg"><label class="fl">平均睡眠時數/天</label><div class="iu"><input type="number" step="0.5" class="fi" id="dr_sleep" placeholder="hr/天"><span class="uu">hr</span></div></div>
       <div class="fg"><label class="fl">壓力程度（自評1-5）</label><select class="fsel" id="dr_stress"><option value="">未填</option><option value="1">1（低）</option><option value="2">2</option><option value="3">3（中）</option><option value="4">4</option><option value="5">5（高）</option></select></div>
     </div>
   </div>
 
   <div class="brow" style="position:sticky;bottom:20px;background:rgba(6,8,16,.9);backdrop-filter:blur(12px);padding:14px;border-radius:var(--r);border:1px solid var(--bd);z-index:50;">
-    <button class="btn bt" style="font-size:14px;padding:11px 24px;" onclick="runDR(false)">📋 判讀資料</button>
-    <button class="btn bg-a" style="font-size:14px;padding:11px 24px;" onclick="runDR(true)">🤖 AI 醫師 + 判讀</button>
+    <button class="btn bt" style="font-size:14px;padding:11px 24px;" onclick="runDR(false)">📋 產生報告</button>
+    <button class="btn bg-a" style="font-size:14px;padding:11px 24px;" onclick="runDR(true)">🤖 AI 醫師 + 完整報告</button>
     <button class="btn bs" onclick="saveDraft()">💾 暫存</button>
     <button class="btn bg-s" onclick="saveToSB()">☁️ 儲存資料庫</button>
     <button class="btn ba" onclick="clearDR()">清除</button>
@@ -1147,6 +1638,385 @@ CREATE POLICY "allow_all" ON patients FOR ALL USING (true);</div>
 const DR_PWD='doctor2024';
 let isDoctor=false,selSym=[],sbUrl='',sbKey='',drDocId='';
 
+// ═══════════════════════════════════════════════════════════════
+// ClinCalc v6 — Component Architecture
+// ═══════════════════════════════════════════════════════════════
+const ClinCalc = {};
+
+// ─── MODULE: Config ─────────────────────────────────────────────
+ClinCalc.Config = {
+  version: '7.0.0',
+  // AI provider settings
+  ai: {
+    provider: localStorage.getItem('cc_ai_provider') || 'claude', // claude|openai|gemini
+    claudeKey: localStorage.getItem('cc_key') || '',
+    openaiKey: localStorage.getItem('cc_openai_key') || '',
+    geminiKey: localStorage.getItem('cc_gemini_key') || '',
+    claudeModel: 'claude-haiku-4-5-20251001',
+    openaiModel: localStorage.getItem('cc_openai_model') || 'gpt-4o-mini',
+    geminiModel: 'gemini-1.5-flash',
+  },
+  // Data retention settings
+  retention: {
+    days: parseInt(localStorage.getItem('cc_retention_days') || '365'),
+    autoDelete: localStorage.getItem('cc_auto_delete') !== 'false',
+    lastCleanup: localStorage.getItem('cc_last_cleanup') || null,
+  },
+  // De-identification rules
+  deid: {
+    blockedFields: ['name','fullname','id_card','phone','address','email','birth_exact'],
+    hashSalt: localStorage.getItem('cc_hash_salt') || (() => {
+      const s = Math.random().toString(36).slice(2);
+      localStorage.setItem('cc_hash_salt', s);
+      return s;
+    })(),
+  },
+  save() {
+    localStorage.setItem('cc_ai_provider', this.ai.provider);
+    localStorage.setItem('cc_openai_model', this.ai.openaiModel);
+    localStorage.setItem('cc_retention_days', this.retention.days);
+    localStorage.setItem('cc_auto_delete', this.retention.autoDelete);
+  }
+};
+
+// ─── MODULE: AIProvider ─────────────────────────────────────────
+ClinCalc.AI = {
+  // Unified AI call — dispatches to correct provider
+  async call(prompt, maxTokens = 1000, opts = {}) {
+    const cfg = ClinCalc.Config.ai;
+    const provider = opts.provider || cfg.provider;
+    switch(provider) {
+      case 'openai':  return await this._callOpenAI(prompt, maxTokens, opts);
+      case 'gemini':  return await this._callGemini(prompt, maxTokens, opts);
+      case 'supabase': return await this._callSupabaseAI(prompt, maxTokens, opts);
+      default:        return await this._callClaude(prompt, maxTokens, opts);
+    }
+  },
+
+  // ── Claude (Anthropic) ──
+  async _callClaude(prompt, maxTokens, opts) {
+    const key = opts.key || ClinCalc.Config.ai.claudeKey;
+    if (!key) throw new Error('未設定 Anthropic API Key');
+    const model = opts.model || ClinCalc.Config.ai.claudeModel;
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01' },
+      body: JSON.stringify({ model, max_tokens: maxTokens, messages:[{role:'user',content:prompt}] })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `Anthropic ${res.status}`); }
+    return (await res.json()).content?.[0]?.text || '';
+  },
+
+  // ── OpenAI (GPT) ──
+  async _callOpenAI(prompt, maxTokens, opts) {
+    const key = opts.key || ClinCalc.Config.ai.openaiKey;
+    if (!key) throw new Error('未設定 OpenAI API Key');
+    const model = opts.model || ClinCalc.Config.ai.openaiModel;
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','Authorization':`Bearer ${key}` },
+      body: JSON.stringify({ model, max_tokens: maxTokens, messages:[{role:'user',content:prompt}] })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `OpenAI ${res.status}`); }
+    return (await res.json()).choices?.[0]?.message?.content || '';
+  },
+
+  // ── Google Gemini ──
+  async _callGemini(prompt, maxTokens, opts) {
+    const key = opts.key || ClinCalc.Config.ai.geminiKey;
+    if (!key) throw new Error('未設定 Google AI Studio API Key');
+    const model = opts.model || ClinCalc.Config.ai.geminiModel;
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ contents:[{parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:maxTokens} })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `Gemini ${res.status}`); }
+    return (await res.json()).candidates?.[0]?.content?.parts?.[0]?.text || '';
+  },
+
+  // ── Supabase AI (pgvector + pg_cron + edge functions — FREE) ──
+  async _callSupabaseAI(prompt, maxTokens, opts) {
+    if (!sbUrl || !sbKey) throw new Error('請先設定 Supabase 連線');
+    // Call Supabase Edge Function named "ai-analyze"
+    const res = await fetch(`${sbUrl}/functions/v1/ai-analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json','Authorization':`Bearer ${sbKey}` },
+      body: JSON.stringify({ prompt, max_tokens: maxTokens })
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Supabase AI: ${res.status} — ${txt.slice(0,200)}`);
+    }
+    const data = await res.json();
+    return data.result || data.text || data.content || JSON.stringify(data);
+  },
+
+  // ── Test connection for any provider ──
+  async test(provider, key) {
+    const testPrompt = '請回覆數字1，不要其他內容。';
+    try {
+      const result = await this.call(testPrompt, 20, { provider, key });
+      return { ok: true, result };
+    } catch(e) {
+      return { ok: false, error: e.message };
+    }
+  },
+
+  // ── Get provider display info ──
+  getProviderInfo(p) {
+    const map = {
+      claude:   { name:'Claude (Anthropic)', icon:'🤖', color:'var(--teal)',    model:'Haiku 4.5 / Sonnet 4' },
+      openai:   { name:'GPT (OpenAI)',       icon:'⚡', color:'var(--emerald)', model:'GPT-4o-mini / GPT-4o' },
+      gemini:   { name:'Gemini (Google)',    icon:'✨', color:'var(--amber)',   model:'Gemini 1.5 Flash (免費)' },
+      supabase: { name:'Supabase AI',        icon:'🗄️', color:'var(--sky)',     model:'免費 Edge Function + llama/mistral' },
+    };
+    return map[p] || map.claude;
+  }
+};
+
+// ─── MODULE: DeID (去識別化引擎) ─────────────────────────────────
+ClinCalc.DeID = {
+  // Fields that must NEVER be stored
+  BLOCKED: ['pid_name','full_name','id_number','phone','mobile','address','email',
+            'line_id','birth_full','passport','insurance_id'],
+
+  // Simple pseudonymization hash (not cryptographic, just obfuscation)
+  pseudonymize(value) {
+    if (!value) return null;
+    const str = String(value) + ClinCalc.Config.deid.hashSalt;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return 'P' + Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
+  },
+
+  // Sanitize a data object — removes blocked fields, pseudonymizes PID
+  sanitize(rawData) {
+    const safe = {};
+    const blocked = this.BLOCKED;
+
+    for (const [k, v] of Object.entries(rawData)) {
+      // Skip completely blocked fields
+      if (blocked.includes(k)) {
+        console.warn(`[DeID] 已移除欄位: ${k}`);
+        continue;
+      }
+      // Pseudonymize patient ID (keep for record matching but not re-identifiable)
+      if (k === 'pid') {
+        safe['pid_hash'] = this.pseudonymize(v);
+        safe['pid_display'] = v ? v.slice(0,2) + '***' : null; // e.g. "20***"
+        continue;
+      }
+      // Keep only numeric/enum/date values (not free-text that might contain PII)
+      if (k === 'note' || k === 'doctor') {
+        safe[k] = v ? '[已過濾自由文字]' : null;
+        continue;
+      }
+      safe[k] = v;
+    }
+    safe['_deid_version'] = '1.0';
+    safe['_sanitized_at'] = new Date().toISOString();
+    return safe;
+  },
+
+  // Check if data object contains potential PII
+  audit(dataObj) {
+    const warnings = [];
+    const piiPatterns = [
+      { key: 'pid', pattern: /[^\d]/, msg: '病患ID含非數字字元（可能含姓名）' },
+      { key: 'note', pattern: /.{1}/, msg: '備註欄位含自由文字（可能含PII）' },
+    ];
+    for (const { key, pattern, msg } of piiPatterns) {
+      if (dataObj[key] && pattern.test(String(dataObj[key]))) {
+        warnings.push(msg);
+      }
+    }
+    return warnings;
+  },
+
+  // Return a summary of what was removed
+  diff(original, sanitized) {
+    const removed = Object.keys(original).filter(k => !(k in sanitized) && !['pid'].includes(k));
+    const modified = Object.keys(sanitized).filter(k => sanitized[k] !== original[k] && k in original);
+    return { removed, modified };
+  }
+};
+
+// ─── MODULE: DataRetention ──────────────────────────────────────
+ClinCalc.Retention = {
+  get days() { return ClinCalc.Config.retention.days; },
+
+  // Get expiry date for a record
+  getExpiry(createdAt) {
+    const d = new Date(createdAt || Date.now());
+    d.setDate(d.getDate() + this.days);
+    return d;
+  },
+
+  // Check if record is expired
+  isExpired(createdAt) {
+    return new Date() > this.getExpiry(createdAt);
+  },
+
+  // Purge expired localStorage drafts
+  purgeLocalDrafts() {
+    const drafts = JSON.parse(localStorage.getItem('cc_drafts') || '[]');
+    const before = drafts.length;
+    const alive = drafts.filter(d => !this.isExpired(d.saved_at));
+    localStorage.setItem('cc_drafts', JSON.stringify(alive));
+    return { before, after: alive.length, deleted: before - alive.length };
+  },
+
+  // Get records expiring soon (within 7 days)
+  getExpiringSoon() {
+    const drafts = JSON.parse(localStorage.getItem('cc_drafts') || '[]');
+    const soon = new Date(Date.now() + 7 * 864e5);
+    return drafts.filter(d => {
+      const exp = this.getExpiry(d.saved_at);
+      return exp > new Date() && exp < soon;
+    });
+  },
+
+  // Build DELETE SQL for Supabase (to be run manually or via pg_cron)
+  buildSupabaseCleanupSQL(tableName = 'patients') {
+    return `-- 資料保留政策：刪除超過 ${this.days} 天的記錄
+DELETE FROM ${tableName}
+WHERE created_at < NOW() - INTERVAL '${this.days} days';
+
+-- （選用）設定 pg_cron 每日自動清理
+-- SELECT cron.schedule('cleanup-old-records', '0 2 * * *',
+--   $$ DELETE FROM ${tableName} WHERE created_at < NOW() - INTERVAL '${this.days} days' $$);`;
+  },
+
+  // Format retention info for display
+  formatStatus() {
+    const exp = this.getExpiringSoon();
+    return {
+      days: this.days,
+      autoDelete: ClinCalc.Config.retention.autoDelete,
+      expiringSoon: exp.length,
+      expiryDate: this.getExpiry(new Date()).toLocaleDateString('zh-TW'),
+    };
+  }
+};
+
+// ─── MODULE: SupabaseAI (免費 AI — Edge Functions) ─────────────
+ClinCalc.SupabaseAI = {
+  // Edge Function code to deploy (shown in tutorial)
+  getEdgeFunctionCode() {
+    return `// supabase/functions/ai-analyze/index.ts
+// Deploy with: supabase functions deploy ai-analyze
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const ALLOWED_ORIGINS = ["*"]; // 正式環境請限制來源
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      headers: { "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, content-type" }
+    });
+  }
+  
+  const { prompt, max_tokens = 500 } = await req.json();
+  
+  // 使用 Supabase 內建的 AI (pg_embedding / Ollama)
+  // 或呼叫 Groq API（免費方案）
+  const GROQ_KEY = Deno.env.get("GROQ_API_KEY"); // 設定在 Supabase secrets
+  
+  if (GROQ_KEY) {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": \`Bearer \${GROQ_KEY}\`,
+                 "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant", // 免費快速模型
+        messages: [{ role: "user", content: prompt }],
+        max_tokens
+      })
+    });
+    const data = await res.json();
+    return new Response(
+      JSON.stringify({ result: data.choices?.[0]?.message?.content }),
+      { headers: { "Content-Type": "application/json",
+                   "Access-Control-Allow-Origin": "*" } }
+    );
+  }
+  
+  return new Response(
+    JSON.stringify({ error: "請設定 GROQ_API_KEY 環境變數" }),
+    { status: 500, headers: { "Content-Type": "application/json",
+                               "Access-Control-Allow-Origin": "*" } }
+  );
+});`;
+  },
+
+  async test() {
+    if (!sbUrl || !sbKey) return { ok: false, error: '未設定 Supabase 連線' };
+    try {
+      const r = await fetch(`${sbUrl}/functions/v1/ai-analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json','Authorization':`Bearer ${sbKey}` },
+        body: JSON.stringify({ prompt: '回覆：OK', max_tokens: 10 })
+      });
+      if (r.ok) { return { ok: true }; }
+      return { ok: false, error: `${r.status} — 請先部署 Edge Function` };
+    } catch(e) {
+      return { ok: false, error: e.message };
+    }
+  }
+};
+
+// ─── MODULE: ComponentRegistry ──────────────────────────────────
+ClinCalc.Components = {
+  // Registry of all components and their initialization functions
+  _registry: {},
+  register(name, initFn) { this._registry[name] = initFn; },
+  init(name) {
+    if (this._registry[name]) this._registry[name]();
+    else console.warn(`Component "${name}" not registered`);
+  },
+  initAll() {
+    Object.entries(this._registry).forEach(([name, fn]) => {
+      try { fn(); } catch(e) { console.warn(`Component ${name} init failed:`, e); }
+    });
+  }
+};
+
+// ─── MODULE: UI Helpers ─────────────────────────────────────────
+ClinCalc.UI = {
+  // Render AI provider selector badge
+  renderProviderBadge(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const p = ClinCalc.Config.ai.provider;
+    const info = ClinCalc.AI.getProviderInfo(p);
+    el.innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;
+      border-radius:100px;font-family:var(--ff-m);font-size:10px;
+      background:rgba(0,0,0,.3);border:1px solid;border-color:${info.color}33;color:${info.color};">
+      ${info.icon} ${info.name} · ${info.model}
+    </div>`;
+  },
+
+  // Render retention status pill
+  renderRetentionPill(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const s = ClinCalc.Retention.formatStatus();
+    el.innerHTML = `<span style="font-family:var(--ff-m);font-size:10px;color:var(--amber);">
+      🗑️ 資料保留：${s.days}天 · 自動刪除：${s.autoDelete?'✓':'✗'}
+      ${s.expiringSoon > 0 ? `· ⚠️ ${s.expiringSoon}筆即將過期` : ''}
+    </span>`;
+  }
+};
+
+// ─── Initialize App ──────────────────────────────────────────────
+window.CC = ClinCalc; // shorthand
+
+
 // ─── NAV ───
 function showSec(id){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
@@ -1163,9 +2033,173 @@ function showCalc(id){
   document.querySelectorAll('.ctab').forEach(t=>{if((t.getAttribute('onclick')||'').includes("'"+id+"'"))t.classList.add('on');});
 }
 function showDRTab(id){
-  document.querySelectorAll('#s-dr .dbtab').forEach((t,i)=>{if(i<2)t.classList.toggle('on',(i===0&&id==='api')||(i===1&&id==='supabase'));});
+  const tabOrder=['api','supabase','privacy'];
+  document.querySelectorAll('#s-dr .dbtab').forEach((t,i)=>{t.classList.toggle('on',tabOrder[i]===id);});
   document.querySelectorAll('#s-dr .dbp:not([id^="dbt"])').forEach(p=>p.classList.remove('on'));
   const p=document.getElementById('drt-'+id);if(p){p.classList.add('on');}
+  if(id==='api') setTimeout(renderProviderUI, 50);
+  if(id==='privacy') setTimeout(initPrivacyTab, 50);
+}
+
+// ─── PROVIDER UI ───────────────────────────────────────────────
+function selectProvider(prov){
+  ClinCalc.Config.ai.provider = prov;
+  renderProviderUI();
+  ClinCalc.UI.renderProviderBadge('provider-badge-dr');
+}
+
+function renderProviderUI(){
+  const p = ClinCalc.Config.ai.provider;
+  ['claude','openai','gemini','supabase'].forEach(id=>{
+    const el = document.getElementById('pc-'+id);
+    if(el) el.classList.toggle('active', id===p);
+  });
+  const fieldsDiv = document.getElementById('provider-fields');
+  if(!fieldsDiv) return;
+  const info = ClinCalc.AI.getProviderInfo(p);
+  const templates = {
+    claude: `<div class="pf-section"><div class="pf-label">Anthropic Claude 設定</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">API Key</label>
+          <input type="password" class="fi" id="key_claude" placeholder="sk-ant-..." value="${ClinCalc.Config.ai.claudeKey}">
+          <div class="hint">取得：<a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--teal);">console.anthropic.com</a>｜免費 5$/月額度</div></div>
+        <div class="fg"><label class="fl">模型</label>
+          <select class="fsel" id="model_claude">
+            <option value="claude-haiku-4-5-20251001" ${ClinCalc.Config.ai.claudeModel==='claude-haiku-4-5-20251001'?'selected':''}>Claude Haiku 4.5（速度快、費用低）</option>
+            <option value="claude-sonnet-4-20250514" ${ClinCalc.Config.ai.claudeModel==='claude-sonnet-4-20250514'?'selected':''}>Claude Sonnet 4（智能強）</option>
+          </select></div>
+      </div></div>`,
+    openai: `<div class="pf-section"><div class="pf-label">OpenAI GPT 設定</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">API Key</label>
+          <input type="password" class="fi" id="key_openai" placeholder="sk-..." value="${ClinCalc.Config.ai.openaiKey}">
+          <div class="hint">取得：<a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--teal);">platform.openai.com</a>｜需綁定信用卡</div></div>
+        <div class="fg"><label class="fl">模型</label>
+          <select class="fsel" id="model_openai">
+            <option value="gpt-4o-mini" ${ClinCalc.Config.ai.openaiModel==='gpt-4o-mini'?'selected':''}>GPT-4o-mini（費用低、速度快）</option>
+            <option value="gpt-4o" ${ClinCalc.Config.ai.openaiModel==='gpt-4o'?'selected':''}>GPT-4o（最高智能）</option>
+            <option value="gpt-3.5-turbo" ${ClinCalc.Config.ai.openaiModel==='gpt-3.5-turbo'?'selected':''}>GPT-3.5 Turbo（最便宜）</option>
+          </select></div>
+      </div></div>`,
+    gemini: `<div class="pf-section"><div class="pf-label">Google Gemini 設定（AI Studio）</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">API Key</label>
+          <input type="password" class="fi" id="key_gemini" placeholder="AIza..." value="${ClinCalc.Config.ai.geminiKey}">
+          <div class="hint">取得：<a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--teal);">aistudio.google.com</a>｜免費 60 req/min</div></div>
+        <div class="fg"><label class="fl">模型</label>
+          <select class="fsel" id="model_gemini">
+            <option value="gemini-1.5-flash">Gemini 1.5 Flash（免費、速度快）</option>
+            <option value="gemini-1.5-pro">Gemini 1.5 Pro（更強，有用量限制）</option>
+            <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Exp（最新實驗版）</option>
+          </select></div>
+      </div>
+      <div class="al ag" style="margin-top:8px;">✅ Gemini 1.5 Flash 完全免費：每分鐘 15 次、每日 1,500 次。</div></div>`,
+    supabase: `<div class="pf-section"><div class="pf-label">Supabase AI（免費 Edge Function + Groq Llama）</div>
+      <div class="al ai" style="margin-bottom:10px;">⚙️ 需先完成「隱私設定」頁籤中的 Edge Function 部署，並在 Supabase Secrets 設定 GROQ_API_KEY。</div>
+      <div class="al ag">✅ 完全免費：Groq 免費方案 / Llama 3.1 8B。資料不離開您的 Supabase 環境。</div></div>`,
+  };
+  fieldsDiv.innerHTML = templates[p] || templates.claude;
+}
+
+function saveAllProviderSettings(){
+  const p = ClinCalc.Config.ai.provider;
+  const claudeKeyEl = document.getElementById('key_claude');
+  const openaiKeyEl = document.getElementById('key_openai');
+  const geminiKeyEl = document.getElementById('key_gemini');
+  if(claudeKeyEl?.value){ClinCalc.Config.ai.claudeKey=claudeKeyEl.value;localStorage.setItem('cc_key',claudeKeyEl.value);document.getElementById('dr_api').value=claudeKeyEl.value;const ak=document.getElementById('ai_key');if(ak)ak.value=claudeKeyEl.value;}
+  if(openaiKeyEl?.value){ClinCalc.Config.ai.openaiKey=openaiKeyEl.value;localStorage.setItem('cc_openai_key',openaiKeyEl.value);}
+  if(geminiKeyEl?.value){ClinCalc.Config.ai.geminiKey=geminiKeyEl.value;localStorage.setItem('cc_gemini_key',geminiKeyEl.value);}
+  const modelEl=document.getElementById('model_'+p);
+  if(modelEl){if(p==='claude')ClinCalc.Config.ai.claudeModel=modelEl.value;if(p==='openai')ClinCalc.Config.ai.openaiModel=modelEl.value;}
+  ClinCalc.Config.save();
+  ClinCalc.UI.renderProviderBadge('provider-badge-dr');
+  alert('✓ AI 設定已儲存');
+}
+
+async function testCurrentProvider(){
+  const p=ClinCalc.Config.ai.provider;
+  const statusEl=document.getElementById('provider-test-status');
+  statusEl.innerHTML=`<div class="al ai">⏳ 測試 ${ClinCalc.AI.getProviderInfo(p).name}...</div>`;
+  const keyEl=document.getElementById('key_'+p);
+  const key=keyEl?keyEl.value:ClinCalc.Config.ai[p+'Key']||'';
+  const result=await ClinCalc.AI.test(p,key);
+  if(result.ok){
+    statusEl.innerHTML=`<div class="al ag">✅ ${ClinCalc.AI.getProviderInfo(p).name} 連線成功！AI 功能已可用。</div>`;
+    if(p==='claude')setAILocked(false);
+  }else{statusEl.innerHTML=`<div class="al ar">❌ ${result.error}</div>`;}
+}
+
+// ─── PRIVACY TAB ───────────────────────────────────────────────
+function initPrivacyTab(){
+  const daysEl=document.getElementById('retention_days');
+  if(daysEl)daysEl.value=ClinCalc.Config.retention.days;
+  const actionEl=document.getElementById('retention_action');
+  if(actionEl)actionEl.value=ClinCalc.Config.retention.autoDelete?'auto_delete':'notify';
+  const codeEl=document.getElementById('edge-fn-code');
+  if(codeEl)codeEl.textContent=ClinCalc.SupabaseAI.getEdgeFunctionCode();
+  updateRetentionPreview();
+}
+
+function updateRetentionPreview(){
+  const days=parseInt(document.getElementById('retention_days')?.value||365);
+  const action=document.getElementById('retention_action')?.value||'auto_delete';
+  const expiry=new Date();expiry.setDate(expiry.getDate()+days);
+  const el=document.getElementById('retention-preview');
+  if(el)el.innerHTML=`ℹ️ 今日起新增的記錄將於 <strong>${expiry.toLocaleDateString('zh-TW')}</strong>（${days}天後）${action==='auto_delete'?'自動刪除':action==='notify'?'發出到期提醒':'封存'}。`;
+}
+
+function saveRetentionSettings(){
+  const days=parseInt(document.getElementById('retention_days')?.value||365);
+  const action=document.getElementById('retention_action')?.value||'auto_delete';
+  if(days<30||days>3650){alert('保留天數需在 30-3650 天之間');return;}
+  ClinCalc.Config.retention.days=days;
+  ClinCalc.Config.retention.autoDelete=action==='auto_delete';
+  ClinCalc.Config.save();
+  alert(`✓ 已設定：資料保留 ${days} 天`);
+}
+
+function runLocalPurge(){
+  if(!confirm('確定要刪除本機所有過期記錄？此操作不可復原。'))return;
+  const result=ClinCalc.Retention.purgeLocalDrafts();
+  const el=document.getElementById('retention-purge-result');
+  if(el)el.innerHTML=`<div class="al ag">🧹 清理完成：刪除 ${result.deleted} 筆，剩餘 ${result.after} 筆有效記錄。</div>`;
+}
+
+function showRetentionSQL(){
+  const sql=ClinCalc.Retention.buildSupabaseCleanupSQL();
+  document.getElementById('detail-content').innerHTML=`<div style="font-family:var(--ff-h);font-size:18px;font-weight:700;margin-bottom:12px;">Supabase 資料保留清理 SQL</div>
+    <div class="al ay" style="margin-bottom:12px;">⚠️ 請在 Supabase SQL Editor 執行，或設定 pg_cron 定時自動執行。</div>
+    <pre style="font-family:var(--ff-m);font-size:11px;color:#a5f3fc;background:var(--c0);padding:14px;border-radius:8px;overflow:auto;line-height:1.65;">${sql}</pre>
+    <button class="btn bs" style="margin-top:12px;" onclick="navigator.clipboard.writeText(decodeURIComponent('${encodeURIComponent(sql)}')).then(()=>alert('✓ 已複製'))">複製 SQL</button>`;
+  document.getElementById('modal-detail').classList.add('on');
+}
+
+function runDeIDPreview(){
+  const input=document.getElementById('audit_input')?.value;
+  if(!input){alert('請先填入資料');return;}
+  let data;try{data=JSON.parse(input);}catch(e){alert('JSON 格式錯誤：'+e.message);return;}
+  const sanitized=ClinCalc.DeID.sanitize(data);
+  const diff=ClinCalc.DeID.diff(data,sanitized);
+  const warnings=ClinCalc.DeID.audit(data);
+  const el=document.getElementById('deid-preview-result');
+  el.innerHTML=`<div class="al ag" style="margin-bottom:8px;">✅ 去識別化完成 · 移除 ${diff.removed.length} 個欄位 · 修改 ${diff.modified.length} 個欄位</div>
+    ${diff.removed.length?`<div class="al ar" style="margin-bottom:8px;">🚫 已移除：${diff.removed.join(', ')}</div>`:''}
+    ${diff.modified.length?`<div class="al ay" style="margin-bottom:8px;">⚠️ 已假名化：${diff.modified.join(', ')}</div>`:''}
+    ${warnings.length?`<div class="al ay" style="margin-bottom:8px;">⚠️ 潛在 PII：${warnings.join(' | ')}</div>`:''}
+    <details style="margin-top:8px;"><summary style="font-family:var(--ff-m);font-size:11px;color:var(--teal);cursor:pointer;">查看去識別化後資料</summary>
+    <pre style="font-family:var(--ff-m);font-size:10px;color:var(--t2);background:var(--c2);padding:12px;border-radius:6px;overflow:auto;max-height:300px;margin-top:8px;">${JSON.stringify(sanitized,null,2)}</pre></details>`;
+}
+
+async function testSupabaseAI(){
+  const statusEl=document.getElementById('supabase-ai-status');
+  statusEl.innerHTML='<div class="al ai">⏳ 測試 Supabase AI...</div>';
+  const result=await ClinCalc.SupabaseAI.test();
+  statusEl.innerHTML=result.ok?'<div class="al ag">✅ Supabase AI Edge Function 連線成功！可切換使用免費 AI 分析。</div>':`<div class="al ar">❌ ${result.error}</div>`;
+}
+
+function copyEdgeFunction(){
+  const code=ClinCalc.SupabaseAI.getEdgeFunctionCode();
+  navigator.clipboard.writeText(code).then(()=>alert('✓ Edge Function 程式碼已複製'));
 }
 function showDBTab(id){
   document.querySelectorAll('#dbt-records,#dbt-refs,#dbt-custom').forEach(p=>p.classList.remove('on'));
@@ -1632,27 +2666,108 @@ async function runAI(){
 
 // ─── DR SECTION ───
 let drSBMode=false;
-['dr_dob','dr_exam'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',autoAge);});
+// Date input events — handled by calcAgeFromPicker / calcAgeFromText
 ['dr_ht','dr_wt'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>{autoBMI();autoWHR();});});
 document.getElementById('dr_hip')?.addEventListener('input',autoWHR);
 ['dr_fpg','dr_ins'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',autoHOMA);});
 ['dr_tc','dr_hdl'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',autoNHDL);});
 document.getElementById('dr_cr')?.addEventListener('input',autoEGFR);
-document.getElementById('dr_sex')?.addEventListener('change',autoEGFR);
+document.getElementById('dr_sex')?.addEventListener('change',()=>{autoEGFR();autoIBW();});
+document.getElementById('dr_sex_b')?.addEventListener('change',()=>{autoEGFR();autoIBW();});
 
-function autoAge(){
-  const dob=sv('dr_dob'),exam=sv('dr_exam');
-  if(dob.length>=7&&exam.length>=7){
-    const dy=parseInt(exam.slice(0,3))+1911,dm=parseInt(exam.slice(3,5)),dd=parseInt(exam.slice(5,7));
-    const by=parseInt(dob.slice(0,3))+1911,bm=parseInt(dob.slice(3,5)),bd=parseInt(dob.slice(5,7));
-    const age=dy-by-(dm<bm||(dm===bm&&dd<bd)?1:0);
+// ─── DATE / AGE ─────────────────────────────────────────────────
+function toggleDobMode(mode){
+  document.getElementById('dob-picker-mode').style.display = mode==='picker' ? '' : 'none';
+  document.getElementById('dob-text-mode').style.display = mode==='text' ? '' : 'none';
+}
+
+function calcAgeFromPicker(){
+  const y=parseInt(document.getElementById('dob_y')?.value||0);
+  const m=parseInt(document.getElementById('dob_m')?.value||0);
+  const d=parseInt(document.getElementById('dob_d')?.value||0);
+  if(!y||!m||!d){document.getElementById('dr_age').value='';return;}
+  const examDateEl=document.getElementById('dr_exam_date');
+  const examDate=examDateEl?.value ? new Date(examDateEl.value) : new Date();
+  const dob=new Date(y,m-1,d);
+  let age=examDate.getFullYear()-dob.getFullYear();
+  const mo=examDate.getMonth()-dob.getMonth();
+  if(mo<0||(mo===0&&examDate.getDate()<dob.getDate()))age--;
+  document.getElementById('dr_age').value=age>0&&age<130?age:'';
+  // sync hidden field for storage
+  document.getElementById('dr_dob').value=`${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}`;
+  autoEGFR();autoIBW();
+}
+
+function syncExamDate(){
+  const v=document.getElementById('dr_exam_date')?.value||'';
+  if(v){const d=new Date(v);document.getElementById('dr_exam').value=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
+  calcAgeFromPicker();
+}
+
+function calcAgeFromText(){
+  const dob=document.getElementById('dr_dob_text')?.value||'';
+  const exam=document.getElementById('dr_exam_text')?.value||'';
+  const ageTarget=document.getElementById('dr_age_b');
+  if(dob.length===8&&exam.length===8){
+    const by=parseInt(dob.slice(0,4)),bm=parseInt(dob.slice(4,6)),bd=parseInt(dob.slice(6,8));
+    const ey=parseInt(exam.slice(0,4)),em=parseInt(exam.slice(4,6)),ed=parseInt(exam.slice(6,8));
+    let age=ey-by;
+    if(em<bm||(em===bm&&ed<bd))age--;
+    if(ageTarget)ageTarget.value=age>0&&age<130?age:'';
+    // sync to main fields
+    document.getElementById('dr_dob').value=dob;
+    document.getElementById('dr_exam').value=exam;
     document.getElementById('dr_age').value=age>0?age:'';
-    autoEGFR();
+    autoEGFR();autoIBW();
+  }
+}
+
+function getDobMode(){
+  const checked=document.querySelector('input[name="dob_mode"]:checked');
+  return checked?checked.value:'picker';
+}
+
+function getDRSex(){
+  const mode=getDobMode();
+  if(mode==='text') return sv('dr_sex_b')||sv('dr_sex');
+  return sv('dr_sex');
+}
+
+function getDRAge(){
+  const mode=getDobMode();
+  if(mode==='text'){
+    const el=document.getElementById('dr_age_b');
+    return el?parseInt(el.value)||null:null;
+  }
+  const el=document.getElementById('dr_age');
+  return el?parseInt(el.value)||null:null;
+}
+
+// ─── IDEAL BODY WEIGHT ───
+function autoIBW(){
+  const ht=v('dr_ht'),wt=v('dr_wt');
+  const sex=getDRSex();
+  if(!ht||!sex){return;}
+  let ibw;
+  if(sex==='male') ibw=50+2.3*((ht/2.54)-60);
+  else ibw=45.5+2.3*((ht/2.54)-60);
+  ibw=Math.max(ibw,0);
+  const ibwEl=document.getElementById('dr_ibw');
+  const diffEl=document.getElementById('dr_wt_diff');
+  const catEl=document.getElementById('dr_bmi_cat');
+  if(ibwEl)ibwEl.value=ibw.toFixed(1)+' kg';
+  if(diffEl&&wt)diffEl.value=(wt-ibw>0?'+':'')+(wt-ibw).toFixed(1)+' kg';
+  if(catEl){
+    const bmi=v('dr_bmi')||(ht&&wt?+(wt/((ht/100)**2)).toFixed(1):0);
+    let cat='';
+    if(bmi>0){if(bmi<18.5)cat='體重過輕';else if(bmi<24)cat='正常體重';else if(bmi<27)cat='過重';else if(bmi<30)cat='輕度肥胖';else if(bmi<35)cat='中度肥胖';else cat='重度肥胖';}
+    catEl.value=cat;
   }
 }
 function autoBMI(){
   const ht=v('dr_ht'),wt=v('dr_wt');
-  if(ht&&wt)document.getElementById('dr_bmi').value=(wt/((ht/100)**2)).toFixed(1);
+  if(ht&&wt){document.getElementById('dr_bmi').value=(wt/((ht/100)**2)).toFixed(1);}
+  autoIBW();
 }
 function autoWHR(){
   const w=v('dr_waist'),h=v('dr_hip');
@@ -1667,25 +2782,24 @@ function autoNHDL(){
   if(tc&&hdl)document.getElementById('dr_nhdl').value=tc-hdl;
 }
 function autoEGFR(){
-  const cr=v('dr_cr'),sex=sv('dr_sex');
-  const ageEl=document.getElementById('dr_age');
-  const age=ageEl?parseInt(ageEl.value)||0:0;
+  const cr=v('dr_cr');
+  const sex=getDRSex();
+  const age=getDRAge();
   if(cr&&sex&&age){const e=calcEGFR(cr,age,sex);if(e)document.getElementById('dr_egfr').value=e.toFixed(1);}
 }
 
 function getDRData(){
-  const ageEl=document.getElementById('dr_age');
-  const age=ageEl?parseInt(ageEl.value)||null:null;
+  const age=getDRAge();
   const ht=v('dr_ht'),wt=v('dr_wt');
   const bmi=ht&&wt?+(wt/((ht/100)**2)).toFixed(1):null;
   return{
-    pid:sv('dr_pid'),exam_date:sv('dr_exam'),dob:sv('dr_dob'),sex:sv('dr_sex'),age,
+    pid:sv('dr_pid')||(getDobMode()==='text'?sv('dr_pid_b'):''),exam_date:sv('dr_exam'),dob:sv('dr_dob'),sex:getDRSex(),age,
     ht,wt,bmi,sbp:v('dr_sbp')||null,dbp:v('dr_dbp')||null,hr:v('dr_hr')||null,
     waist:v('dr_waist')||null,hip:v('dr_hip')||null,bf:v('dr_bf')||null,
     fpg:v('dr_fpg')||null,hba1c:v('dr_hba1c')||null,ins:v('dr_ins')||null,cpep:v('dr_cpep')||null,
     tc:v('dr_tc')||null,tg:v('dr_tg')||null,ldl:v('dr_ldl')||null,hdl:v('dr_hdl')||null,
     ast:v('dr_ast')||null,alt:v('dr_alt')||null,cr:v('dr_cr')||null,
-    egfr_calc:v('dr_cr')&&age&&sv('dr_sex')?+(calcEGFR(v('dr_cr'),age,sv('dr_sex'))||0).toFixed(1):null,
+    egfr_calc:v('dr_cr')&&age&&getDRSex()?+(calcEGFR(v('dr_cr'),age,getDRSex())||0).toFixed(1):null,
     uacr:v('dr_uacr')||null,upcr:v('dr_upcr')||null,dip:sv('dr_dip'),
     ua:v('dr_ua')||null,bun:v('dr_bun')||null,k:v('dr_k')||null,
     hb:v('dr_hb')||null,wbc:v('dr_wbc')||null,plt:v('dr_plt')||null,mcv:v('dr_mcv')||null,hct:v('dr_hct')||null,
@@ -1696,6 +2810,22 @@ function getDRData(){
     age_rf:sv('dr_agerf')==='yes',fh:sv('dr_fh')==='yes',smoke:sv('dr_smoke')==='yes',ckd:sv('dr_ckd')==='yes',
     edu:sv('dr_edu'),job:sv('dr_job'),eth:sv('dr_eth'),mar:sv('dr_mar'),
     etoh:sv('dr_etoh'),ex:sv('dr_ex'),diet:sv('dr_diet'),sleep:v('dr_sleep')||null,stress:sv('dr_stress'),
+    sleep_work:v('dr_sleep_work')||null,
+    smoke_detail:sv('dr_smoke_detail'),smoke_yrs:v('dr_smoke_yrs')||null,
+    betel:sv('dr_betel'),
+    ppg:v('dr_ppg')||null,
+    fasting_hr:sv('dr_fasting'),
+    ibw:sv('dr_ibw'),
+    symptoms:sv('dr_symptoms'),pmh:sv('dr_pmh'),meds:sv('dr_meds'),allergy:sv('dr_allergy'),
+    va_r:sv('dr_va_r'),va_l:sv('dr_va_l'),
+    hear_r:sv('dr_hear_r'),hear_l:sv('dr_hear_l'),pe_note:sv('dr_pe_note'),
+    ecg:sv('dr_ecg'),ecg_note:sv('dr_ecg_note'),
+    xray:sv('dr_xray'),xray_note:sv('dr_xray_note'),
+    oral:sv('dr_oral'),
+    urine_color:sv('dr_urine_color'),urine_ph:v('dr_urine_ph')||null,urine_sg:v('dr_urine_sg')||null,
+    urine_glu:sv('dr_urine_glu'),urine_ket:sv('dr_urine_ket'),urine_le:sv('dr_urine_le'),urine_nit:sv('dr_urine_nit'),
+    urine_rbc:sv('dr_urine_rbc'),urine_wbc_m:sv('dr_urine_wbc_m'),urine_note:sv('dr_urine_note'),
+    cea:v('dr_cea')||null,afp:v('dr_afp')||null,ca125:v('dr_ca125')||null,ca199:v('dr_ca199')||null,psa:v('dr_psa')||null,
     note:sv('dr_note'),doctor:sv('dr_docid')||drDocId,
   };
 }
@@ -1757,6 +2887,159 @@ function judgeDR(d){
   return results;
 }
 
+// ─── HEALTH REPORT GENERATOR ────────────────────────────────────
+function generateHealthReport(d){
+  const items = [];
+  const bmi = d.bmi;
+  const sex = d.sex;
+  const age = d.age;
+
+  // ── BMI & 體重 ──
+  if(bmi){
+    let cat='',rec='';
+    if(bmi<18.5){cat='體重過輕';rec='建議增加熱量攝取，可諮詢營養師。';}
+    else if(bmi<24){cat='正常體重';rec='維持現有飲食及運動習慣，定期追蹤。';}
+    else if(bmi<27){cat='過重';rec='建議每週150分鐘以上中強度運動，減少精緻澱粉及含糖飲料。';}
+    else if(bmi<30){cat='輕度肥胖';rec='建議積極減重，目標每月0.5-1kg，可考慮就醫評估。';}
+    else{cat='中重度肥胖';rec='建議就醫評估，考慮代謝症候群篩檢，必要時轉介肥胖症門診。';}
+    items.push({icon:'⚖️',title:`BMI ${bmi}（${cat}）`,rec,level:bmi>=30?'danger':bmi>=27?'warn':bmi<18.5?'warn':'ok'});
+  }
+
+  // ── 血壓 ──
+  if(d.sbp){
+    let cat='',rec='';
+    if(d.sbp>=180||d.dbp>=120){cat='高血壓危象';rec='立即就醫！避免激烈活動。';}
+    else if(d.sbp>=140||d.dbp>=90){cat='高血壓二期';rec='建議就醫，限鈉（<6g/天）、DASH飲食、規律運動、戒菸。';}
+    else if(d.sbp>=130){cat='高血壓一期';rec='生活型態介入：每週150分鐘有氧運動、限鈉、控制體重。';}
+    else if(d.sbp>=120){cat='血壓偏高';rec='加強生活型態改善，3-6個月後追蹤。';}
+    else{cat='正常';rec='維持健康生活型態。';}
+    items.push({icon:'🩺',title:`血壓 ${d.sbp}/${d.dbp||'—'} mmHg（${cat}）`,rec,level:d.sbp>=140||d.dbp>=90?'danger':d.sbp>=130?'warn':'ok'});
+  }
+
+  // ── 血糖 ──
+  if(d.fpg||d.hba1c){
+    const fpg=d.fpg||0,hba1c=d.hba1c||0;
+    let title='',rec='',level='ok';
+    if(fpg>=126||hba1c>=6.5){title=`血糖異常（FPG:${fpg||'—'} HbA1c:${hba1c||'—'}%）`;rec='建議就醫確認糖尿病診斷，評估飲食控制、運動及藥物治療。';level='danger';}
+    else if(fpg>=100||hba1c>=5.7){title=`前期糖尿病（FPG:${fpg||'—'} HbA1c:${hba1c||'—'}%）`;rec='生活介入可降低50-60%進展風險：體重減7%、每週≥150分鐘運動、地中海式飲食。';level='warn';}
+    else{title=`血糖正常（FPG:${fpg||'—'} HbA1c:${hba1c||'—'}%）`;rec='維持健康飲食，定期追蹤。';}
+    items.push({icon:'🍬',title,rec,level});
+  }
+  if(d.ppg){
+    let ppgRec='',ppgLevel='ok';
+    if(d.ppg>=200){ppgRec='飯後血糖≥200，符合糖尿病診斷（需無症狀者複查）。建議就醫。';ppgLevel='danger';}
+    else if(d.ppg>=140){ppgRec='飯後血糖偏高（前期）：減少高GI食物，飯後散步15-30分鐘有助降低。';ppgLevel='warn';}
+    else ppgRec='飯後血糖正常。';
+    items.push({icon:'🍚',title:`飯後血糖 ${d.ppg} mg/dL`,rec:ppgRec,level:ppgLevel});
+  }
+
+  // ── 血脂 ──
+  if(d.ldl){
+    let ldlRec='',level='ok';
+    if(d.ldl>=190){ldlRec='LDL極高，需排除家族性高膽固醇血症，建議就醫評估Statin治療。';level='danger';}
+    else if(d.ldl>=160){ldlRec='LDL偏高：減少飽和脂肪（紅肉、加工品）、增加Omega-3、規律運動。';level='warn';}
+    else if(d.ldl>=130){ldlRec='LDL稍高：飲食調整，依心血管風險決定是否用藥。';}
+    else ldlRec='LDL在目標範圍內。';
+    items.push({icon:'🩸',title:`LDL ${d.ldl} mg/dL`,rec:ldlRec,level});
+  }
+  if(d.tg&&d.tg>=150){
+    let tgRec='',level='warn';
+    if(d.tg>=500){tgRec='TG≥500 急性胰臟炎風險！立即就醫，嚴禁飲酒。';level='danger';}
+    else if(d.tg>=200){tgRec='戒酒、減少糖分（含糖飲料、精緻澱粉）、增加Omega-3脂肪酸。';level='warn';}
+    else tgRec='TG偏高：少糖少酒，規律運動。';
+    items.push({icon:'🧈',title:`三酸甘油酯 ${d.tg} mg/dL`,rec:tgRec,level});
+  }
+
+  // ── 腎功能 ──
+  if(d.egfr_calc){
+    let st='',rec='',level='ok';
+    if(d.egfr_calc<15){st='G5腎衰竭';rec='立即就醫，評估腎臟替代療法（洗腎/移植）。';level='danger';}
+    else if(d.egfr_calc<30){st='G4重度';rec='腎臟科追蹤，準備腎替代療法，嚴格控制血壓/血糖/血脂。';level='danger';}
+    else if(d.egfr_calc<60){st='G3中度';rec='每3-6個月追蹤eGFR/UACR，控制血壓<130/80，評估SGLT2i使用。';level='warn';}
+    else if(d.egfr_calc<90){st='G2輕度';rec='定期追蹤，留意蛋白尿，控制糖尿病/高血壓等危險因子。';}
+    else{st='G1正常';rec='維持健康生活型態，每年追蹤。';}
+    items.push({icon:'🫘',title:`eGFR ${d.egfr_calc.toFixed(1)} mL/min（${st}）`,rec,level});
+  }
+
+  // ── 抽菸 ──
+  if(d.smoke_detail&&d.smoke_detail!=='never'&&d.smoke_detail!=='ex'&&d.smoke_detail!==''){
+    items.push({icon:'🚬',title:`抽菸（${d.smoke_detail}）`,rec:'建議戒菸！戒菸後1年冠心病風險減半，10年後接近不吸菸者。可利用戒菸門診（健保補助）、尼古丁替代療法。',level:'danger'});
+  }
+
+  // ── 飲酒 ──
+  if(d.etoh==='heavy'){
+    items.push({icon:'🍺',title:'重度飲酒',rec:'建議減少飲酒至每週≤14標準杯（男性），或每週≤7杯（女性）。過量飲酒增加肝病、心血管疾病、癌症風險。可諮詢成癮醫學門診。',level:'danger'});
+  } else if(d.etoh==='mild'){
+    items.push({icon:'🍺',title:'輕度飲酒',rec:'目前飲酒量尚可，建議勿空腹飲酒，避免與藥物併用。',level:'warn'});
+  }
+
+  // ── 檳榔 ──
+  if(d.betel&&d.betel!=='never'&&d.betel!==''){
+    items.push({icon:'🌿',title:`嚼檳榔（${d.betel}）`,rec:'建議立即戒除！檳榔為第一類致癌物，顯著增加口腔癌、食道癌、咽喉癌風險。口腔黏膜需定期檢查。',level:'danger'});
+  }
+
+  // ── 睡眠 ──
+  if(d.sleep&&(d.sleep<6||d.sleep>9)){
+    const too=d.sleep<6?'睡眠不足':'睡眠過多';
+    const rec=d.sleep<6?'慢性睡眠不足增加代謝症候群、心血管疾病風險。建議每日7-9小時，固定作息，避免睡前使用3C。':'睡眠過多可能為憂鬱或其他疾病徵兆，建議就醫評估。';
+    items.push({icon:'😴',title:`${too}（${d.sleep}hr/天）`,rec,level:'warn'});
+  }
+
+  // ── 運動 ──
+  if(d.ex==='none'){
+    items.push({icon:'🏃',title:'幾乎不運動',rec:'建議每週至少150分鐘中強度有氧運動（快走、游泳、騎腳踏車），並加入每週2次肌力訓練。規律運動可降低心血管疾病、糖尿病、癌症風險30-50%。',level:'warn'});
+  }
+
+  // ── X光 ──
+  if(d.xray&&d.xray!=='正常'&&d.xray!==''){
+    const serious=['肺結節','肺浸潤','心臟擴大','胸腔積液'];
+    const isSerious=serious.includes(d.xray);
+    items.push({icon:'📸',title:`X光：${d.xray}${d.xray_note?' ('+d.xray_note+')':''}`,rec:isSerious?`建議就醫進一步評估，可能需要CT等影像學檢查。${d.xray_note||''}`:`建議追蹤，${d.xray_note||'請依醫師指示'}`,level:isSerious?'danger':'warn'});
+  }
+
+  // ── ECG ──
+  if(d.ecg&&d.ecg!=='正常'&&d.ecg!==''){
+    const serious=['心房顫動','ST變化'];
+    const isSerious=serious.includes(d.ecg);
+    items.push({icon:'💓',title:`心電圖：${d.ecg}${d.ecg_note?' ('+d.ecg_note+')':''}`,rec:isSerious?'建議心臟科就診，評估進一步檢查及治療。':'建議追蹤，依症狀及臨床判斷。',level:isSerious?'danger':'warn'});
+  }
+
+  // ── 腫瘤標記 ──
+  const tm=[];
+  if(d.cea>5)tm.push(`CEA ${d.cea}（正常<5）`);
+  if(d.afp>20)tm.push(`AFP ${d.afp}（正常<20）`);
+  if(d.ca125>35)tm.push(`CA-125 ${d.ca125}（正常<35）`);
+  if(d.ca199>37)tm.push(`CA 19-9 ${d.ca199}（正常<37）`);
+  if(d.psa>4)tm.push(`PSA ${d.psa}（正常<4）`);
+  if(tm.length){
+    items.push({icon:'🔬',title:`腫瘤標記異常：${tm.join('、')}`,rec:'腫瘤標記升高需結合臨床症狀與影像判讀，不代表罹癌。建議就醫複查並追蹤，必要時轉介腫瘤科或相關科別。',level:'warn'});
+  }
+
+  return items;
+}
+
+function renderHealthReport(d){
+  const items=generateHealthReport(d);
+  if(!items.length)return '';
+  const colorMap={danger:'var(--rose)',warn:'var(--amber)',ok:'var(--teal)'};
+  const bgMap={danger:'rgba(244,63,94,.07)',warn:'rgba(245,158,11,.07)',ok:'rgba(0,201,167,.05)'};
+  let html=`<div class="card" style="margin-top:16px;border-color:rgba(167,139,250,.2);">
+    <div style="font-family:var(--ff-h);font-size:16px;font-weight:700;margin-bottom:14px;color:var(--violet);">📋 健康判讀報告</div>`;
+  items.forEach(item=>{
+    html+=`<div style="padding:12px 14px;border-radius:8px;margin-bottom:10px;background:${bgMap[item.level]||bgMap.ok};border-left:3px solid ${colorMap[item.level]||colorMap.ok};">
+      <div style="font-weight:600;font-size:13px;margin-bottom:5px;">${item.icon} ${item.title}</div>
+      <div style="font-size:12.5px;color:var(--t2);line-height:1.7;">💡 ${item.rec}</div>
+    </div>`;
+  });
+  const dangerous=items.filter(i=>i.level==='danger').length;
+  const warns=items.filter(i=>i.level==='warn').length;
+  html+=`<div style="margin-top:14px;padding:10px 14px;background:var(--c2);border-radius:7px;font-size:12px;color:var(--t2);">
+    <strong>摘要：</strong>發現 <span style="color:var(--rose);">${dangerous} 項需關注</span>、<span style="color:var(--amber);">${warns} 項建議改善</span>、${items.filter(i=>i.level==='ok').length} 項正常。
+  </div>`;
+  html+=`</div>`;
+  return html;
+}
+
 async function runDR(withAI){
   const key=(document.getElementById('dr_api')?.value||localStorage.getItem('cc_key'));
   const d=getDRData();
@@ -1784,6 +3067,7 @@ async function runDR(withAI){
         d.sbp?`<div class="rcell"><div class="rl">BP</div><div class="rv ${d.sbp>=140?'cr':d.sbp>=130?'ca':'ct'}">${d.sbp}/${d.dbp}</div></div>`:'',
       ].filter(Boolean).join('')}</div></div>`;
     }
+    html += renderHealthReport(d);
     document.getElementById('dr-qualify').innerHTML=html;
     if(withAI){
       if(!key){document.getElementById('dr-ai').innerHTML=al('ay','未設定 API Key，無法使用 AI 醫師。請至「系統設定」填入。');hideLoad();document.getElementById('rp-dr').classList.add('on');document.getElementById('rp-dr').scrollIntoView({behavior:'smooth'});return;}
@@ -1821,7 +3105,9 @@ function saveDraft(){
 function clearDR(){
   document.querySelectorAll('#s-dr .fi').forEach(e=>{if(!e.readOnly)e.value='';});
   document.querySelectorAll('#s-dr .fsel').forEach(e=>e.selectedIndex=0);
-  ['dr_bmi','dr_egfr','dr_whr','dr_homa','dr_nhdl','dr_age'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['dr_bmi','dr_egfr','dr_whr','dr_homa','dr_nhdl','dr_age','dr_age_b','dr_ibw','dr_wt_diff','dr_bmi_cat'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['dob_y','dob_m','dob_d'].forEach(id=>{const e=document.getElementById(id);if(e)e.selectedIndex=0;});
+  const examDate=document.getElementById('dr_exam_date');if(examDate)examDate.value='';
   document.getElementById('rp-dr').classList.remove('on');
 }
 function exportDR(){
@@ -1833,12 +3119,29 @@ function exportDR(){
 // ─── SUPABASE ───
 function saveSB(){sbUrl=sv('sb_url');sbKey=sv('sb_key');localStorage.setItem('cc_sb_url',sbUrl);localStorage.setItem('cc_sb_key',sbKey);alert('✓ Supabase 設定已儲存');}
 function loadStoredSB(){
-  sbUrl=localStorage.getItem('cc_sb_url')||'';sbKey=localStorage.getItem('cc_sb_key')||'';
-  const uk=localStorage.getItem('cc_key')||'';drDocId=localStorage.getItem('cc_docid')||'';
+  sbUrl=localStorage.getItem('cc_sb_url')||'';
+  sbKey=localStorage.getItem('cc_sb_key')||'';
+  const uk=localStorage.getItem('cc_key')||'';
+  drDocId=localStorage.getItem('cc_docid')||'';
   if(sbUrl)document.getElementById('sb_url').value=sbUrl;
   if(sbKey)document.getElementById('sb_key').value=sbKey;
   if(uk){document.getElementById('ai_key').value=uk;document.getElementById('dr_api').value=uk;}
   if(drDocId)document.getElementById('dr_docid').value=drDocId;
+  // Load multi-provider keys into Config
+  ClinCalc.Config.ai.claudeKey = uk;
+  ClinCalc.Config.ai.openaiKey = localStorage.getItem('cc_openai_key') || '';
+  ClinCalc.Config.ai.geminiKey = localStorage.getItem('cc_gemini_key') || '';
+  // Run retention purge if enabled
+  if(ClinCalc.Config.retention.autoDelete) {
+    const last = ClinCalc.Config.retention.lastCleanup;
+    const now = new Date().toDateString();
+    if(last !== now) {
+      const purged = ClinCalc.Retention.purgeLocalDrafts();
+      if(purged.deleted > 0) console.log(`[Retention] 自動清理 ${purged.deleted} 筆過期記錄`);
+      localStorage.setItem('cc_last_cleanup', now);
+      ClinCalc.Config.retention.lastCleanup = now;
+    }
+  }
 }
 function saveAPIKey(){
   const key=sv('dr_api');const docid=sv('dr_docid');
@@ -1861,16 +3164,33 @@ async function testSB(){
 }
 async function saveToSB(){
   if(!sbUrl||!sbKey){alert('請先設定 Supabase URL 和 Key');return;}
-  const d=getDRData();
-  if(!d.pid){alert('請填入受檢者編號');return;}
-  showLoad('儲存至 Supabase...');
+  const rawData=getDRData();
+  if(!rawData.pid){alert('請填入受檢者編號');return;}
+  // ── DeID: sanitize before storing ──
+  const deidWarnings = ClinCalc.DeID.audit(rawData);
+  if(deidWarnings.length){
+    if(!confirm(`⚠️ 去識別化警告：\n${deidWarnings.join('\n')}\n\n確定仍要繼續儲存（系統將自動過濾敏感欄位）？`)) return;
+  }
+  const d = ClinCalc.DeID.sanitize(rawData);
+  showLoad('去識別化並儲存至 Supabase...');
   try{
-    const qualify=judgeDR(d);
+    const qualify=judgeDR(rawData); // use raw for judgment
     const r=await fetch(`${sbUrl}/rest/v1/patients`,{method:'POST',
       headers:{'apikey':sbKey,'Authorization':`Bearer ${sbKey}`,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({doctor_id:d.doctor||drDocId,pid:d.pid,exam_date:d.exam_date,data:d,qualify_result:qualify,notes:d.note})
+      body:JSON.stringify({
+        doctor_id:d.doctor||drDocId,
+        pid:d.pid_hash, // store pseudonymized ID only
+        pid_display:d.pid_display,
+        exam_date:d.exam_date,
+        sex:d.sex,
+        age:d.age,
+        data:d, // sanitized data
+        qualify_result:qualify,
+        notes:null, // never store free-text notes
+        expires_at: new Date(Date.now() + ClinCalc.Config.retention.days * 864e5).toISOString()
+      })
     });
-    if(r.ok||r.status===201){alert('✓ 已成功儲存至 Supabase！');}
+    if(r.ok||r.status===201){alert(`✓ 已成功儲存至 Supabase！\n（去識別化版本，保留至 ${new Date(Date.now()+ClinCalc.Config.retention.days*864e5).toLocaleDateString('zh-TW')}）`);}
     else{const err=await r.json();alert('儲存失敗：'+JSON.stringify(err));}
   }catch(e){alert('儲存失敗：'+e.message);}
   finally{hideLoad();}
@@ -2018,14 +3338,15 @@ function addCustomSource(){
 }
 function delCustom(i){if(confirm('確定移除？')){customSources.splice(i,1);localStorage.setItem('cc_custom_src',JSON.stringify(customSources));renderCustom();}}
 
-// ─── API UTILS ───
+// ─── API UTILS (Legacy wrappers → delegate to ClinCalc.AI) ───
 async function callClaude(key,prompt,maxT=1000){
-  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxT,messages:[{role:'user',content:prompt}]})
+  // Delegate to unified provider — uses currently selected provider
+  // but can be overridden with explicit key for legacy call
+  const provider = ClinCalc.Config.ai.provider;
+  return await ClinCalc.AI.call(prompt, maxT, {
+    provider: key ? 'claude' : provider, // if explicit key given, force claude
+    key: key || undefined
   });
-  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||`API 錯誤 ${res.status}`);}
-  return(await res.json()).content?.[0]?.text||'';
 }
 function parseJ(txt){
   try{const s=txt.indexOf('{'),e=txt.lastIndexOf('}');if(s>-1&&e>s)return JSON.parse(txt.slice(s,e+1));}catch(e){}

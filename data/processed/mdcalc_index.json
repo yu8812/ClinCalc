@@ -1,0 +1,130 @@
+{
+  "source_id": "mdcalc_index",
+  "title": "MDCalc — 臨床計算器清單",
+  "url": "https://www.mdcalc.com",
+  "category": "tool",
+  "language": "en",
+  "tags": [
+    "calculator",
+    "CHADS2",
+    "SOFA",
+    "Framingham",
+    "clinical_tools"
+  ],
+  "license": "public",
+  "fetched_at": "2026-02-27T11:10:35.332142+00:00",
+  "processed_at": "2026-02-27T11:10:53.482548+00:00",
+  "total_chunks": 5,
+  "chunks": [
+    {
+      "id": "mdcalc_index_c0000",
+      "source_id": "mdcalc_index",
+      "title": "MDCalc — 臨床計算器清單",
+      "url": "https://www.mdcalc.com",
+      "date": "2026-02",
+      "category": "tool",
+      "language": "en",
+      "tags": [
+        "calculator",
+        "CHADS2",
+        "SOFA",
+        "Framingham",
+        "clinical_tools"
+      ],
+      "license": "public",
+      "chunk_index": 0,
+      "total_chunks": 5,
+      "text": "PopularNewestFavoritesSpecialtyGuidelinesAllCreatinine Clearance (Cockcroft-Gault Equation)Calculates CrCl according to the Cockcroft-Gault equation. CKD-EPI Equations for Glomerular Filtration Rate (GFR)Estimates GFR in CKD patients using serum creatinine, cystatin C, or both. Mean Arterial Pressure (MAP)Calculates mean arterial pressure. CHA₂DS₂-VASc Score for Atrial Fibrillation Stroke RiskCalculates stroke risk for patients with atrial fibrillation. ASCVD (Atherosclerotic Cardiovascular Disease) 2013 Risk Calculator from AHA/ACCDetermine 10-year risk of hard ASCVD, i. e. myocardial infarction, stroke, or death due to coronary heart disease or stroke. BMI Calculator (Body Mass Index and B",
+      "token_estimate": 345,
+      "hash": "3d0bfacae42a"
+    },
+    {
+      "id": "mdcalc_index_c0001",
+      "source_id": "mdcalc_index",
+      "title": "MDCalc — 臨床計算器清單",
+      "url": "https://www.mdcalc.com",
+      "date": "2026-02",
+      "category": "tool",
+      "language": "en",
+      "tags": [
+        "calculator",
+        "CHADS2",
+        "SOFA",
+        "Framingham",
+        "clinical_tools"
+      ],
+      "license": "public",
+      "chunk_index": 1,
+      "total_chunks": 5,
+      "text": "MDRD GFR EquationEstimates GFR in CKD patients using creatinine and patient characteristics. NIH Stroke Scale/Score (NIHSS)Quantifies stroke severity and monitors for neurological changes over time. Pregnancy Due Dates CalculatorCalculates pregnancy dates from last period, gestational age, or date of conception. Revised Cardiac Risk Index for Pre-Operative RiskEstimates risk of cardiac complications after noncardiac surgery. Child-Pugh Score for Cirrhosis MortalityEstimates cirrhosis severity. PHQ-9 (Patient Health Questionnaire-9)Objectifies degree of depression severity. STOP-BANG Score for Obstructive Sleep ApneaScreens for obstructive sleep apnea. HEART Score for Major Cardiac EventsPred",
+      "token_estimate": 341,
+      "hash": "7cf01b3309dc"
+    },
+    {
+      "id": "mdcalc_index_c0002",
+      "source_id": "mdcalc_index",
+      "title": "MDCalc — 臨床計算器清單",
+      "url": "https://www.mdcalc.com",
+      "date": "2026-02",
+      "category": "tool",
+      "language": "en",
+      "tags": [
+        "calculator",
+        "CHADS2",
+        "SOFA",
+        "Framingham",
+        "clinical_tools"
+      ],
+      "license": "public",
+      "chunk_index": 2,
+      "total_chunks": 5,
+      "text": "HAS-BLED Score for Major Bleeding RiskEstimates risk of major bleeding for patients on anticoagulation to assess risk-benefit in atrial fibrillation care. Morphine Milligram Equivalents (MME) CalculatorCalculates total daily morphine milligram equivalents. LDL CalculatedCalculates LDL based on total and HDL cholesterol and triglycerides. Glasgow Coma Scale (GCS)Coma severity based on Eye (4), Verbal (5), and Motor (6) criteria. Caprini Score for Venous Thromboembolism (2005)Stratifies VTE risk in surgical patients, guiding prophylaxis decisions. GAD-7 (General Anxiety Disorder-7)Measures severity of anxiety. HOMA-IR (Homeostatic Model Assessment for Insulin Resistance)Approximates insulin re",
+      "token_estimate": 338,
+      "hash": "eb171cecbe6a"
+    },
+    {
+      "id": "mdcalc_index_c0003",
+      "source_id": "mdcalc_index",
+      "title": "MDCalc — 臨床計算器清單",
+      "url": "https://www.mdcalc.com",
+      "date": "2026-02",
+      "category": "tool",
+      "language": "en",
+      "tags": [
+        "calculator",
+        "CHADS2",
+        "SOFA",
+        "Framingham",
+        "clinical_tools"
+      ],
+      "license": "public",
+      "chunk_index": 3,
+      "total_chunks": 5,
+      "text": "Fractional Excretion of Sodium (FENa)Determines if renal failure is due to prerenal or intrinsic pathology. Sequential Organ Failure Assessment (SOFA) ScorePredicts ICU mortality based on lab results and clinical data. Predicting Risk of Cardiovascular Disease EVENTs (PREVENT)Predicts 10- and 30-year risk of CVD and CVD subtypes in patients aged 30-79 without known CVD. ARISCAT Score for Postoperative Pulmonary ComplicationsPredicts risk of pulmonary complications after surgery, including respiratory failure. PECARN Pediatric Head Injury/Trauma AlgorithmPredicts need for brain imaging after pediatric head injury. SIRS, Sepsis, and Septic Shock CriteriaDefines the severity of sepsis and septi",
+      "token_estimate": 326,
+      "hash": "40105795b3bb"
+    },
+    {
+      "id": "mdcalc_index_c0004",
+      "source_id": "mdcalc_index",
+      "title": "MDCalc — 臨床計算器清單",
+      "url": "https://www.mdcalc.com",
+      "date": "2026-02",
+      "category": "tool",
+      "language": "en",
+      "tags": [
+        "calculator",
+        "CHADS2",
+        "SOFA",
+        "Framingham",
+        "clinical_tools"
+      ],
+      "license": "public",
+      "chunk_index": 4,
+      "total_chunks": 5,
+      "text": "Serum Osmolality/OsmolarityCalculates expected serum osmolarity, for comparison to measured osmolality to detect unmeasured compounds in the serum. Alvarado Score for Acute AppendicitisPredicts likelihood of appendicitis diagnosis.",
+      "token_estimate": 57,
+      "hash": "213ca20d3040"
+    }
+  ]
+}

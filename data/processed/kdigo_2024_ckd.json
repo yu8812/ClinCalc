@@ -1,0 +1,90 @@
+{
+  "source_id": "kdigo_2024_ckd",
+  "title": "KDIGO 2024 CKD Evaluation and Management",
+  "url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+  "category": "guideline",
+  "language": "en",
+  "tags": [
+    "CKD",
+    "eGFR",
+    "UACR",
+    "proteinuria",
+    "SGLT2i",
+    "dialysis"
+  ],
+  "license": "public_summary",
+  "fetched_at": "2026-02-27T11:09:42.756251+00:00",
+  "processed_at": "2026-02-27T11:10:53.480031+00:00",
+  "total_chunks": 3,
+  "chunks": [
+    {
+      "id": "kdigo_2024_ckd_c0000",
+      "source_id": "kdigo_2024_ckd",
+      "title": "KDIGO 2024 CKD Evaluation and Management",
+      "url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "eGFR",
+        "UACR",
+        "proteinuria",
+        "SGLT2i",
+        "dialysis"
+      ],
+      "license": "public_summary",
+      "chunk_index": 0,
+      "total_chunks": 4,
+      "text": "Back CKD Evaluation and Management The KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease (CKD), an update to the 2012 guideline, was published in March 2024 in Supplement to Kidney International. The Executive Summary was published in the April 2024 issue of Kidney International. The guideline, an update to the KDIGO 2012 CKD Guideline, was co-chaired by Professor Adeera Levin, MD (Canada) and Paul Stevens, MB (United Kingdom). The guideline is intended for healthcare professionals who provide kidney care, for people with suspected or diagnosed CKD and their caregivers, and for policymakers and commissioners of CKD services. The aim is to prov",
+      "token_estimate": 300,
+      "hash": "5c1ada563543"
+    },
+    {
+      "id": "kdigo_2024_ckd_c0001",
+      "source_id": "kdigo_2024_ckd",
+      "title": "KDIGO 2024 CKD Evaluation and Management",
+      "url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "eGFR",
+        "UACR",
+        "proteinuria",
+        "SGLT2i",
+        "dialysis"
+      ],
+      "license": "public_summary",
+      "chunk_index": 1,
+      "total_chunks": 4,
+      "text": "Key highlights of the KDIGO CKD Guideline include guidance updates on the measurements of estimated glomerular filtration rate and albuminuria, utilization of CKD risk prediction equations, and personalized treatment recommendations for kidney and cardiovascular risk reductions tailored to individual patient needs and preferences. Treatment approaches and actionable guideline recommendations are based on systematic review of relevant studies and appraisal of the quality of the evidence and the strength of recommendations, following the Grading of Recommendations Assessment, Development, and Evaluation (GRADE) approach. The guideline also provides practice points, which serve to direct clinic",
+      "token_estimate": 256,
+      "hash": "d344abd39375"
+    },
+    {
+      "id": "kdigo_2024_ckd_c0002",
+      "source_id": "kdigo_2024_ckd",
+      "title": "KDIGO 2024 CKD Evaluation and Management",
+      "url": "https://kdigo.org/guidelines/ckd-evaluation-and-management/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "eGFR",
+        "UACR",
+        "proteinuria",
+        "SGLT2i",
+        "dialysis"
+      ],
+      "license": "public_summary",
+      "chunk_index": 2,
+      "total_chunks": 4,
+      "text": "Guideline Suite KDIGO 2024 CKD Guideline KDIGO 2024 CKD Guideline Executive Summary KDIGO 2024 CKD Guideline Data Supplement KDIGO 2024 CKD Guideline Slide Set KDIGO 2024 CKD Guideline Key Takeaways Slide Set KDIGO 2024 CKD Guideline Top 10 Takeaways for Nephrologists - Evaluation KDIGO 2024 CKD Guideline Top 10 Takeaways for Nephrologists - Management KDIGO 2024 CKD Guideline Top 12 Takeaways for Pediatricians KDIGO 2024 CKD Guideline Top 10 Takeaways for PCPs - Evaluation KDIGO 2024 CKD Guideline Top 10 Takeaways for PCPs - Management KDIGO 2024 CKD Guideline Top Takeaways - People Living with CKD Guideline Resources KDIGO DIGITAL TOOLS KDIGO DIGITAL HEAT MAP KDIGO 2024 CKD GUIDELINE VIDEO",
+      "token_estimate": 784,
+      "hash": "235405192c53"
+    }
+  ]
+}

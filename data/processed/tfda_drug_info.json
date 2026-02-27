@@ -1,0 +1,19 @@
+{
+  "source_id": "tfda_drug_info",
+  "title": "食藥署藥品說明書查詢（TFDA）",
+  "url": "https://www.fda.gov.tw/TC/site.aspx?sid=3",
+  "category": "gov",
+  "language": "zh-TW",
+  "tags": [
+    "藥品",
+    "仿單",
+    "適應症",
+    "禁忌",
+    "副作用"
+  ],
+  "license": "public",
+  "fetched_at": "2026-02-27T11:10:17.268367+00:00",
+  "processed_at": "2026-02-27T11:10:53.484271+00:00",
+  "total_chunks": 0,
+  "chunks": []
+}

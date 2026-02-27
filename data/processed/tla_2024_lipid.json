@@ -1,0 +1,64 @@
+{
+  "source_id": "tla_2024_lipid",
+  "title": "台灣脂質學會 2024 血脂異常治療指引",
+  "url": "https://www.tla.org.tw/",
+  "category": "society",
+  "language": "zh-TW",
+  "tags": [
+    "高血脂",
+    "LDL",
+    "statin",
+    "PCSK9i",
+    "台灣指引"
+  ],
+  "license": "public_summary",
+  "fetched_at": "2026-02-27T11:10:31.528300+00:00",
+  "processed_at": "2026-02-27T11:10:53.845966+00:00",
+  "total_chunks": 2,
+  "chunks": [
+    {
+      "id": "tla_2024_lipid_c0000",
+      "source_id": "tla_2024_lipid",
+      "title": "台灣脂質學會 2024 血脂異常治療指引",
+      "url": "https://www.tla.org.tw/",
+      "date": "2026-02",
+      "category": "society",
+      "language": "zh-TW",
+      "tags": [
+        "高血脂",
+        "LDL",
+        "statin",
+        "PCSK9i",
+        "台灣指引"
+      ],
+      "license": "public_summary",
+      "chunk_index": 0,
+      "total_chunks": 2,
+      "text": "Taiwan Laryngological Association 台灣喉科醫學會 Breath better, eat better sleep better, today. TALC2025 TALC 2025 Announcement The 3rd Annual Meeting and International Symposium of the Taiwan Laryngological Society (TALC, Taiwan Autumn Laryngology Conference) has successfully concluded. We sincerely thank all our members for their enthusiastic participation! 第三屆台灣喉科醫學會年會暨國際學術研討會順利成功，感謝您的熱情參與與支持 大會花絮、感言 台灣喉科醫學會 第二屆理監事改選於2025年9月13日順利舉行，當選名單：  理事長方端仁 常務理事朱本元、楊宗霖 理事朱永祥、徐正明、莊俊義、辛立仁、黃子晏、蔡青劭、許巍鐘、鄒永恩 候補理事黃澤人 常務監事王誌群 監事曹傑漢、蘇性豪 秘書處秘書長：盧怡安副秘書長：曾文萱秘書：林麗芸 大會官網: https://www. talc2025. com. tw 最新活動 台灣喉科醫學會網站贊助商募集中 2026 台灣喉科醫學會春季學術研討會 2026/3/21（六） 13:30–17:00 台中林酒店 7F 柏林廳 報名連結：https://reurl.",
+      "token_estimate": 257,
+      "hash": "2536fc612e00"
+    },
+    {
+      "id": "tla_2024_lipid_c0001",
+      "source_id": "tla_2024_lipid",
+      "title": "台灣脂質學會 2024 血脂異常治療指引",
+      "url": "https://www.tla.org.tw/",
+      "date": "2026-02",
+      "category": "society",
+      "language": "zh-TW",
+      "tags": [
+        "高血脂",
+        "LDL",
+        "statin",
+        "PCSK9i",
+        "台灣指引"
+      ],
+      "license": "public_summary",
+      "chunk_index": 1,
+      "total_chunks": 2,
+      "text": "cc/la4eQj歡迎同道先進踴躍報名參加 學會近期活動 2025 TALC第三屆台灣喉科醫學會 年會暨國際學術研討會 2025年9月13日（六） 高雄萬豪酒店1 中國醫藥大學與台灣喉科醫學會合辦 台灣中區喉部手術研討會 2025年8月3日 地點：台中日月千禧酒店 彰化基督教醫院與台灣喉科醫學會合辦 探索音聲的奧秘-喉科與嗓音治療專題 2025年8月9日 地點：彰化基督教醫院蘭 contact us 喉科醫學會 關於本學會 秘書處03-3281200 #3971",
+      "token_estimate": 119,
+      "hash": "fc904c6bab49"
+    }
+  ]
+}

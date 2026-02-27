@@ -1,0 +1,159 @@
+{
+  "source_id": "kdigo_2017_bone",
+  "title": "KDIGO 2017 CKD-MBD Guideline",
+  "url": "https://kdigo.org/guidelines/ckd-mbd/",
+  "category": "guideline",
+  "language": "en",
+  "tags": [
+    "CKD",
+    "bone",
+    "PTH",
+    "calcium",
+    "phosphorus",
+    "vitamin_D"
+  ],
+  "license": "public_summary",
+  "fetched_at": "2026-02-27T11:09:54.998175+00:00",
+  "processed_at": "2026-02-27T11:10:53.452937+00:00",
+  "total_chunks": 6,
+  "chunks": [
+    {
+      "id": "kdigo_2017_bone_c0000",
+      "source_id": "kdigo_2017_bone",
+      "title": "KDIGO 2017 CKD-MBD Guideline",
+      "url": "https://kdigo.org/guidelines/ckd-mbd/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "bone",
+        "PTH",
+        "calcium",
+        "phosphorus",
+        "vitamin_D"
+      ],
+      "license": "public_summary",
+      "chunk_index": 0,
+      "total_chunks": 6,
+      "text": "Back CKD-Mineral and Bone Disorder (CKD-MBD) The Kidney Disease: Improving Global Outcomes (KDIGO) 2017 Clinical Practice Guideline Update for the Diagnosis, Evaluation, Prevention, and Treatment of chronic kidney disease–mineral and bone disorder (CKD-MBD) represents a selective update of the prior guideline published in 2009. This update, along with the 2009 publication, is intended to assist the practitioner caring for adults and children with CKD, those on chronic dialysis therapy, or individuals with a kidney transplant. Specifically, the topic areas for which updated recommendations are issued include diagnosis of bone abnormalities in CKD-MBD; treatment of CKD-MBD by targeting phospha",
+      "token_estimate": 332,
+      "hash": "ca47adc7d5bc"
+    },
+    {
+      "id": "kdigo_2017_bone_c0001",
+      "source_id": "kdigo_2017_bone",
+      "title": "KDIGO 2017 CKD-MBD Guideline",
+      "url": "https://kdigo.org/guidelines/ckd-mbd/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "bone",
+        "PTH",
+        "calcium",
+        "phosphorus",
+        "vitamin_D"
+      ],
+      "license": "public_summary",
+      "chunk_index": 1,
+      "total_chunks": 6,
+      "text": "Limitations of the evidence are discussed, with areas of future research also presented. The guideline was co-chaired by Markus Ketteler, MD, FERA (Klinikum Coburg, Germany) and Mary Leonard, MD, MSCE (Stanford University School of Medicine, United States).",
+      "token_estimate": 64,
+      "hash": "b53e7377d423"
+    },
+    {
+      "id": "kdigo_2017_bone_c0002",
+      "source_id": "kdigo_2017_bone",
+      "title": "KDIGO 2017 CKD-MBD Guideline",
+      "url": "https://kdigo.org/guidelines/ckd-mbd/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "bone",
+        "PTH",
+        "calcium",
+        "phosphorus",
+        "vitamin_D"
+      ],
+      "license": "public_summary",
+      "chunk_index": 2,
+      "total_chunks": 6,
+      "text": "Guideline Suite 2017 CKD-MBD Guideline Update 2017 CKD-MBD Guideline Update Executive Summary 2017 CKD-MBD Guideline Update Synopsis 2017 CKD-MBD Guideline Update Appendix A  B 2017 CKD-MBD Guideline Update Evidence Summary Tables 2017 CKD-MBD Guideline Update Speaker's Guide (PDF) 2017 CKD-MBD Guideline Update Speaker's Guide (PPT) 2009 CKD-MBD Guideline 2009 CKD-MBD Guideline Supplementary Tables Guideline Resources IMPLEMENTATION TOOLS KDIGO Quick Reference Guide CKD-MBD Update: Visual Guidelines Translating Evidence Into Practice Video Management of Hyperphosphataemia in CKD MBD Video 2017 CKD-MBD Guideline Update Quick Reference Guide Summary of 2017 CKD-MBD Guideline Update Recommendat",
+      "token_estimate": 422,
+      "hash": "c22158dc3697"
+    },
+    {
+      "id": "kdigo_2017_bone_c0003",
+      "source_id": "kdigo_2017_bone",
+      "title": "KDIGO 2017 CKD-MBD Guideline",
+      "url": "https://kdigo.org/guidelines/ckd-mbd/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "bone",
+        "PTH",
+        "calcium",
+        "phosphorus",
+        "vitamin_D"
+      ],
+      "license": "public_summary",
+      "chunk_index": 3,
+      "total_chunks": 6,
+      "text": "Translations 2017 CKD-MBD Guideline Update Translations Chinese (Mandarin) 2017 KDIGO 临床实践指南更新 慢性肾脏病-矿物质与骨异常 (CKD-MBD) 诊断, 评估, 预防和治疗 French Résumé des recommandations KDIGO 2017 révisées sur la prise en charge des troubles minéraux et osseux associés aux maladies rénales chroniques (TMO-MRC): quels sont les changements et pourquoi sont-ils importants? German Update 2017 der KDIGO-Leitlinie zu den Störungen des Mineralund Knochenhaushalts bei chronischer Nierenerkrankung Japanese KDIGO 2017 CKD-MBD推奨文和訳版 Korean (Executive Summary) 2017년 KDIGO 만성 콩팥병-미네랄뼈질환 가이드라인 업데이트: 변경 사항과 주요 시사점 Turkish (Executive Summary) Böbrek Hastalıkları: KDIGO Kronik Böbrek Hastalıgı-Mineral ve Kemik Bozuklukları (KB",
+      "token_estimate": 241,
+      "hash": "6bf149ed21af"
+    },
+    {
+      "id": "kdigo_2017_bone_c0004",
+      "source_id": "kdigo_2017_bone",
+      "title": "KDIGO 2017 CKD-MBD Guideline",
+      "url": "https://kdigo.org/guidelines/ckd-mbd/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "bone",
+        "PTH",
+        "calcium",
+        "phosphorus",
+        "vitamin_D"
+      ],
+      "license": "public_summary",
+      "chunk_index": 4,
+      "total_chunks": 6,
+      "text": "والعظم – الناتج عن الداء الكلوي المزمن Chinese (Mandarin) KDIGO 慢性肾脏病矿物质和骨异常诊断、评价、预防和治疗的临床实践指南 French RECOMMANDATIONS KDIGO DE BONNES PRATIQUES CLINIQUESPOUR LE DIAGNOSTIC, LEVALUATION, LA PREVENTION ET LE TRAITEMENT DES TROUBLES MINERAUX ET OSSEUX ASSOCIES AUX MALADIES RENALES CHRONIQUES (TMO-MRC) German KDIGO-Leitlinien zu den Störungen des Mineral- und Knochenhaushalts bei chronischer Nierenerkrankung (Part 1) KDIGO-Leitlinien zu den Störungen des Mineral- und Knochenhaushalts bei chronischer Nierenerkrankung (Part 2) Greek ΚΑΤΕΥΘΥΝΤΗΡΙΕΣ ΟΔΗΓΙΕΣ ΤΗΣ ΟΡΓΑΝΩΣΗΣ KDIGO ΓΙΑ ΤΗ ΔΙΑΓΝΩΣΗ, ΤΗΝ ΕΚΤΙΜΗΣΗ, ΤΗΝ ΠΡΟΛΗΨΗ ΚΑΙ ΤΗ ΘΕΡΑΠΕΙΑ ΤΗΣ ΔΙΑΤΑΡΑΧΗΣ ΤΟΥ ΜΕΤΑΒΟΛΙΣΜΟΥ ΤΩΝ ΟΣΤΩΝ ΚΑΙ ΤΩΝ ΜΕΤΑΛΛΙΚΩΝ ΣΤΟΙ",
+      "token_estimate": 457,
+      "hash": "2aebb192269d"
+    },
+    {
+      "id": "kdigo_2017_bone_c0005",
+      "source_id": "kdigo_2017_bone",
+      "title": "KDIGO 2017 CKD-MBD Guideline",
+      "url": "https://kdigo.org/guidelines/ckd-mbd/",
+      "date": "2026-02",
+      "category": "guideline",
+      "language": "en",
+      "tags": [
+        "CKD",
+        "bone",
+        "PTH",
+        "calcium",
+        "phosphorus",
+        "vitamin_D"
+      ],
+      "license": "public_summary",
+      "chunk_index": 5,
+      "total_chunks": 6,
+      "text": "The recommendations are designed to provide information and assist decision-making. They are not intended to define a standard of care, and should not be construed as one. Neither should they be interpreted as prescribing an exclusive course of management. Variations in practice will inevitably and appropriately occur when clinicians take into account the needs of individual patients, available resources, and limitations unique to an institution or type of practice. Every health care professional making use of this Guideline is responsible for evaluating the appropriateness of applying them in the setting of any particular clinical situation. The recommendations for research contained within",
+      "token_estimate": 199,
+      "hash": "6a5f0162c00f"
+    }
+  ]
+}

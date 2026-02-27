@@ -1,0 +1,86 @@
+name: 每週更新醫療文獻庫
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"   # 每週日 UTC 03:00（台灣時間 11:00）
+  workflow_dispatch:        # 允許手動觸發
+    inputs:
+      source_id:
+        description: "只更新特定來源 ID（留空 = 全部）"
+        required: false
+        default: ""
+      force_all:
+        description: "強制更新全部（忽略 hash 快取）"
+        type: boolean
+        default: false
+
+jobs:
+  update-knowledge:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUTF8: 1         # 強制 Python 使用 UTF-8，跨平台一致
+    permissions:
+      contents: write   # 需要 commit 回去
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── 步驟 1：抓取來源 ──────────────────────────────────────
+      - name: Ingest sources
+        run: |
+          if [ -n "${{ github.event.inputs.source_id }}" ]; then
+            python scripts/ingest.py --id "${{ github.event.inputs.source_id }}"
+          elif [ "${{ github.event.inputs.force_all }}" = "true" ]; then
+            python scripts/ingest.py
+          else
+            python scripts/ingest.py --changed
+          fi
+        env:
+          # 如果需要特殊 User-Agent 或 Proxy 可在 Secrets 設定
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+
+      # ── 步驟 2：切 chunk 並結構化 ────────────────────────────
+      - name: Process into chunks
+        run: python scripts/process.py ${{ github.event.inputs.source_id && format('--id {0}', github.event.inputs.source_id) || '' }}
+
+      # ── 步驟 3：建立搜尋索引 ─────────────────────────────────
+      - name: Build search index
+        run: python scripts/build_index.py --minify
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
+      # ── 步驟 4：驗證輸出 ─────────────────────────────────────
+      - name: Validate output
+        run: python scripts/validate.py
+
+      # ── 步驟 5：如果 public/ 有變動才 commit ─────────────────
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet public/ || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name  "ClinCalc Bot"
+          git config user.email "bot@clincalc.dev"
+          git add public/
+          CHUNKS=$(python -c "import json; d=json.load(open('public/manifest.json')); print(d['total_chunks'])")
+          SOURCES=$(python -c "import json; d=json.load(open('public/manifest.json')); print(d['total_sources'])")
+          git commit -m "chore: 自動更新文獻庫 $(date +'%Y-%m-%d') · ${CHUNKS} chunks · ${SOURCES} 來源"
+          git push
+
+      - name: No changes detected
+        if: steps.check_changes.outputs.changed != 'true'
+        run: echo "所有來源均無變動，略過 commit。"

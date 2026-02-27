@@ -1,0 +1,198 @@
+# ─────────────────────────────────────────────────────────────────
+# ClinCalc 醫療文獻來源清單
+# 修改後執行：python scripts/ingest.py --changed
+#
+# license 值：
+#   public         政府/公眾領域，可完整引用
+#   public_summary 只引用公開摘要，不複製受版權保護的全文
+#   open_access    Open Access 論文
+#   restricted     受版權保護，只存 URL + 標題（不存文字）
+# ─────────────────────────────────────────────────────────────────
+
+sources:
+
+  # ══ 國際醫療指引 ══════════════════════════════════════════════
+
+  - id: ada_2026
+    title: "ADA 2026 Standards of Care in Diabetes"
+    category: guideline
+    language: en
+    url: "https://diabetesjournals.org/care/issue/49/Supplement_1"
+    type: html
+    frequency: yearly                  # daily | weekly | monthly | quarterly | yearly
+    chunk_max_tokens: 350              # 每個 chunk 最大 token 數
+    xpath_content: null                # 若有精確抓取 XPath 填在這
+    tags: [diabetes, HbA1c, SGLT2i, GLP1, insulin, CGM]
+    license: public_summary
+    active: true
+
+  - id: kdigo_2024_ckd
+    title: "KDIGO 2024 CKD Evaluation and Management"
+    category: guideline
+    language: en
+    url: "https://kdigo.org/guidelines/ckd-evaluation-and-management/"
+    type: html
+    frequency: yearly
+    tags: [CKD, eGFR, UACR, proteinuria, SGLT2i, dialysis]
+    license: public_summary
+    active: true
+
+  - id: aha_2022_htn
+    title: "ACC/AHA 2022 Hypertension Guideline"
+    category: guideline
+    language: en
+    url: "https://www.ahajournals.org/doi/10.1161/HYP.0000000000000065"
+    type: html
+    frequency: yearly
+    tags: [hypertension, BP, antihypertensive, DASH]
+    license: public_summary
+    active: true
+
+  - id: ata_2023_thyroid
+    title: "ATA 2023 Thyroid Guidelines"
+    category: guideline
+    language: en
+    url: "https://www.thyroid.org/thyroid-professionals/clinical-thyroidology/"
+    type: html
+    frequency: yearly
+    tags: [thyroid, TSH, T4, T3, hypothyroid, Graves, Hashimoto]
+    license: public_summary
+    active: true
+
+  - id: kdigo_2017_bone
+    title: "KDIGO 2017 CKD-MBD Guideline"
+    category: guideline
+    language: en
+    url: "https://kdigo.org/guidelines/ckd-mbd/"
+    type: html
+    frequency: yearly
+    tags: [CKD, bone, PTH, calcium, phosphorus, vitamin_D]
+    license: public_summary
+    active: true
+
+  - id: easl_2023_liver
+    title: "EASL 2023 Non-Invasive Tests (MASLD/MAFLD)"
+    category: guideline
+    language: en
+    url: "https://easl.eu/publication/easl-clinical-practice-guidelines-on-non-invasive-tests-for-evaluation-of-liver-disease-severity-and-prognosis/"
+    type: html
+    frequency: yearly
+    tags: [liver, FIB4, APRI, MASLD, NAFLD, fibrosis]
+    license: public_summary
+    active: true
+
+  # ══ 台灣政府機關（公眾領域，可完整引用）══════════════════════
+
+  - id: nhi_metabolic_syndrome
+    title: "全民健保代謝症候群防治計畫"
+    category: gov
+    language: zh-TW
+    url: "https://www.nhi.gov.tw/Content_List.aspx?n=9AB97CA2A0A7C57D"
+    type: html
+    frequency: quarterly
+    tags: [代謝症候群, 腹部肥胖, TG, HDL, 健保收案]
+    license: public
+    active: true
+
+  - id: nhi_statin
+    title: "全民健保降膽固醇藥物（Statin）給付規定"
+    category: gov
+    language: zh-TW
+    url: "https://www.nhi.gov.tw/Content_List.aspx?n=9AB97CA2A0A7C57D"
+    type: html
+    frequency: quarterly
+    tags: [statin, LDL, 健保給付, 高血脂, ASCVD]
+    license: public
+    active: true
+
+  - id: nhi_ckd_care
+    title: "全民健保初期慢性腎臟病照護計畫"
+    category: gov
+    language: zh-TW
+    url: "https://www.nhi.gov.tw/"
+    type: html
+    frequency: quarterly
+    tags: [CKD, eGFR, 蛋白尿, 健保收案, 追蹤]
+    license: public
+    active: true
+
+  - id: nhi_icd10
+    title: "健保署 TW-ICD-10-CM 對照表"
+    category: gov
+    language: zh-TW
+    url: "https://www.nhi.gov.tw/Content_List.aspx?n=D529DDFE5448BEAC"
+    type: html
+    frequency: yearly
+    tags: [ICD10, 診斷碼, 健保申報]
+    license: public
+    active: true
+
+  - id: tfda_drug_info
+    title: "食藥署藥品說明書查詢（TFDA）"
+    category: gov
+    language: zh-TW
+    url: "https://www.fda.gov.tw/TC/site.aspx?sid=3"
+    type: html
+    frequency: monthly
+    tags: [藥品, 仿單, 適應症, 禁忌, 副作用]
+    license: public
+    active: true
+
+  # ══ 台灣學會指引 ══════════════════════════════════════════════
+
+  - id: tas_2024_diabetes
+    title: "台灣糖尿病學會 2024 第2型糖尿病臨床照護指引"
+    category: society
+    language: zh-TW
+    url: "https://www.endo-dm.org.tw/dia/ALLDOC/dia2019_01/dia2019_01.asp"
+    type: html
+    frequency: yearly
+    tags: [糖尿病, HbA1c, SGLT2i, GLP1, 台灣指引]
+    license: public_summary
+    active: true
+
+  - id: tsn_2023_ckd
+    title: "台灣腎臟醫學會 CKD 診療準則 2023"
+    category: society
+    language: zh-TW
+    url: "https://www.tsn.org.tw/UI/C/ClinicalGuideline.aspx"
+    type: html
+    frequency: yearly
+    tags: [CKD, eGFR, 蛋白尿, SGLT2i, 台灣指引]
+    license: public_summary
+    active: true
+
+  - id: tsh_2023_hypertension
+    title: "台灣高血壓學會 2023 高血壓治療指引"
+    category: society
+    language: zh-TW
+    url: "https://www.hypertension.org.tw/"
+    type: html
+    frequency: yearly
+    tags: [高血壓, 降壓藥, 白袍高血壓, 台灣指引]
+    license: public_summary
+    active: true
+
+  - id: tla_2024_lipid
+    title: "台灣脂質學會 2024 血脂異常治療指引"
+    category: society
+    language: zh-TW
+    url: "https://www.tla.org.tw/"
+    type: html
+    frequency: yearly
+    tags: [高血脂, LDL, statin, PCSK9i, 台灣指引]
+    license: public_summary
+    active: true
+
+  # ══ 工具/計算機資源 ══════════════════════════════════════════
+
+  - id: mdcalc_index
+    title: "MDCalc — 臨床計算器清單"
+    category: tool
+    language: en
+    url: "https://www.mdcalc.com"
+    type: html
+    frequency: monthly
+    tags: [calculator, CHADS2, SOFA, Framingham, clinical_tools]
+    license: public
+    active: true

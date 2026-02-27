@@ -1,0 +1,26 @@
+# 機密設定
+.env
+
+# 原始爬取資料（太大、不需要版本控制）
+data/raw/
+!data/raw/.gitkeep
+
+# hash 快取（本機用）
+data/.hash_cache.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Node（web/ 下可能有）
+node_modules/
+dist/
+.parcel-cache/
+
+# IDE
+.vscode/
+.idea/
+*.DS_Store
