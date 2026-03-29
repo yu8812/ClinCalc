@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogIn, Eye, EyeOff, AlertCircle, Mail, Lock } from "lucide-react";
+import { LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 export default function LoginPage() {
@@ -54,18 +54,14 @@ export default function LoginPage() {
                 style={{ color: "var(--text-primary)" }}>
                 電子郵件 / Email
               </label>
-              <div className="relative">
-                <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--text-secondary)" }} />
-                <input
-                  type="email"
-                  required
-                  className="input-field pl-9"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+              <input
+                type="email"
+                required
+                className="input-field"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
 
             {/* Password */}
@@ -75,12 +71,10 @@ export default function LoginPage() {
                 密碼 / Password
               </label>
               <div className="relative">
-                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--text-secondary)" }} />
                 <input
                   type={showPw ? "text" : "password"}
                   required
-                  className="input-field pl-9 pr-10"
+                  className="input-field pr-10"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

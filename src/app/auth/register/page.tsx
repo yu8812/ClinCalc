@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { UserPlus, Eye, EyeOff, AlertCircle, Mail, Lock, User, AlertTriangle } from "lucide-react";
+import { UserPlus, Eye, EyeOff, AlertCircle, Mail, AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 export default function RegisterPage() {
@@ -82,12 +82,8 @@ export default function RegisterPage() {
               <label className="text-sm font-medium block mb-1.5" style={{ color: "var(--text-primary)" }}>
                 姓名 / Name
               </label>
-              <div className="relative">
-                <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--text-secondary)" }} />
-                <input type="text" required className="input-field pl-9"
-                  placeholder="您的姓名" value={form.name} onChange={(e) => set("name", e.target.value)} />
-              </div>
+              <input type="text" required className="input-field"
+                placeholder="您的姓名" value={form.name} onChange={(e) => set("name", e.target.value)} />
             </div>
 
             {/* Email */}
@@ -95,12 +91,8 @@ export default function RegisterPage() {
               <label className="text-sm font-medium block mb-1.5" style={{ color: "var(--text-primary)" }}>
                 電子郵件 / Email
               </label>
-              <div className="relative">
-                <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--text-secondary)" }} />
-                <input type="email" required className="input-field pl-9"
-                  placeholder="your@email.com" value={form.email} onChange={(e) => set("email", e.target.value)} />
-              </div>
+              <input type="email" required className="input-field"
+                placeholder="your@email.com" value={form.email} onChange={(e) => set("email", e.target.value)} />
             </div>
 
             {/* Password */}
@@ -109,9 +101,7 @@ export default function RegisterPage() {
                 密碼 / Password
               </label>
               <div className="relative">
-                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--text-secondary)" }} />
-                <input type={showPw ? "text" : "password"} required className="input-field pl-9 pr-10"
+                <input type={showPw ? "text" : "password"} required className="input-field pr-10"
                   placeholder="至少 8 個字元" value={form.password} onChange={(e) => set("password", e.target.value)} />
                 <button type="button" onClick={() => setShowPw(!showPw)}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
@@ -126,13 +116,9 @@ export default function RegisterPage() {
               <label className="text-sm font-medium block mb-1.5" style={{ color: "var(--text-primary)" }}>
                 確認密碼 / Confirm Password
               </label>
-              <div className="relative">
-                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--text-secondary)" }} />
-                <input type={showPw ? "text" : "password"} required className="input-field pl-9"
-                  placeholder="再輸入一次密碼" value={form.confirm} onChange={(e) => set("confirm", e.target.value)}
-                  style={{ borderColor: form.confirm && form.confirm !== form.password ? "rgba(239,68,68,0.5)" : undefined }} />
-              </div>
+              <input type={showPw ? "text" : "password"} required className="input-field"
+                placeholder="再輸入一次密碼" value={form.confirm} onChange={(e) => set("confirm", e.target.value)}
+                style={{ borderColor: form.confirm && form.confirm !== form.password ? "rgba(239,68,68,0.5)" : undefined }} />
             </div>
 
             {/* Disclaimer checkbox */}
