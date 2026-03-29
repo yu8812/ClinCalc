@@ -28,7 +28,10 @@ export default function RegisterPage() {
     const { error: err } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-      options: { data: { name: form.name } },
+      options: {
+        data: { name: form.name },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     if (err) {
       setError(err.message.includes("already registered") ? "此電子郵件已被註冊" : err.message);
