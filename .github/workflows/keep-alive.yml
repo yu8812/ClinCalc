@@ -1,0 +1,23 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # 每 3 天執行一次，UTC 00:00（台灣時間 08:00）
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # 可手動觸發
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/medications?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}")
+          echo "Supabase response: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Warning: unexpected status $STATUS"
+            exit 1
+          fi
+          echo "Supabase is alive ✓"
