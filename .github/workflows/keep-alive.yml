@@ -14,7 +14,7 @@ jobs:
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             "${{ secrets.SUPABASE_URL }}/rest/v1/medications?select=id&limit=1" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}")
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_KEY }}")
           echo "Supabase response: $STATUS"
           if [ "$STATUS" != "200" ]; then
             echo "Warning: unexpected status $STATUS"

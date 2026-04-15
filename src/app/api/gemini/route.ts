@@ -1,22 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
-// Simple in-memory rate limiter (per-IP, resets on server restart)
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 20;       // max requests per window
-const RATE_WINDOW = 60_000;  // 1 minute window
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
-    return true;
-  }
-  if (entry.count >= RATE_LIMIT) return false;
-  entry.count++;
-  return true;
-}
+export const runtime = "edge";
 
 const MAX_TEXT_LENGTH = 8000;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB in base64 chars ≈ 13.3M
@@ -31,15 +16,6 @@ const SYSTEM_PROMPT = `你是 ClinCalc 的 AI 健康助理，幫助一般民眾�
 5. 不得提供具體藥物劑量建議或診斷結論`;
 
 export async function POST(req: NextRequest) {
-  // Rate limit by IP
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json(
-      { error: "RATE_LIMIT", message: "請求過於頻繁，請稍後再試" },
-      { status: 429 }
-    );
-  }
-
   // Content-Type check
   if (!req.headers.get("content-type")?.includes("application/json")) {
     return NextResponse.json({ error: "INVALID_CONTENT_TYPE" }, { status: 400 });
