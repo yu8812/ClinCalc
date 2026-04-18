@@ -1,102 +1,110 @@
 # ClinCalc — 部署與 CI/CD
 
-## 部署平台：Cloudflare Pages
+## 部署架構（最終版）
 
 | 設定項目 | 值 |
 |---------|-----|
-| 平台 | Cloudflare Pages |
+| 平台 | Cloudflare Workers（非 Pages）|
 | GitHub 倉庫 | RO883C/ClinCalc |
 | Branch | main |
-| Build command | `npx opennextjs-cloudflare build` |
-| Build output directory | `.open-next/assets` |
+| CI/CD | GitHub Actions（`.github/workflows/deploy.yml`）|
 | Next.js adapter | `@opennextjs/cloudflare` v1.19.1 |
 | Wrangler | v4.83.0 |
 
-## 為何選 Cloudflare Pages
+> ⚠️ **注意**：`@opennextjs/cloudflare` 設計給 Cloudflare **Workers**，不是 Pages。
+> 使用 `pages_build_output_dir` 的 Pages 模式只上傳靜態資產，Worker 無法運作。
 
-| 比較項目 | Cloudflare Pages | Vercel | Netlify（已放棄）|
-|---------|-----------------|--------|-----------------|
-| 免費頻寬 | 無限制 | 100GB/月 | Credit 制（隨時停服）|
+## 為何選 Cloudflare Workers
+
+| 比較項目 | Cloudflare Workers | Vercel | Netlify（已放棄）|
+|---------|-------------------|--------|-----------------|
+| 免費頻寬 | 無限制 | 100GB/月 | Credit 制（ClinCalc 曾被停服）|
 | 商業使用 | 允許 | 限制 | 限制 |
-| Next.js 16 支援 | @opennextjs | 原生 | 不穩定 |
-| Rate Limiting | 基礎設施層 | 需自建 | 需自建 |
-| 私密倉庫 | 支援 | 支援 | 支援 |
+| Next.js 16 支援 | @opennextjs/cloudflare | 原生 | 不穩定 |
+| Edge Runtime | ✓ | ✓ | 不穩定 |
+| 自動部署 | GitHub Actions | 原生 Git 整合 | 原生 Git 整合 |
 
-## 環境變數設定
-
-在 Cloudflare Pages → Settings → Environment variables 設定：
-
-| 變數 | 說明 |
-|------|------|
-| `GEMINI_API_KEY` | Google Gemini API Key（Server only）|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL（`https://hsdysyoowfakdogevtdh.supabase.co`）|
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Anon Key（在 Supabase → Settings → API 取得）|
-
-## wrangler.toml
+## wrangler.toml（Workers 模式）
 
 ```toml
 name = "clincalc"
+main = ".open-next/worker.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".open-next/assets"
 
-[vars]
-NEXT_PUBLIC_SUPABASE_URL = ""
-NEXT_PUBLIC_SUPABASE_ANON_KEY = ""
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
 ```
 
-敏感變數（GEMINI_API_KEY）必須在 Cloudflare 後台設定，不放進 wrangler.toml。
+## 環境變數
+
+### Build time（GitHub Actions Secrets）
+Next.js 在 build 時會把 `NEXT_PUBLIC_*` 嵌入靜態資產，所以需要在 GitHub Actions 環境中設定：
+
+| GitHub Secret | 說明 |
+|------|------|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token（Edit Workers 權限）|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+
+### Runtime（Cloudflare Workers 後台）
+在 Cloudflare → Workers & Pages → clincalc → Settings → Variables and Secrets：
+
+| 變數 | 說明 |
+|------|------|
+| `GEMINI_API_KEY` | Google Gemini API Key（只在 server 端讀取，不可加 NEXT_PUBLIC_）|
+
+### Keep-alive（GitHub Actions Secrets，keep-alive.yml 用）
+
+| GitHub Secret | 說明 |
+|------|------|
+| `SUPABASE_URL` | Supabase Project URL |
+| `SUPABASE_SERVICE_KEY` | Supabase service_role key |
+
+## CI/CD 流程
+
+```
+git push main
+    ↓
+GitHub Actions: deploy.yml
+    ↓
+npm ci
+    ↓
+npx opennextjs-cloudflare build   ← Next.js build + Cloudflare adapter
+    ↓
+npx opennextjs-cloudflare deploy  ← wrangler deploy 到 Cloudflare Workers
+    ↓
+https://<worker-name>.<account>.workers.dev
+```
 
 ## 本地開發指令
 
 ```bash
 npm run dev           # 啟動開發伺服器 http://localhost:3000
-npm run build         # 標準 Next.js build（檢查型別錯誤）
+npm run build         # 標準 Next.js build（型別/錯誤檢查）
 npm run cf:build      # Cloudflare build（opennextjs-cloudflare build）
 npm run cf:preview    # 本地預覽 Cloudflare 版本
-npm run cf:deploy     # 手動部署至 Cloudflare
-npm run lint          # ESLint 程式碼品質
+npm run lint          # ESLint
 npx tsc --noEmit      # TypeScript 型別檢查
 ```
-
-## Edge Runtime
-
-`src/app/api/gemini/route.ts` 頂部需有：
-
-```ts
-export const runtime = 'edge'
-```
-
-Cloudflare Pages 使用 Edge Runtime，不支援部分 Node.js API，因此 rate limiter（使用 Map）已移除，改由 Cloudflare Rate Limiting 在基礎設施層處理。
-
-## Cloudflare Rate Limiting 設定（待完成）
-
-部署完成後，在 Cloudflare 後台設定：
-- 路徑：`/api/gemini`
-- 限制：依需求設定 requests/minute per IP
-
-## GitHub Actions
-
-### keep-alive.yml
-
-- 觸發：每 3 天自動執行（防止 Supabase free tier 暫停）
-- 功能：呼叫 Supabase REST API ping 資料庫
-- 需要 GitHub Secrets：
-  - `SUPABASE_URL`
-  - `SUPABASE_SERVICE_KEY`（Service Role Key，非 anon key）
-
-設定路徑：RO883C/ClinCalc → Settings → Secrets and variables → Actions
 
 ## Supabase 設定
 
 | 項目 | 值 |
 |------|-----|
 | 組織 | RO883C's Org |
-| 專案 | RO883C's Project |
 | 地區 | Northeast Asia (Tokyo) |
 | Plan | Nano（免費）|
-| URL | `https://hsdysyoowfakdogevtdh.supabase.co` |
 
 Supabase Auth → URL Configuration：
-- Site URL：設為 Cloudflare Pages 的正式網址
-- Redirect URLs：加入 `{SITE_URL}/auth/callback`
+- Site URL：設為 Worker 正式網址
+- Redirect URLs 需包含：`{SITE_URL}/auth/callback`
+
+## 已知踩坑
+
+1. **@cloudflare/next-on-pages 不支援 Next.js 16** → 必須用 @opennextjs/cloudflare
+2. **@opennextjs/cloudflare 設計給 Workers 不是 Pages** → `pages_build_output_dir` 只上傳靜態檔，Worker 根本不跑
+3. **package-lock.json 與 npm 版本差異** → 本機 npm 11 vs CI npm 10，`@swc/helpers` 版本衝突，需加為 devDependency
+4. **open-next.config.ts 缺失** → CI 環境無互動式輸入，build 直接失敗退出
+5. **wrangler.toml [vars] 空字串** → 會蓋掉 Cloudflare dashboard 設定的環境變數
