@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClinCalc — 精準計算臨床決策平台
 
-## Getting Started
+面向一般民眾的醫療健康自查網站。輸入體檢數值或症狀，獲得 AI 輔助的健康解讀與就醫建議。
 
-First, run the development server:
+## 技術棧
+
+- **Next.js 16.2.4** + TypeScript + Tailwind CSS v4
+- **Supabase**（PostgreSQL + Auth + RLS）
+- **Google Gemini API**（gemini-2.5-flash）
+- **Cloudflare Pages**（@opennextjs/cloudflare）
+
+## 文件
+
+| 文件 | 說明 |
+|------|------|
+| [DOCS/overview.md](DOCS/overview.md) | 專案概覽、技術棧、帳號資訊 |
+| [DOCS/architecture.md](DOCS/architecture.md) | 系統架構、目錄結構、資料庫結構 |
+| [DOCS/pages.md](DOCS/pages.md) | 頁面地圖與功能詳細說明 |
+| [DOCS/deployment.md](DOCS/deployment.md) | 部署流程、環境變數、CI/CD |
+| [DOCS/todo.md](DOCS/todo.md) | 待辦事項與已完成清單 |
+| [DOCS/notes.md](DOCS/notes.md) | 注意事項、安全設計、踩坑紀錄 |
+
+## 本地開發
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+需要 `.env.local`：
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+GEMINI_API_KEY=...
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cloudflare Pages 部署
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run cf:build      # Cloudflare build
+npm run cf:preview    # 本地預覽
+npm run cf:deploy     # 手動部署
+```

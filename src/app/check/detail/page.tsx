@@ -11,10 +11,9 @@ import {
 import { analyzeLocally, type AnalysisSummary } from "@/lib/localAnalysis";
 import { saveRecord, saveRecordCloud, getProfile, type UserProfile } from "@/lib/healthStore";
 import {
-  ChevronDown, ChevronUp, Info, Send, AlertTriangle,
+  ChevronDown, ChevronUp, Info, AlertTriangle,
   CheckCircle2, AlertCircle, Copy, Check, Trash2, Zap, Brain, ChevronLeft
 } from "lucide-react";
-import { useLang } from "@/contexts/LanguageContext";
 import Link from "next/link";
 
 interface FormData {
@@ -85,7 +84,7 @@ function ItemDetail({ item, gender }: { item: ReferenceItem; gender?: "M" | "F" 
 }
 
 export default function DetailCheckPage() {
-  const { locale } = useLang();
+
   const [form, setForm] = useState<FormData>({});
   const [profile, setProfile] = useState<UserProfile>({});
   const [symptoms, setSymptoms] = useState("");
@@ -257,17 +256,25 @@ ${symptoms || "（無）"}
           快速導航 — 點擊跳到對應區塊
         </p>
         <div className="flex flex-wrap gap-2">
-          {PRESETS.map((p) => (
-            <button key={p.label} onClick={() => applyPreset(p)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80"
-              style={{
-                background: "var(--bg-card)",
-                color: "var(--text-primary)",
-                border: "1px solid var(--border)",
-              }}>
-              {p.label}
-            </button>
-          ))}
+          {PRESETS.map((p) => {
+            const filled = REFERENCE_RANGES.filter(
+              r => p.cats.includes(r.category) && form[r.key]
+            ).length;
+            return (
+              <button key={p.label} onClick={() => applyPreset(p)}
+                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80 flex items-center gap-1.5"
+                style={{
+                  background: filled > 0 ? "var(--accent)" : "var(--bg-card)",
+                  color: filled > 0 ? "#fff" : "var(--text-primary)",
+                  border: "1px solid var(--border)",
+                }}>
+                {p.label}
+                {filled > 0 && (
+                  <span className="opacity-80 font-normal">{filled}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
