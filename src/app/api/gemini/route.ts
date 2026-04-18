@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "edge";
 
 const MAX_TEXT_LENGTH = 8000;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB in base64 chars ≈ 13.3M
