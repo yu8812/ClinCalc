@@ -2,28 +2,27 @@
 
 > 最後更新：2026-04-18
 
-## 🔴 部署（依序執行）
-
-- [ ] **Cloudflare Pages 建立**
-  - 登入 Cloudflare → Workers & Pages → Create → Pages → Connect to Git
-  - 選 RO883C/ClinCalc
-  - Build command：`npx opennextjs-cloudflare build`
-  - Output directory：`.open-next/assets`
-  - 環境變數：`GEMINI_API_KEY`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`
+## 🔴 部署收尾
 
 - [ ] **更新 Supabase Auth Site URL**
-  - 部署完成後，到 Supabase → Authentication → URL Configuration
-  - Site URL 改為 Cloudflare Pages 的正式網址（`https://clincalc.pages.dev` 或自訂域名）
-  - Redirect URLs 加入 `{SITE_URL}/auth/callback`
+  - Supabase → Authentication → URL Configuration
+  - Site URL 改為 `https://clincalc.<你的子域名>.workers.dev`
+  - Redirect URLs 加入 `https://clincalc.<子域名>.workers.dev/auth/callback`
+  - 舊的 `clincalc.pages.dev/auth/callback` 可刪除
 
-- [ ] **Cloudflare Rate Limiting 設定**
-  - 部署完成後在 Cloudflare 後台設定
+- [ ] **GEMINI_API_KEY 加入 Workers 後台**
+  - Cloudflare → Workers & Pages → clincalc（Workers）→ Settings → Variables and Secrets
+  - 新增 `GEMINI_API_KEY`（Secret 類型）
+
+- [ ] **測試完整功能**
+  - 首頁載入 ✓
+  - 登入 / 登出
+  - AI 分析（/check/simple 和 /check/detail）
+  - 圖片掃描（/scan）
+  - 健康記錄儲存與雲端同步
+
+- [ ] **Cloudflare Rate Limiting（可選）**
   - 針對 `/api/gemini` 路徑限制每 IP 請求頻率
-
-- [ ] **GitHub Actions Secrets 設定**
-  - RO883C/ClinCalc → Settings → Secrets and variables → Actions
-  - 新增：`SUPABASE_URL`、`SUPABASE_SERVICE_KEY`
-  - 完成後 keep-alive workflow 才能正常執行
 
 ## 🟡 功能開發
 
@@ -53,11 +52,15 @@
 ### 基礎設施
 - [x] GitHub 倉庫轉移至 RO883C/ClinCalc
 - [x] Supabase 專案轉移至 RO883C's Org
-- [x] @opennextjs/cloudflare 安裝完成
-- [x] wrangler.toml 建立
+- [x] @opennextjs/cloudflare 安裝完成（Workers 模式，非 Pages）
+- [x] wrangler.toml 設定（Workers：main + assets）
+- [x] open-next.config.ts 建立
 - [x] Edge Runtime 設定（/api/gemini）
+- [x] GitHub Actions deploy.yml（push to main 自動部署）
 - [x] Rate limiter 從程式碼移除（改由 Cloudflare 基礎設施處理）
 - [x] keep-alive GitHub Action 建立（每 3 天）
+- [x] GitHub Secrets 設定完成（CLOUDFLARE_API_TOKEN、NEXT_PUBLIC_SUPABASE_*）
+- [x] Cloudflare Pages 專案刪除（改用 Workers）
 
 ### 功能
 - [x] 首頁 Landing Page + 免責聲明 Modal
