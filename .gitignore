@@ -44,3 +44,6 @@ next-env.d.ts
 AGENTS.md
 CLAUDE.md
 .claude/
+
+# Local-only docs (moved to parent .docs/)
+DOCS/
