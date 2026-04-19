@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import {
   getRecords, deleteRecord,
   getRecordsCloud, deleteRecordCloud,
+  getProfile,
   type HealthRecord,
 } from "@/lib/healthStore";
 import { REFERENCE_RANGES } from "@/lib/referenceRanges";
 import { createClient } from "@/lib/supabase";
-import { Trash2, ChevronDown, ChevronUp, Brain, ScanLine, CalendarDays, ClipboardList, Cloud, HardDrive, Upload } from "lucide-react";
+import { Trash2, ChevronDown, ChevronUp, Brain, ScanLine, CalendarDays, ClipboardList, Cloud, HardDrive, Upload, TrendingUp } from "lucide-react";
+import TrendChart from "@/components/TrendChart";
 import type { User } from "@supabase/supabase-js";
 
 function formatDate(iso: string) {
@@ -112,6 +114,23 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
   );
 }
 
+function getTrendableMetrics(records: HealthRecord[]) {
+  const counts: Record<string, { date: string; value: number }[]> = {};
+  const sorted = [...records].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  for (const r of sorted) {
+    for (const [key, val] of Object.entries(r.data || {})) {
+      const num = typeof val === "number" ? val : parseFloat(val as string);
+      if (!isNaN(num) && isFinite(num)) {
+        if (!counts[key]) counts[key] = [];
+        counts[key].push({ date: r.date, value: num });
+      }
+    }
+  }
+  return Object.entries(counts)
+    .filter(([, pts]) => pts.length >= 2)
+    .map(([key, pts]) => ({ key, points: pts }));
+}
+
 export default function RecordsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [records, setRecords] = useState<HealthRecord[]>([]);
@@ -119,6 +138,8 @@ export default function RecordsPage() {
   const [isCloud, setIsCloud] = useState(false);
   const [loading, setLoading] = useState(true);
   const [migrating, setMigrating] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+  const [gender, setGender] = useState<"M" | "F" | undefined>(undefined);
 
   useEffect(() => {
     const supabase = createClient();
@@ -137,6 +158,9 @@ export default function RecordsPage() {
       }
       setLoading(false);
     });
+
+    const profile = getProfile();
+    if (profile.gender === "M" || profile.gender === "F") setGender(profile.gender);
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -174,6 +198,21 @@ export default function RecordsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24 md:pb-8">
+      {/* TrendChart modal */}
+      {selectedMetric && (() => {
+        const trendable = getTrendableMetrics(records);
+        const found = trendable.find((t) => t.key === selectedMetric);
+        if (!found) return null;
+        return (
+          <TrendChart
+            metricKey={found.key}
+            points={found.points}
+            gender={gender}
+            onClose={() => setSelectedMetric(null)}
+          />
+        );
+      })()}
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
@@ -215,6 +254,54 @@ export default function RecordsPage() {
           </button>
         </div>
       )}
+
+      {/* Trend analysis section */}
+      {!loading && records.length > 0 && (() => {
+        const trendable = getTrendableMetrics(records);
+        if (trendable.length === 0) return null;
+        return (
+          <div className="card mb-5 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp size={15} style={{ color: "var(--accent)" }} />
+              <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                趨勢分析
+              </span>
+              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                點擊指標查看歷史趨勢
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {trendable.map(({ key, points }) => {
+                const ref = REFERENCE_RANGES.find((r) => r.key === key);
+                const last = points[points.length - 1];
+                const normalRange =
+                  (gender === "M" ? ref?.normal?.male : gender === "F" ? ref?.normal?.female : undefined) ??
+                  ref?.normal?.general;
+                const abnormal =
+                  (normalRange?.min != null && last.value < normalRange.min) ||
+                  (normalRange?.max != null && last.value > normalRange.max);
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedMetric(key)}
+                    className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80 flex items-center gap-1.5"
+                    style={{
+                      background: abnormal ? "rgba(239,68,68,0.1)" : "var(--bg-base)",
+                      color: abnormal ? "#ef4444" : "var(--text-primary)",
+                      border: `1px solid ${abnormal ? "rgba(239,68,68,0.3)" : "var(--border)"}`,
+                    }}
+                  >
+                    {ref?.label_zh ?? key}
+                    <span style={{ color: abnormal ? "#ef4444" : "var(--accent)", opacity: 0.8 }}>
+                      {points.length}筆
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {loading ? (
         <div className="text-center py-16">
