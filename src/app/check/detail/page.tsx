@@ -90,9 +90,12 @@ export default function DetailCheckPage() {
   const [profile, setProfile] = useState<UserProfile>({});
   const [symptoms, setSymptoms] = useState("");
   const [openCats, setOpenCats] = useState<Record<string, boolean>>({ body: true, vitals: true });
+  const [subject, setSubject] = useState("self");
+  const [subjectName, setSubjectName] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
+  const [limitWarning, setLimitWarning] = useState("");
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [localResult, setLocalResult] = useState<AnalysisSummary | null>(null);
@@ -197,16 +200,22 @@ ${symptoms || "（無）"}
         const text: string = data.result;
         setResult(text);
         // Auto-save
+        const subjectValue = subject === "self" ? "self" : (subjectName.trim() || "家人");
         const record = {
           date: new Date().toISOString(),
           source: "manual" as const,
+          subject: subjectValue,
           symptoms,
           aiAnalysis: text,
           data: form,
         };
         saveRecord(record);
-        saveRecordCloud(record);
-        setSaved(true);
+        const cloudResult = await saveRecordCloud(record);
+        if (cloudResult.limitReached) {
+          setLimitWarning(cloudResult.message);
+        } else {
+          setSaved(true);
+        }
       }
     } catch {
       setError("分析失敗，請稍後再試");
@@ -508,6 +517,27 @@ ${symptoms || "（無）"}
         </div>
       )}
 
+      {/* Subject selector */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>這是誰的記錄：</span>
+        {[{ value: "self", label: "本人" }, { value: "family", label: "家人" }].map((opt) => (
+          <button key={opt.value} onClick={() => setSubject(opt.value)}
+            className="px-3 py-1 rounded-full text-xs font-medium transition-all"
+            style={{
+              background: subject === opt.value ? "var(--accent)" : "var(--bg-card)",
+              color: subject === opt.value ? "#fff" : "var(--text-primary)",
+              border: "1px solid var(--border)",
+            }}>
+            {opt.label}
+          </button>
+        ))}
+        {subject === "family" && (
+          <input type="text" className="input-field text-xs" style={{ width: "110px" }}
+            placeholder="稱呼（媽媽）"
+            value={subjectName} onChange={(e) => setSubjectName(e.target.value)} />
+        )}
+      </div>
+
       {/* Actions */}
       <div className="flex flex-wrap gap-2 mb-6">
         <button onClick={submit}
@@ -545,6 +575,13 @@ ${symptoms || "（無）"}
           style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
           <AlertCircle size={16} color="var(--danger)" />
           <span className="text-sm" style={{ color: "var(--danger)" }}>{error}</span>
+        </div>
+      )}
+      {limitWarning && (
+        <div className="flex items-center gap-2 p-3 rounded-lg mb-4"
+          style={{ background: "rgba(234,179,8,0.1)", border: "1px solid rgba(234,179,8,0.3)" }}>
+          <AlertCircle size={15} style={{ color: "#eab308", flexShrink: 0 }} />
+          <span className="text-xs" style={{ color: "#eab308" }}>{limitWarning}（本機已儲存）</span>
         </div>
       )}
 

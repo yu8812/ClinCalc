@@ -7,8 +7,14 @@ export interface HealthRecord {
   source: "manual" | "scan";
   symptoms?: string;
   aiAnalysis?: string;
+  subject?: string; // "self" (default) or custom name like "媽媽"
   data: Partial<Record<string, number | string>>;
 }
+
+export type SaveCloudResult =
+  | { id: string; limitReached?: false }
+  | { id: null; limitReached: true; message: string }
+  | { id: null; limitReached?: false };
 
 export interface UserProfile {
   age?: number;
@@ -60,27 +66,45 @@ export function saveProfile(profile: UserProfile): void {
 
 import { createClient } from "./supabase";
 
+const CLOUD_RECORD_LIMIT = 100;
+
 export async function saveRecordCloud(
   record: Omit<HealthRecord, "id">
-): Promise<string | null> {
+): Promise<SaveCloudResult> {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { id: null };
+
+  // Check per-user limit
+  const { count } = await supabase
+    .from("health_records")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  if ((count ?? 0) >= CLOUD_RECORD_LIMIT) {
+    return {
+      id: null,
+      limitReached: true,
+      message: `已達 ${CLOUD_RECORD_LIMIT} 筆雲端記錄上限，請刪除舊記錄後再儲存`,
+    };
+  }
 
   const { data, error } = await supabase
     .from("health_records")
     .insert({
       user_id: user.id,
       type: record.source,
-      data: { ...record.data, _symptoms: record.symptoms ?? null },
+      data: {
+        ...record.data,
+        _symptoms: record.symptoms ?? null,
+        _subject: record.subject ?? "self",
+      },
       ai_analysis: record.aiAnalysis ?? null,
     })
     .select("id")
     .single();
 
-  return error ? null : data.id;
+  return error ? { id: null } : { id: data.id };
 }
 
 export async function getRecordsCloud(): Promise<HealthRecord[]> {
@@ -93,12 +117,13 @@ export async function getRecordsCloud(): Promise<HealthRecord[]> {
   if (error || !data) return [];
 
   return data.map((row) => {
-    const { _symptoms, ...values } = row.data ?? {};
+    const { _symptoms, _subject, ...values } = row.data ?? {};
     return {
       id: row.id,
       date: row.created_at,
       source: row.type as "manual" | "scan",
       symptoms: _symptoms ?? undefined,
+      subject: (_subject as string) ?? "self",
       aiAnalysis: row.ai_analysis ?? undefined,
       data: values,
     };

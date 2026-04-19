@@ -37,9 +37,17 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
               <Brain size={16} style={{ color: "var(--accent)" }} />
             )}
             <div>
-              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                {record.source === "scan" ? "圖片掃描分析" : "健康數值分析"}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                  {record.source === "scan" ? "圖片掃描分析" : "健康數值分析"}
+                </p>
+                {record.subject && record.subject !== "self" && (
+                  <span className="text-xs px-2 py-0.5 rounded-full"
+                    style={{ background: "var(--bg-base)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
+                    {record.subject}
+                  </span>
+                )}
+              </div>
               <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
                 <CalendarDays size={11} className="inline mr-1" />
                 {formatDate(record.date)}
@@ -116,7 +124,10 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
 
 function getTrendableMetrics(records: HealthRecord[]) {
   const counts: Record<string, { date: string; value: number }[]> = {};
-  const sorted = [...records].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // Only include self records in trend
+  const sorted = [...records]
+    .filter((r) => !r.subject || r.subject === "self")
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   for (const r of sorted) {
     for (const [key, val] of Object.entries(r.data || {})) {
       const num = typeof val === "number" ? val : parseFloat(val as string);

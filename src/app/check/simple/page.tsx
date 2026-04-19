@@ -38,10 +38,13 @@ export default function SimpleCheckPage() {
   const [bpSys, setBpSys] = useState("");
   const [bpDia, setBpDia] = useState("");
   const [hr, setHr] = useState("");
+  const [subject, setSubject] = useState("self");
+  const [subjectName, setSubjectName] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
   const [urgency, setUrgency] = useState<typeof URGENCY_LEVELS[0] | null>(null);
   const [error, setError] = useState("");
+  const [limitWarning, setLimitWarning] = useState("");
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -118,16 +121,22 @@ export default function SimpleCheckPage() {
         else if (text.includes("🟡")) setUrgency(URGENCY_LEVELS[2]);
         else if (text.includes("🟢")) setUrgency(URGENCY_LEVELS[3]);
         // Auto-save record
+        const subjectValue = subject === "self" ? "self" : (subjectName.trim() || "家人");
         const record = {
           date: new Date().toISOString(),
           source: "manual" as const,
+          subject: subjectValue,
           symptoms: `${chips.join("、")}${description ? "\n" + description : ""}`,
           aiAnalysis: text,
           data: { age, gender, height, weight, temp, bpSys, bpDia, hr },
         };
         saveRecord(record);
-        saveRecordCloud(record);
-        setSaved(true);
+        const cloudResult = await saveRecordCloud(record);
+        if (cloudResult.limitReached) {
+          setLimitWarning(cloudResult.message);
+        } else {
+          setSaved(true);
+        }
       }
     } catch {
       setError("分析失敗，請稍後再試");
@@ -228,6 +237,50 @@ export default function SimpleCheckPage() {
         </div>
       </div>
 
+      {/* Subject selector */}
+      <div className="card p-4 mb-4">
+        <label className="text-sm font-semibold block mb-2" style={{ color: "var(--text-primary)" }}>
+          這是誰的健康評估？
+        </label>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setSubject("self")}
+            className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+            style={{
+              background: subject === "self" ? "var(--accent)" : "var(--bg-base)",
+              color: subject === "self" ? "#fff" : "var(--text-primary)",
+              border: "1px solid var(--border)",
+            }}>
+            本人
+          </button>
+          <button
+            onClick={() => setSubject("family")}
+            className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+            style={{
+              background: subject === "family" ? "var(--accent)" : "var(--bg-base)",
+              color: subject === "family" ? "#fff" : "var(--text-primary)",
+              border: "1px solid var(--border)",
+            }}>
+            家人
+          </button>
+          {subject === "family" && (
+            <input
+              type="text"
+              className="input-field text-sm"
+              style={{ width: "120px" }}
+              placeholder="稱呼（如：媽媽）"
+              value={subjectName}
+              onChange={(e) => setSubjectName(e.target.value)}
+            />
+          )}
+        </div>
+        {subject === "family" && (
+          <p className="text-xs mt-2" style={{ color: "var(--text-secondary)" }}>
+            家人的記錄不會加入您的趨勢分析
+          </p>
+        )}
+      </div>
+
       {/* Basic vitals */}
       <div className="card p-4 mb-5">
         <label className="text-sm font-semibold block mb-3" style={{ color: "var(--text-primary)" }}>
@@ -324,6 +377,13 @@ export default function SimpleCheckPage() {
           style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
           <AlertCircle size={16} color="var(--danger)" />
           <span className="text-sm" style={{ color: "var(--danger)" }}>{error}</span>
+        </div>
+      )}
+      {limitWarning && (
+        <div className="flex items-center gap-2 p-3 rounded-lg mb-4"
+          style={{ background: "rgba(234,179,8,0.1)", border: "1px solid rgba(234,179,8,0.3)" }}>
+          <AlertCircle size={15} style={{ color: "#eab308", flexShrink: 0 }} />
+          <span className="text-xs" style={{ color: "#eab308" }}>{limitWarning}（本機已儲存）</span>
         </div>
       )}
 
