@@ -1,7 +1,9 @@
 "use client";
 
-import { X, TrendingUp, TrendingDown } from "lucide-react";
+import { useState } from "react";
+import { X, TrendingUp, TrendingDown, Brain } from "lucide-react";
 import { REFERENCE_RANGES } from "@/lib/referenceRanges";
+import { renderMarkdown } from "@/lib/renderMarkdown";
 
 interface TrendPoint {
   date: string;
@@ -16,6 +18,39 @@ interface TrendChartProps {
 }
 
 export default function TrendChart({ metricKey, points, gender, onClose }: TrendChartProps) {
+  const [aiResult, setAiResult] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const analyzeWithAI = async () => {
+    setAiLoading(true);
+    setAiResult("");
+    const refItem = REFERENCE_RANGES.find((r) => r.key === metricKey);
+    const trendText = points
+      .map((p) => `${p.date.slice(0, 10)}：${p.value} ${refItem?.unit ?? ""}`)
+      .join("\n");
+    const normalRange = refItem
+      ? (gender === "M" ? refItem.normal?.male : gender === "F" ? refItem.normal?.female : undefined) ??
+        refItem.normal?.general
+      : undefined;
+    const rangeText = normalRange
+      ? `正常範圍：${normalRange.min ?? ""}${normalRange.min && normalRange.max ? "–" : "≤"}${normalRange.max ?? ""}`
+      : "";
+    const prompt = `請分析以下健康指標的歷史趨勢，判斷趨勢是否健康，並給出具體建議（不推薦藥物名稱）：\n\n指標：${refItem?.label_zh ?? metricKey}\n${rangeText}\n\n歷史數值（由舊到新）：\n${trendText}`;
+    try {
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "analyze", text: prompt }),
+      });
+      const data = await res.json();
+      setAiResult(data.result ?? data.message ?? "分析失敗，請稍後再試");
+    } catch {
+      setAiResult("分析失敗，請稍後再試");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const ref = REFERENCE_RANGES.find((r) => r.key === metricKey);
 
   const normalRange =
@@ -205,18 +240,49 @@ export default function TrendChart({ metricKey, points, gender, onClose }: Trend
           <div className="text-xs" style={{ color: "var(--text-secondary)" }}>
             共 <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{points.length}</span> 筆記錄
           </div>
-          {pctChange !== null && (
-            <div
-              className="flex items-center gap-1 text-xs font-semibold"
-              style={{ color: Math.abs(pctChange) < 5 ? "var(--text-secondary)" : isRising ? "#f59e0b" : "#22c55e" }}
+          <div className="flex items-center gap-3">
+            {pctChange !== null && (
+              <div
+                className="flex items-center gap-1 text-xs font-semibold"
+                style={{ color: Math.abs(pctChange) < 5 ? "var(--text-secondary)" : isRising ? "#f59e0b" : "#22c55e" }}
+              >
+                {isRising ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+                {Math.abs(pctChange).toFixed(1)}% vs 初次記錄
+              </div>
+            )}
+            {lastAbnormal && (
+              <div className="text-xs font-semibold" style={{ color: "#ef4444" }}>
+                ⚠ 最新值異常
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* AI trend analysis */}
+        <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
+          {!aiResult && (
+            <button
+              onClick={analyzeWithAI}
+              disabled={aiLoading}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all hover:opacity-80"
+              style={{ background: "var(--bg-base)", color: "var(--accent)", border: "1px solid var(--border)" }}
             >
-              {isRising ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-              {Math.abs(pctChange).toFixed(1)}% vs 初次記錄
-            </div>
+              {aiLoading ? (
+                <>
+                  <Brain size={13} className="animate-pulse" />
+                  小C 正在分析趨勢…
+                </>
+              ) : (
+                <>
+                  <Brain size={13} />
+                  讓小C分析此趨勢
+                </>
+              )}
+            </button>
           )}
-          {lastAbnormal && (
-            <div className="text-xs font-semibold" style={{ color: "#ef4444" }}>
-              ⚠ 最新值異常
+          {aiResult && (
+            <div className="text-xs leading-relaxed mt-1">
+              {renderMarkdown(aiResult)}
             </div>
           )}
         </div>

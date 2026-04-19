@@ -1,9 +1,23 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-
+import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const MAX_TEXT_LENGTH = 8000;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB in base64 chars ≈ 13.3M
+
+// In-memory rate limiter: max 10 requests / user / minute
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + 60_000 });
+    return true;
+  }
+  if (entry.count >= 10) return false;
+  entry.count++;
+  return true;
+}
 
 const SYSTEM_PROMPT = `你是 ClinCalc 的 AI 健康助理，名字叫「小C」。幫助一般民眾理解健康數據、翻譯醫療文件、分析體檢報告。
 
@@ -18,6 +32,27 @@ export async function POST(req: NextRequest) {
   // Content-Type check
   if (!req.headers.get("content-type")?.includes("application/json")) {
     return NextResponse.json({ error: "INVALID_CONTENT_TYPE" }, { status: 400 });
+  }
+
+  // Auth check — must be logged in to use AI
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: "UNAUTHORIZED", message: "請先登入帳號才能使用 AI 分析功能" },
+        { status: 401 }
+      );
+    }
+    // Per-user rate limit: 10 requests / minute
+    if (!checkRateLimit(user.id)) {
+      return NextResponse.json(
+        { error: "RATE_LIMITED", message: "請求過於頻繁，請等待 1 分鐘後再試" },
+        { status: 429 }
+      );
+    }
+  } catch {
+    return NextResponse.json({ error: "AUTH_ERROR", message: "驗證失敗，請重新整理頁面" }, { status: 500 });
   }
 
   // API key check

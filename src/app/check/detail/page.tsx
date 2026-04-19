@@ -95,7 +95,7 @@ export default function DetailCheckPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
-  const [limitWarning, setLimitWarning] = useState("");
+  const [rotatedWarning, setRotatedWarning] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [localResult, setLocalResult] = useState<AnalysisSummary | null>(null);
@@ -211,10 +211,9 @@ ${symptoms || "（無）"}
         };
         saveRecord(record);
         const cloudResult = await saveRecordCloud(record);
-        if (cloudResult.limitReached) {
-          setLimitWarning(cloudResult.message);
-        } else {
+        if (cloudResult.id) {
           setSaved(true);
+          if (cloudResult.rotated) setRotatedWarning(true);
         }
       }
     } catch {
@@ -577,11 +576,11 @@ ${symptoms || "（無）"}
           <span className="text-sm" style={{ color: "var(--danger)" }}>{error}</span>
         </div>
       )}
-      {limitWarning && (
+      {rotatedWarning && (
         <div className="flex items-center gap-2 p-3 rounded-lg mb-4"
           style={{ background: "rgba(234,179,8,0.1)", border: "1px solid rgba(234,179,8,0.3)" }}>
           <AlertCircle size={15} style={{ color: "#eab308", flexShrink: 0 }} />
-          <span className="text-xs" style={{ color: "#eab308" }}>{limitWarning}（本機已儲存）</span>
+          <span className="text-xs" style={{ color: "#eab308" }}>已達 100 筆上限，自動刪除了最舊一筆記錄</span>
         </div>
       )}
 

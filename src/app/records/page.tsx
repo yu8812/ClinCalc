@@ -122,11 +122,11 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
   );
 }
 
-function getTrendableMetrics(records: HealthRecord[]) {
+function getTrendableMetrics(records: HealthRecord[], subjectFilter?: string) {
   const counts: Record<string, { date: string; value: number }[]> = {};
-  // Only include self records in trend
+  const target = subjectFilter ?? "self";
   const sorted = [...records]
-    .filter((r) => !r.subject || r.subject === "self")
+    .filter((r) => (r.subject ?? "self") === target)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   for (const r of sorted) {
     for (const [key, val] of Object.entries(r.data || {})) {
@@ -150,6 +150,7 @@ export default function RecordsPage() {
   const [loading, setLoading] = useState(true);
   const [migrating, setMigrating] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string>("self");
   const [gender, setGender] = useState<"M" | "F" | undefined>(undefined);
 
   useEffect(() => {
@@ -211,7 +212,7 @@ export default function RecordsPage() {
     <div className="max-w-3xl mx-auto px-4 py-8 pb-24 md:pb-8">
       {/* TrendChart modal */}
       {selectedMetric && (() => {
-        const trendable = getTrendableMetrics(records);
+        const trendable = getTrendableMetrics(records, selectedSubject);
         const found = trendable.find((t) => t.key === selectedMetric);
         if (!found) return null;
         return (
@@ -272,14 +273,32 @@ export default function RecordsPage() {
         if (trendable.length === 0) return null;
         return (
           <div className="card mb-5 p-4">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               <TrendingUp size={15} style={{ color: "var(--accent)" }} />
               <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                 趨勢分析
               </span>
-              <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                點擊指標查看歷史趨勢
-              </span>
+              {/* Subject tabs */}
+              {(() => {
+                const subjects = [...new Set(records.map((r) => r.subject ?? "self"))];
+                if (subjects.length <= 1) return null;
+                return (
+                  <div className="flex gap-1 ml-auto">
+                    {subjects.map((s) => (
+                      <button key={s}
+                        onClick={() => { setSelectedSubject(s); setSelectedMetric(null); }}
+                        className="px-2.5 py-1 rounded-full text-xs font-medium transition-all"
+                        style={{
+                          background: selectedSubject === s ? "var(--accent)" : "var(--bg-base)",
+                          color: selectedSubject === s ? "#fff" : "var(--text-primary)",
+                          border: "1px solid var(--border)",
+                        }}>
+                        {s === "self" ? "本人" : s}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
             <div className="flex flex-wrap gap-2">
               {trendable.map(({ key, points }) => {

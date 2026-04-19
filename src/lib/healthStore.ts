@@ -12,9 +12,8 @@ export interface HealthRecord {
 }
 
 export type SaveCloudResult =
-  | { id: string; limitReached?: false }
-  | { id: null; limitReached: true; message: string }
-  | { id: null; limitReached?: false };
+  | { id: string; rotated?: boolean }
+  | { id: null };
 
 export interface UserProfile {
   age?: number;
@@ -75,20 +74,14 @@ export async function saveRecordCloud(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { id: null };
 
-  // Check per-user limit
+  // Check if at limit (for rotated flag)
   const { count } = await supabase
     .from("health_records")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user.id);
+  const willRotate = (count ?? 0) >= CLOUD_RECORD_LIMIT;
 
-  if ((count ?? 0) >= CLOUD_RECORD_LIMIT) {
-    return {
-      id: null,
-      limitReached: true,
-      message: `已達 ${CLOUD_RECORD_LIMIT} 筆雲端記錄上限，請刪除舊記錄後再儲存`,
-    };
-  }
-
+  // Supabase trigger handles auto-delete of oldest record if over limit
   const { data, error } = await supabase
     .from("health_records")
     .insert({
@@ -104,7 +97,8 @@ export async function saveRecordCloud(
     .select("id")
     .single();
 
-  return error ? { id: null } : { id: data.id };
+  if (error) return { id: null };
+  return { id: data.id, rotated: willRotate };
 }
 
 export async function getRecordsCloud(): Promise<HealthRecord[]> {
