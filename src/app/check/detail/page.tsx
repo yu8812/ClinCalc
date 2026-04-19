@@ -15,6 +15,7 @@ import {
   CheckCircle2, AlertCircle, Copy, Check, Trash2, Zap, Brain, ChevronLeft
 } from "lucide-react";
 import Link from "next/link";
+import { renderMarkdown } from "@/lib/renderMarkdown";
 
 interface FormData {
   [key: string]: string;
@@ -193,27 +194,25 @@ ${symptoms || "（無）"}
       if (data.error) {
         setError(data.message || "分析失敗，請稍後再試");
       } else {
-        setResult(data.result);
+        const text: string = data.result;
+        setResult(text);
+        // Auto-save
+        const record = {
+          date: new Date().toISOString(),
+          source: "manual" as const,
+          symptoms,
+          aiAnalysis: text,
+          data: form,
+        };
+        saveRecord(record);
+        saveRecordCloud(record);
+        setSaved(true);
       }
     } catch {
       setError("分析失敗，請稍後再試");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSave = async () => {
-    const record = {
-      date: new Date().toISOString(),
-      source: "manual" as const,
-      symptoms,
-      aiAnalysis: result,
-      data: form,
-    };
-    saveRecord(record);
-    await saveRecordCloud(record);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   };
 
   const copy = async () => {
@@ -515,22 +514,31 @@ ${symptoms || "（無）"}
           disabled={loading || (filledItems.length === 0 && !symptoms.trim())}
           className="btn-primary"
           style={{ opacity: loading || (filledItems.length === 0 && !symptoms.trim()) ? 0.6 : 1 }}>
-          {loading ? (
-            <>
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="loading-dot"
-                  style={{ animationDelay: `${i * 0.2}s`, background: "#000" }} />
-              ))}
-              <span className="ml-2">AI 分析中...</span>
-            </>
-          ) : (
-            <><Brain size={15} /> AI 深度分析</>
-          )}
+          <><Brain size={15} /> AI 深度分析</>
         </button>
         <button onClick={clear} className="btn-ghost">
           <Trash2 size={14} /> 清除
         </button>
       </div>
+
+      {/* Analyzing animation card */}
+      {loading && (
+        <div className="card p-6 mb-4 fade-in text-center">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center"
+            style={{ background: "var(--accent-dim)" }}>
+            <Brain size={22} style={{ color: "var(--accent)" }} className="animate-pulse" />
+          </div>
+          <p className="font-semibold mb-0.5" style={{ color: "var(--text-primary)" }}>
+            小C 正在深度分析中…
+          </p>
+          <p className="text-xs mb-4" style={{ color: "var(--text-secondary)" }}>
+            逐一比對 {filledItems.length} 項數值與參考範圍
+          </p>
+          <div className="w-full rounded-full h-1.5 overflow-hidden" style={{ background: "var(--border)" }}>
+            <div className="analyzing-bar" style={{ background: "var(--accent)" }} />
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="flex items-center gap-2 p-4 rounded-lg mb-4 fade-in"
@@ -543,24 +551,26 @@ ${symptoms || "（無）"}
       {result && (
         <div className="card p-5 fade-in">
           <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
-              AI 分析結果
-            </span>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <Zap size={16} style={{ color: "var(--accent)" }} />
+              <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
+                小C 的分析結果
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {saved && (
+                <span className="text-xs flex items-center gap-1" style={{ color: "var(--accent)" }}>
+                  <Check size={12} /> 已儲存
+                </span>
+              )}
               <button onClick={copy} className="btn-ghost text-xs px-2 py-1 gap-1">
                 {copied ? <Check size={13} /> : <Copy size={13} />}
                 {copied ? "已複製" : "複製"}
               </button>
-              <button onClick={handleSave} className="btn-ghost text-xs px-2 py-1 gap-1"
-                style={{ color: saved ? "var(--accent)" : undefined }}>
-                {saved ? <Check size={13} /> : <CheckCircle2 size={13} />}
-                {saved ? "已儲存" : "儲存記錄"}
-              </button>
             </div>
           </div>
-          <div className="text-sm leading-relaxed whitespace-pre-wrap"
-            style={{ color: "var(--text-secondary)" }}>
-            {result}
+          <div className="text-sm leading-relaxed">
+            {renderMarkdown(result)}
           </div>
           <div className="mt-4 pt-3 text-xs"
             style={{ borderTop: "1px solid var(--border)", color: "var(--warning)" }}>

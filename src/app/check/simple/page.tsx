@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Brain, AlertCircle, Check, Copy, ChevronLeft, Zap } from "lucide-react";
 import Link from "next/link";
 import { saveRecord, saveRecordCloud } from "@/lib/healthStore";
+import { renderMarkdown } from "@/lib/renderMarkdown";
 
 const SYMPTOM_CHIPS = [
   "頭痛", "頭暈", "發燒", "畏寒", "疲勞倦怠",
@@ -111,31 +112,28 @@ export default function SimpleCheckPage() {
       } else {
         const text: string = data.result;
         setResult(text);
-        // Parse urgency from result
+        // Parse urgency
         if (text.includes("🔴")) setUrgency(URGENCY_LEVELS[0]);
         else if (text.includes("🟠")) setUrgency(URGENCY_LEVELS[1]);
         else if (text.includes("🟡")) setUrgency(URGENCY_LEVELS[2]);
         else if (text.includes("🟢")) setUrgency(URGENCY_LEVELS[3]);
+        // Auto-save record
+        const record = {
+          date: new Date().toISOString(),
+          source: "manual" as const,
+          symptoms: `${chips.join("、")}${description ? "\n" + description : ""}`,
+          aiAnalysis: text,
+          data: { age, gender, height, weight, temp, bpSys, bpDia, hr },
+        };
+        saveRecord(record);
+        saveRecordCloud(record);
+        setSaved(true);
       }
     } catch {
       setError("分析失敗，請稍後再試");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSave = async () => {
-    const record = {
-      date: new Date().toISOString(),
-      source: "manual" as const,
-      symptoms: `${chips.join("、")}${description ? "\n" + description : ""}`,
-      aiAnalysis: result,
-      data: { age, gender, height, weight, temp, bpSys, bpDia, hr },
-    };
-    saveRecord(record);
-    await saveRecordCloud(record);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   };
 
   const copy = async () => {
@@ -295,21 +293,30 @@ export default function SimpleCheckPage() {
       <button onClick={submit} disabled={loading || !canSubmit}
         className="btn-primary w-full mb-6"
         style={{ opacity: loading || !canSubmit ? 0.6 : 1 }}>
-        {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="loading-dot"
-                style={{ animationDelay: `${i * 0.2}s`, background: "#000" }} />
-            ))}
-            <span className="ml-1">AI 評估中...</span>
-          </span>
-        ) : (
-          <span className="flex items-center justify-center gap-2">
-            <Brain size={16} />
-            AI 健康評估
-          </span>
-        )}
+        <span className="flex items-center justify-center gap-2">
+          <Brain size={16} />
+          AI 健康評估
+        </span>
       </button>
+
+      {/* Analyzing animation card */}
+      {loading && (
+        <div className="card p-6 mb-4 fade-in text-center">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center"
+            style={{ background: "var(--accent-dim)" }}>
+            <Brain size={22} style={{ color: "var(--accent)" }} className="animate-pulse" />
+          </div>
+          <p className="font-semibold mb-0.5" style={{ color: "var(--text-primary)" }}>
+            小C 正在分析中…
+          </p>
+          <p className="text-xs mb-4" style={{ color: "var(--text-secondary)" }}>
+            根據您的資料生成個人化建議
+          </p>
+          <div className="w-full rounded-full h-1.5 overflow-hidden" style={{ background: "var(--border)" }}>
+            <div className="analyzing-bar" style={{ background: "var(--accent)" }} />
+          </div>
+        </div>
+      )}
 
       {/* Error */}
       {error && (
@@ -343,23 +350,23 @@ export default function SimpleCheckPage() {
               <div className="flex items-center gap-2">
                 <Zap size={16} style={{ color: "var(--accent)" }} />
                 <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
-                  AI 評估結果
+                  小C 的分析結果
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                {saved && (
+                  <span className="text-xs flex items-center gap-1" style={{ color: "var(--accent)" }}>
+                    <Check size={12} /> 已儲存
+                  </span>
+                )}
                 <button onClick={copy} className="btn-ghost text-xs px-2 py-1 gap-1">
                   {copied ? <Check size={13} /> : <Copy size={13} />}
                   {copied ? "已複製" : "複製"}
                 </button>
-                <button onClick={handleSave} className="btn-ghost text-xs px-2 py-1 gap-1"
-                  style={{ color: saved ? "var(--accent)" : undefined }}>
-                  {saved ? <Check size={13} /> : "儲存"}
-                </button>
               </div>
             </div>
-            <div className="text-sm leading-relaxed whitespace-pre-wrap"
-              style={{ color: "var(--text-secondary)" }}>
-              {result}
+            <div className="text-sm leading-relaxed">
+              {renderMarkdown(result)}
             </div>
             <div className="mt-4 pt-3 text-xs"
               style={{ borderTop: "1px solid var(--border)", color: "var(--warning)" }}>

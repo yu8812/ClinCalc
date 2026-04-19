@@ -176,6 +176,16 @@ body {
   color: var(--text-secondary);
 }
 
+/* Hide number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -197,4 +207,18 @@ body {
   height: 6px;
   background: var(--accent);
   border-radius: 50%;
+}
+
+@keyframes analyzing-progress {
+  0% { width: 0%; }
+  40% { width: 65%; }
+  70% { width: 82%; }
+  90% { width: 90%; }
+  100% { width: 90%; }
+}
+
+.analyzing-bar {
+  animation: analyzing-progress 12s ease-out forwards;
+  height: 100%;
+  border-radius: 9999px;
 }

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 const MAX_TEXT_LENGTH = 8000;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB in base64 chars ≈ 13.3M
 
-const SYSTEM_PROMPT = `你是 ClinCalc 的 AI 健康助理，幫助一般民眾理解健康數據、翻譯醫療文件、分析體檢報告。
+const SYSTEM_PROMPT = `你是 ClinCalc 的 AI 健康助理，名字叫「小C」。幫助一般民眾理解健康數據、翻譯醫療文件、分析體檢報告。
 
 核心原則：
 1. 所有分析僅供參考，不構成醫療診斷或處方建議
