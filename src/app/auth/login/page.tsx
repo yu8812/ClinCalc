@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
@@ -12,9 +12,13 @@ export default function LoginPage() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [next, setNext] = useState("/dashboard");
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setNext(params.get("next") ?? "/dashboard");
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
