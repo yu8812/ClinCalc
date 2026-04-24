@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { Zap, FlaskConical, ChevronRight } from "lucide-react";
+import { useLang } from "@/contexts/LanguageContext";
 
 export default function CheckEntryPage() {
+  const { t } = useLang();
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
-          健康自我檢查
+          {t.check.select_title}
         </h1>
         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-          選擇適合你的檢查方式
+          {t.check.select_sub}
         </p>
       </div>
 
@@ -27,7 +29,7 @@ export default function CheckEntryPage() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>
-                簡單自查
+                {t.check.simple_title}
               </h2>
               <ChevronRight size={18} style={{ color: "var(--text-secondary)" }}
                 className="group-hover:translate-x-1 transition-transform" />
@@ -57,7 +59,7 @@ export default function CheckEntryPage() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>
-                詳細分析
+                {t.check.detail_title}
               </h2>
               <ChevronRight size={18} style={{ color: "var(--text-secondary)" }}
                 className="group-hover:translate-x-1 transition-transform" />
@@ -67,7 +69,7 @@ export default function CheckEntryPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5 mt-auto">
-            {["糖尿病", "心血管", "肝腎功能", "腫瘤指標", "30+ 項目"].map((tag) => (
+            {["🫘 慢性腎臟病 + 糖尿病", "心血管", "肝腎功能", "30+ 項目"].map((tag) => (
               <span key={tag} className="text-xs px-2 py-0.5 rounded-full"
                 style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}>
                 {tag}

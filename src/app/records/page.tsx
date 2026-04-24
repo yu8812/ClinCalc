@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase";
 import { Trash2, ChevronDown, ChevronUp, Brain, ScanLine, CalendarDays, ClipboardList, Cloud, HardDrive, Upload, TrendingUp } from "lucide-react";
 import TrendChart from "@/components/TrendChart";
 import type { User } from "@supabase/supabase-js";
+import { useLang } from "@/contexts/LanguageContext";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -23,6 +24,7 @@ function formatDate(iso: string) {
 
 function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () => void }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLang();
   const filledKeys = Object.entries(record.data || {}).filter(([, v]) => v !== "" && v !== undefined);
   const itemMap = Object.fromEntries(REFERENCE_RANGES.map((r) => [r.key, r]));
 
@@ -39,7 +41,7 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                  {record.source === "scan" ? "圖片掃描分析" : "健康數值分析"}
+                  {record.source === "scan" ? t.records.scan_type : t.records.analysis_type}
                 </p>
                 {record.subject && record.subject !== "self" && (
                   <span className="text-xs px-2 py-0.5 rounded-full"
@@ -56,7 +58,7 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
           </div>
           <div className="flex items-center gap-2">
             {filledKeys.length > 0 && (
-              <span className="badge">{filledKeys.length} 項</span>
+              <span className="badge">{filledKeys.length}{t.records.items}</span>
             )}
             <button onClick={onDelete}
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-red-500/10"
@@ -97,7 +99,7 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
           {record.symptoms && (
             <div className="mb-3">
               <p className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>
-                自述症狀
+                {t.records.symptoms_label}
               </p>
               <p className="text-xs leading-relaxed" style={{ color: "var(--text-primary)" }}>
                 {record.symptoms}
@@ -108,7 +110,7 @@ function RecordCard({ record, onDelete }: { record: HealthRecord; onDelete: () =
           {record.aiAnalysis && (
             <div>
               <p className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>
-                AI 分析結果
+                {t.records.ai_title}
               </p>
               <div className="text-xs leading-relaxed whitespace-pre-wrap p-3 rounded-lg"
                 style={{ background: "var(--bg-base)", color: "var(--text-secondary)", maxHeight: "200px", overflowY: "auto" }}>
@@ -143,6 +145,7 @@ function getTrendableMetrics(records: HealthRecord[], subjectFilter?: string) {
 }
 
 export default function RecordsPage() {
+  const { t } = useLang();
   const [user, setUser] = useState<User | null>(null);
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [localRecords, setLocalRecords] = useState<HealthRecord[]>([]);
@@ -228,18 +231,18 @@ export default function RecordsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
-            健康記錄
+            {t.records.title}
           </h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-            {loading ? "載入中…" : `${records.length} 筆記錄`}
+            {loading ? t.common.loading : `${records.length} ${t.records.count_unit}`}
             {isCloud && (
               <span className="ml-2 inline-flex items-center gap-1" style={{ color: "var(--accent)" }}>
-                <Cloud size={11} /> 雲端同步
+                <Cloud size={11} /> {t.records.cloud}
               </span>
             )}
             {!isCloud && !loading && (
               <span className="ml-2 inline-flex items-center gap-1" style={{ color: "var(--text-secondary)" }}>
-                <HardDrive size={11} /> 本機儲存
+                <HardDrive size={11} /> {t.records.local}
               </span>
             )}
           </p>
@@ -253,16 +256,16 @@ export default function RecordsPage() {
           style={{ background: "rgba(0,212,170,0.08)", border: "1px solid rgba(0,212,170,0.2)" }}>
           <div>
             <p className="text-sm font-medium" style={{ color: "var(--accent)" }}>
-              發現 {localRecords.length} 筆本機記錄
+              {localRecords.length} {t.records.found_local}
             </p>
             <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>
-              可以一鍵同步到你的帳號
+              {t.records.migrate_sub}
             </p>
           </div>
           <button onClick={handleMigrate} disabled={migrating}
             className="btn-primary flex items-center gap-1.5 text-xs px-3 py-2 shrink-0">
             <Upload size={13} />
-            {migrating ? "同步中…" : "同步"}
+            {migrating ? t.records.syncing : t.records.sync_cloud}
           </button>
         </div>
       )}
@@ -276,7 +279,7 @@ export default function RecordsPage() {
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <TrendingUp size={15} style={{ color: "var(--accent)" }} />
               <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                趨勢分析
+                {t.records.trend}
               </span>
               {/* Subject tabs */}
               {(() => {
@@ -293,7 +296,7 @@ export default function RecordsPage() {
                           color: selectedSubject === s ? "#fff" : "var(--text-primary)",
                           border: "1px solid var(--border)",
                         }}>
-                        {s === "self" ? "本人" : s}
+                        {s === "self" ? t.records.self : s}
                       </button>
                     ))}
                   </div>
@@ -347,10 +350,10 @@ export default function RecordsPage() {
           <ClipboardList size={40} className="mx-auto mb-3"
             style={{ color: "var(--text-secondary)", opacity: 0.4 }} />
           <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-            尚無記錄
+            {t.records.no_records}
           </p>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            完成健康自查或圖片掃描後儲存，記錄會出現在這裡
+            {t.records.no_records_sub}
           </p>
         </div>
       ) : (
@@ -362,11 +365,11 @@ export default function RecordsPage() {
       {!user && (
         <div className="mt-6 p-3 rounded-lg text-xs text-center"
           style={{ background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
-          記錄目前儲存於瀏覽器本機。
+          {t.records.local_notice}
           <a href="/auth/login" style={{ color: "var(--accent)", marginLeft: "4px" }}>
-            登入帳號
+            {t.records.login_cta}
           </a>
-          {" "}可同步至雲端、跨裝置存取。
+          {" "}{t.records.login_sub}
         </div>
       )}
     </div>

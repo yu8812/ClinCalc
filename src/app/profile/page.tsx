@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserCircle, Save, LogOut, Check, AlertCircle } from "lucide-react";
+import { Save, LogOut, Check, AlertCircle, Shield, XCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 interface Profile {
@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [consents, setConsents] = useState<Array<{ consent_id: string; doctor_name: string; institution: string | null; doctor_role: string | null; granted_at: string }>>([]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -44,6 +45,9 @@ export default function ProfilePage() {
           date_of_birth: data.date_of_birth ?? "",
         });
       }
+
+      const { data: consentData } = await supabase.rpc("get_my_consents");
+      setConsents(consentData || []);
       setLoading(false);
     };
 
@@ -73,6 +77,13 @@ export default function ProfilePage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     }
+  };
+
+  const handleRevoke = async (consentId: string) => {
+    if (!confirm("確定撤銷此醫師的查看授權？")) return;
+    const supabase = createClient();
+    await supabase.rpc("revoke_consent", { p_consent_id: consentId });
+    setConsents(prev => prev.filter(c => c.consent_id !== consentId));
   };
 
   const handleLogout = async () => {
@@ -184,6 +195,54 @@ export default function ProfilePage() {
           {saved ? <Check size={16} /> : <Save size={16} />}
           {saving ? "儲存中…" : saved ? "已儲存" : "儲存設定"}
         </button>
+      </div>
+
+      {/* 醫師授權管理 */}
+      <div className="mt-4 card p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Shield size={14} style={{ color: "var(--accent)" }} />
+          <p className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
+            醫師查看授權
+          </p>
+        </div>
+        {consents.length === 0 ? (
+          <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+            目前沒有醫師被授權查看您的記錄。
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {consents.map(c => {
+              const roleMap: Record<string, string> = { doctor: "醫師", pharmacist: "藥師", nurse: "護理師" };
+              return (
+                <div key={c.consent_id} className="flex items-center justify-between py-2 border-b last:border-0"
+                  style={{ borderColor: "var(--border)" }}>
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                      {c.doctor_name}
+                      <span className="text-xs font-normal ml-1.5" style={{ color: "var(--text-secondary)" }}>
+                        {roleMap[c.doctor_role ?? ""] ?? c.doctor_role}
+                      </span>
+                    </div>
+                    {c.institution && (
+                      <div className="text-xs" style={{ color: "var(--text-secondary)" }}>{c.institution}</div>
+                    )}
+                    <div className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                      授權於 {new Date(c.granted_at).toLocaleDateString("zh-TW")}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRevoke(c.consent_id)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs"
+                    style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}
+                  >
+                    <XCircle size={11} />
+                    撤銷
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Account actions */}

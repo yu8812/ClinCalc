@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Pill, Search, ChevronDown, ChevronUp, AlertTriangle, ShieldCheck, X } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import { useLang } from "@/contexts/LanguageContext";
 
 interface Medication {
   id: string;
@@ -56,6 +57,7 @@ function getCategoryColor(cat: string) {
 
 function MedCard({ med }: { med: Medication }) {
   const [open, setOpen] = useState(false);
+  const { t } = useLang();
   const color = getCategoryColor(med.category);
 
   return (
@@ -90,11 +92,11 @@ function MedCard({ med }: { med: Medication }) {
               </span>
               {med.prescription_required ? (
                 <span className="text-xs flex items-center gap-1" style={{ color: "#f87171" }}>
-                  <AlertTriangle size={10} /> 需處方
+                  <AlertTriangle size={10} /> {t.meds.prescription}
                 </span>
               ) : (
                 <span className="text-xs flex items-center gap-1" style={{ color: "#34d399" }}>
-                  <ShieldCheck size={10} /> 免處方
+                  <ShieldCheck size={10} /> {t.meds.otc}
                 </span>
               )}
             </div>
@@ -111,35 +113,35 @@ function MedCard({ med }: { med: Medication }) {
       {open && (
         <div className="px-4 pb-4 space-y-3" style={{ borderTop: "1px solid var(--border)" }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-            {/* 適應症 */}
+            {/* uses */}
             <div className="p-3 rounded-xl" style={{ background: "var(--bg-base)" }}>
-              <p className="text-xs font-semibold mb-1" style={{ color }}>適應症</p>
+              <p className="text-xs font-semibold mb-1" style={{ color }}>{t.meds.uses}</p>
               <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                 {med.uses_zh}
               </p>
             </div>
-            {/* 副作用 */}
+            {/* side effects */}
             {med.side_effects_zh && (
               <div className="p-3 rounded-xl" style={{ background: "var(--bg-base)" }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: "#f87171" }}>副作用</p>
+                <p className="text-xs font-semibold mb-1" style={{ color: "#f87171" }}>{t.meds.side_effects}</p>
                 <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {med.side_effects_zh}
                 </p>
               </div>
             )}
-            {/* 常見劑量 */}
+            {/* dosage */}
             {med.common_dosage && (
               <div className="p-3 rounded-xl" style={{ background: "var(--bg-base)" }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: "#fbbf24" }}>常見劑量</p>
+                <p className="text-xs font-semibold mb-1" style={{ color: "#fbbf24" }}>{t.meds.dosage}</p>
                 <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {med.common_dosage}
                 </p>
               </div>
             )}
-            {/* 注意事項 */}
+            {/* warnings */}
             {med.warnings_zh && (
               <div className="p-3 rounded-xl" style={{ background: "var(--bg-base)" }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: "#f59e0b" }}>⚠️ 注意事項</p>
+                <p className="text-xs font-semibold mb-1" style={{ color: "#f59e0b" }}>⚠️ {t.meds.warnings}</p>
                 <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {med.warnings_zh}
                 </p>
@@ -147,11 +149,11 @@ function MedCard({ med }: { med: Medication }) {
             )}
           </div>
 
-          {/* 藥物交互作用 */}
+          {/* interactions */}
           {med.interactions && med.interactions.length > 0 && (
             <div className="p-3 rounded-xl" style={{ background: "var(--bg-base)" }}>
               <p className="text-xs font-semibold mb-2" style={{ color: "#f87171" }}>
-                ⚡ 藥物交互作用
+                ⚡ {t.meds.interactions}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {med.interactions.map((item, i) => (
@@ -170,6 +172,7 @@ function MedCard({ med }: { med: Medication }) {
 }
 
 export default function MedsPage() {
+  const { t } = useLang();
   const [meds, setMeds] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -213,10 +216,10 @@ export default function MedsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
-            藥物查詢
+            {t.meds.title}
           </h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-            {loading ? "載入中…" : `${meds.length} 種常見藥物 · 依台灣仿單`}
+            {loading ? t.meds.loading : `${meds.length} ${t.meds.count_suffix}`}
           </p>
         </div>
         <Pill size={24} style={{ color: "var(--accent)" }} />
@@ -229,7 +232,7 @@ export default function MedsPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="搜尋藥名、學名、適應症…"
+          placeholder={t.meds.search_placeholder}
           className="input-field w-full pl-9 pr-9"
         />
         {search && (
@@ -283,13 +286,13 @@ export default function MedsPage() {
                 style={{ animationDelay: `${i * 0.2}s`, background: "var(--accent)" }} />
             ))}
           </div>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>載入藥物資料庫…</p>
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{t.meds.loading}</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="card p-12 text-center">
           <Pill size={40} className="mx-auto mb-3" style={{ color: "var(--text-secondary)", opacity: 0.3 }} />
           <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
-            找不到符合的藥物
+            {t.meds.no_results}
           </p>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
             試試其他關鍵字

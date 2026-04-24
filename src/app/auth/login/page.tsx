@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/dashboard";
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +26,7 @@ export default function LoginPage() {
       setError(err.message.includes("Invalid login") ? "電子郵件或密碼錯誤" : err.message);
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      router.push(next);
       router.refresh();
     }
   };
@@ -66,10 +68,17 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label className="text-sm font-medium block mb-1.5"
-                style={{ color: "var(--text-primary)" }}>
-                密碼 / Password
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-sm font-medium"
+                  style={{ color: "var(--text-primary)" }}>
+                  密碼 / Password
+                </label>
+                <Link href="/auth/forgot-password"
+                  className="text-xs"
+                  style={{ color: "var(--accent)" }}>
+                  忘記密碼？
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   type={showPw ? "text" : "password"}

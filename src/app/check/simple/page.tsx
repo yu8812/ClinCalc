@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Brain, AlertCircle, Check, Copy, ChevronLeft, Zap } from "lucide-react";
+import { useState } from "react";
+import { Brain, AlertCircle, Check, Copy, ChevronLeft, Zap, Map, List } from "lucide-react";
 import Link from "next/link";
 import { saveRecord, saveRecordCloud } from "@/lib/healthStore";
 import { renderMarkdown } from "@/lib/renderMarkdown";
+import { useLang } from "@/contexts/LanguageContext";
+import BodyMap from "@/components/BodyMap";
 
 const SYMPTOM_CHIPS = [
   "頭痛", "頭暈", "發燒", "畏寒", "疲勞倦怠",
@@ -26,6 +28,8 @@ const URGENCY_LEVELS = [
 ];
 
 export default function SimpleCheckPage() {
+  const { t } = useLang();
+  const [symptomTab, setSymptomTab] = useState<"map" | "list">("map");
   const [chips, setChips] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [duration, setDuration] = useState("");
@@ -159,7 +163,7 @@ export default function SimpleCheckPage() {
         </Link>
         <div>
           <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
-            簡單自查
+            {t.check.simple_title}
           </h1>
           <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
             描述你的症狀，AI 評估就醫緊急程度
@@ -167,24 +171,52 @@ export default function SimpleCheckPage() {
         </div>
       </div>
 
-      {/* Symptom chips */}
+      {/* Symptom selection — two tabs */}
       <div className="card p-4 mb-4">
-        <label className="text-sm font-semibold block mb-3" style={{ color: "var(--text-primary)" }}>
-          你有哪些不舒服？（可多選）
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {SYMPTOM_CHIPS.map((c) => (
-            <button key={c} onClick={() => toggleChip(c)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+            你有哪些不舒服？（可多選）
+          </label>
+          {/* Tab switcher */}
+          <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+            <button
+              onClick={() => setSymptomTab("map")}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all"
               style={{
-                background: chips.includes(c) ? "var(--accent)" : "var(--bg-primary)",
-                color: chips.includes(c) ? "#000" : "var(--text-secondary)",
-                border: `1px solid ${chips.includes(c) ? "var(--accent)" : "var(--border)"}`,
+                background: symptomTab === "map" ? "var(--accent)" : "var(--bg-card)",
+                color: symptomTab === "map" ? "#000" : "var(--text-secondary)",
               }}>
-              {c}
+              <Map size={12} /> 身體地圖
             </button>
-          ))}
+            <button
+              onClick={() => setSymptomTab("list")}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all"
+              style={{
+                background: symptomTab === "list" ? "var(--accent)" : "var(--bg-card)",
+                color: symptomTab === "list" ? "#000" : "var(--text-secondary)",
+              }}>
+              <List size={12} /> 症狀清單
+            </button>
+          </div>
         </div>
+
+        {symptomTab === "map" ? (
+          <BodyMap selected={chips} onToggle={toggleChip} />
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {SYMPTOM_CHIPS.map((c) => (
+              <button key={c} onClick={() => toggleChip(c)}
+                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                style={{
+                  background: chips.includes(c) ? "var(--accent)" : "var(--bg-primary)",
+                  color: chips.includes(c) ? "#000" : "var(--text-secondary)",
+                  border: `1px solid ${chips.includes(c) ? "var(--accent)" : "var(--border)"}`,
+                }}>
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Free text description */}
@@ -347,7 +379,7 @@ export default function SimpleCheckPage() {
         style={{ opacity: loading || !canSubmit ? 0.6 : 1 }}>
         <span className="flex items-center justify-center gap-2">
           <Brain size={16} />
-          AI 健康評估
+          {loading ? t.check.analyzing : t.check.analyze_btn}
         </span>
       </button>
 
@@ -359,7 +391,7 @@ export default function SimpleCheckPage() {
             <Brain size={22} style={{ color: "var(--accent)" }} className="animate-pulse" />
           </div>
           <p className="font-semibold mb-0.5" style={{ color: "var(--text-primary)" }}>
-            小C 正在分析中…
+            {t.check.analyzing}
           </p>
           <p className="text-xs mb-4" style={{ color: "var(--text-secondary)" }}>
             根據您的資料生成個人化建議
@@ -420,7 +452,7 @@ export default function SimpleCheckPage() {
                 )}
                 <button onClick={copy} className="btn-ghost text-xs px-2 py-1 gap-1">
                   {copied ? <Check size={13} /> : <Copy size={13} />}
-                  {copied ? "已複製" : "複製"}
+                  {copied ? t.common.copied : t.common.copy}
                 </button>
               </div>
             </div>
@@ -429,7 +461,7 @@ export default function SimpleCheckPage() {
             </div>
             <div className="mt-4 pt-3 text-xs"
               style={{ borderTop: "1px solid var(--border)", color: "var(--warning)" }}>
-              ⚠️ 以上為 AI 參考資訊，不構成醫療診斷。如有疑慮請立即就醫。
+              ⚠️ {t.common.aiDisclaimer}
             </div>
           </div>
         </div>

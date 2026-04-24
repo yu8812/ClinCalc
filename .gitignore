@@ -45,5 +45,7 @@ AGENTS.md
 CLAUDE.md
 .claude/
 
-# Local-only docs (moved to parent .docs/)
+# Local-only docs and internal notes
 DOCS/
+IM.md
+TODO.md

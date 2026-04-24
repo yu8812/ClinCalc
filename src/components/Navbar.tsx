@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Moon, Sun, Globe, LogIn, Home, Stethoscope, ScanLine, ClipboardList, Pill, LogOut, UserCircle } from "lucide-react";
+import { Moon, Sun, Globe, LogIn, Home, Stethoscope, ScanLine, ClipboardList, Pill, LogOut, UserCircle, Bell } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { createClient } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
 const NAV_LINKS = [
-  { href: "/",        icon: Home,          zh: "首頁",   en: "Home" },
-  { href: "/check",   icon: Stethoscope,   zh: "自查",   en: "Check" },
-  { href: "/scan",    icon: ScanLine,      zh: "掃描",   en: "Scan" },
-  { href: "/meds",    icon: Pill,          zh: "藥物",   en: "Meds" },
-  { href: "/records", icon: ClipboardList, zh: "記錄",   en: "Records" },
+  { href: "/",           icon: Home,          zh: "首頁",   en: "Home" },
+  { href: "/check",      icon: Stethoscope,   zh: "自查",   en: "Check" },
+  { href: "/scan",       icon: ScanLine,      zh: "掃描",   en: "Scan" },
+  { href: "/meds",       icon: Pill,          zh: "藥物",   en: "Meds" },
+  { href: "/records",    icon: ClipboardList, zh: "記錄",   en: "Records" },
+  { href: "/reminders",  icon: Bell,          zh: "提醒",   en: "Remind" },
 ];
 
 export default function Navbar() {
@@ -134,7 +135,7 @@ export default function Navbar() {
 
             {user ? (
               <div className="flex items-center gap-2">
-                <Link href="/profile"
+                <Link href="/dashboard"
                   className="flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all hover:opacity-80"
                   style={{ color: "var(--text-primary)" }}>
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
@@ -187,7 +188,7 @@ export default function Navbar() {
               {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
             </button>
             {user ? (
-              <Link href="/profile" className="btn-ghost px-2 py-1">
+              <Link href="/dashboard" className="btn-ghost px-2 py-1">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
                   style={{ background: "var(--accent)", color: "#000" }}>
                   {avatarLetter}
@@ -210,7 +211,7 @@ export default function Navbar() {
           backdropFilter: "blur(12px)",
           paddingBottom: "env(safe-area-inset-bottom)",
         }}>
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-6">
           {NAV_LINKS.map(({ href, icon: Icon, zh, en }) => {
             const active = isActive(href);
             return (
