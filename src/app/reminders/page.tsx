@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Bell, BellOff, Plus, Trash2, Clock } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Bell, BellOff, Plus, Trash2, Clock, Sunrise, Sun, Sunset, Moon } from "lucide-react";
 import {
   getReminders, saveReminder, deleteReminder,
   requestNotificationPermission, scheduleNotifications,
@@ -10,6 +10,31 @@ import {
 import { useLang } from "@/contexts/LanguageContext";
 
 const DAYS_COUNT = 7;
+
+// 24 小時制 ↔ 12 小時制（含上下午）轉換
+function to12Hour(time24: string): { period: "AM" | "PM"; hour12: number; minute: number } {
+  const [hStr, mStr] = time24.split(":");
+  const h = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+  if (h === 0) return { period: "AM", hour12: 12, minute: m };
+  if (h < 12) return { period: "AM", hour12: h, minute: m };
+  if (h === 12) return { period: "PM", hour12: 12, minute: m };
+  return { period: "PM", hour12: h - 12, minute: m };
+}
+
+function to24Hour(period: "AM" | "PM", hour12: number, minute: number): string {
+  let h24: number;
+  if (period === "AM") h24 = hour12 === 12 ? 0 : hour12;
+  else h24 = hour12 === 12 ? 12 : hour12 + 12;
+  return `${String(h24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+const PRESET_TIMES: Array<{ label: string; time: string; icon: typeof Sunrise }> = [
+  { label: "早餐", time: "08:00", icon: Sunrise },
+  { label: "午餐", time: "12:00", icon: Sun },
+  { label: "晚餐", time: "18:00", icon: Sunset },
+  { label: "睡前", time: "22:00", icon: Moon },
+];
 
 export default function RemindersPage() {
   const { t } = useLang();
@@ -20,6 +45,12 @@ export default function RemindersPage() {
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [permStatus, setPermStatus] = useState<NotificationPermission | "unknown">("unknown");
   const [noSupport, setNoSupport] = useState(false);
+
+  // 派生：當前 time 對應的上下午、12 小時、分鐘
+  const t12 = useMemo(() => to12Hour(time), [time]);
+  const setPeriod = (p: "AM" | "PM") => setTime(to24Hour(p, t12.hour12, t12.minute));
+  const setHour12 = (h: number) => setTime(to24Hour(t12.period, h, t12.minute));
+  const setMinute = (m: number) => setTime(to24Hour(t12.period, t12.hour12, m));
 
   useEffect(() => {
     setReminders(getReminders());
@@ -110,12 +141,65 @@ export default function RemindersPage() {
               <label className="text-xs font-semibold mb-1 block" style={{ color: "var(--text-secondary)" }}>
                 {t.reminder.time}
               </label>
-              <input
-                type="time"
-                className="input-field"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-              />
+
+              {/* 三段式時間下拉選單 */}
+              <div className="flex items-center gap-2 mb-2">
+                <select
+                  value={t12.period}
+                  onChange={(e) => setPeriod(e.target.value as "AM" | "PM")}
+                  className="input-field"
+                  style={{ minWidth: 70, paddingRight: 24 }}
+                >
+                  <option value="AM">上午</option>
+                  <option value="PM">下午</option>
+                </select>
+                <select
+                  value={t12.hour12}
+                  onChange={(e) => setHour12(parseInt(e.target.value, 10))}
+                  className="input-field"
+                  style={{ minWidth: 60, paddingRight: 24 }}
+                  aria-label="小時"
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                    <option key={h} value={h}>{String(h).padStart(2, "0")}</option>
+                  ))}
+                </select>
+                <span style={{ color: "var(--text-secondary)" }}>:</span>
+                <select
+                  value={t12.minute}
+                  onChange={(e) => setMinute(parseInt(e.target.value, 10))}
+                  className="input-field"
+                  style={{ minWidth: 60, paddingRight: 24 }}
+                  aria-label="分鐘"
+                >
+                  {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((m) => (
+                    <option key={m} value={m}>{String(m).padStart(2, "0")}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 快速時段按鈕 */}
+              <div className="flex gap-1.5 flex-wrap">
+                {PRESET_TIMES.map(({ label, time: presetTime, icon: Icon }) => {
+                  const active = time === presetTime;
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => setTime(presetTime)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-all"
+                      style={{
+                        background: active ? "var(--accent)" : "var(--bg-base)",
+                        color: active ? "#000" : "var(--text-secondary)",
+                        border: `1px solid ${active ? "var(--accent)" : "var(--border)"}`,
+                      }}
+                    >
+                      <Icon size={12} />
+                      {label} {presetTime}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
