@@ -3,6 +3,13 @@
 > 銘傳大學生物醫學工程學系專題研究 · 雙層醫療輔助系統之**民眾端**
 > 醫事端對應專案：[ExClinCalc](https://github.com/RO883C/exclincalc)
 
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript)
+![Cloudflare Workers](https://img.shields.io/badge/Cloudflare%20Workers-deployed-f38020?logo=cloudflare)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?logo=supabase)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Status](https://img.shields.io/badge/status-production-success)
+
 ![ClinCalc Home](assets/01-home.png)
 
 🌐 **線上體驗（無需註冊即可使用核心功能）：[clincalc.ro883c.workers.dev](https://clincalc.ro883c.workers.dev)**
@@ -58,6 +65,34 @@ ClinCalc 用兩個設計回應這個問題：
 - **Google Gemini 1.5 Flash**（醫療 OCR、症狀分析、雙語翻譯）
 - **Cloudflare Workers**（OpenNext for Cloudflare 轉接器，全球 320+ 邊緣節點）
 - **GitHub Actions**（自動部署、月度參考值同步、Supabase keep-alive）
+
+## 系統架構
+
+```mermaid
+graph TB
+    User([民眾使用者]) -->|瀏覽器| Frontend[Next.js 前端<br/>所有判讀邏輯本地執行]
+
+    Frontend -->|45 項指標查詢| LocalKB[本地知識庫<br/>referenceRanges.ts<br/>KDIGO 2024 / ADA / ACC-AHA]
+    LocalKB -->|結構化判定<br/>正常/偏高/偏低| Frontend
+
+    Frontend -->|登入/讀寫個人記錄| Worker[Cloudflare Worker<br/>邊緣節點 320+]
+    Worker -->|JWT 驗證| Supabase[(Supabase PostgreSQL<br/>RLS 保護)]
+
+    Frontend -->|結構化結果 + 影像| Worker
+    Worker -->|代理呼叫| Gemini[Google Gemini 1.5 Flash<br/>OCR + 翻譯 + 整體建議]
+    Gemini -->|生成內容| Worker
+    Worker -->|純文字回應| Frontend
+
+    style LocalKB fill:#e1f5ff,stroke:#0369a1
+    style Gemini fill:#fff4e1,stroke:#d97706
+    style Supabase fill:#dcfce7,stroke:#15803d
+    style Worker fill:#f3e8ff,stroke:#7c3aed
+```
+
+**設計重點**：
+- 🔵 **本地優先** ── 原始檢驗數值不離本地，前端先過 [`referenceRanges.ts`](src/lib/referenceRanges.ts) 判定
+- 🟠 **AI 為輔** ── Gemini 只接結構化判定結果（不看原始數值），降低幻覺風險與隱私風險
+- 🟢 **資料庫層權限** ── Supabase RLS 在 PG 層保護個人健康記錄
 
 ## 知識庫優先的 Prompt 組裝策略
 
@@ -147,11 +182,58 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 
 完整 schema 與 RLS 定義見 [`supabase/`](supabase/) 目錄與 [ExClinCalc](https://github.com/RO883C/exclincalc) 對應 SQL。
 
+## 程式碼導覽（給審查者）
+
+如果你是研究所教授、招生委員或對特定模組有興趣的工程師，以下是快速導覽：
+
+| 想看什麼 | 看哪個檔 |
+|---|---|
+| 45 項指標判讀邏輯 + 知識庫結構 | [`src/lib/referenceRanges.ts`](src/lib/referenceRanges.ts) |
+| KDIGO 2024 慢性腎臟病分期實作 | 同上（搜 `KDIGO`） |
+| Gemini「先規則後 LLM」prompt 組裝 | [`src/app/api/`](src/app/api/) Gemini 相關路由 |
+| 互動式身體地圖（17 區 / 44 症狀） | [`src/app/check/simple/`](src/app/check/simple/) |
+| 病患授權一次性權杖實作 | [`src/app/consent/`](src/app/consent/) + 對應 Supabase migration |
+| RLS Policy 定義 | [`supabase/`](supabase/) 目錄下 SQL 檔 |
+| CI/CD 自動部署流程 | [`.github/workflows/`](.github/workflows/) |
+| Cloudflare Workers 適配層 | [`open-next.config.ts`](open-next.config.ts) + [`wrangler.toml`](wrangler.toml) |
+
+## 從實作中發現的研究問題
+
+完成 ClinCalc 後，我整理出三個值得深入研究的方向，作為碩士階段研究計畫的延伸：
+
+1. **「先規則後 LLM」策略可推廣到模糊地帶嗎？**
+   目前策略在 KDIGO 分期、單一指標判定上運作良好，但在「綜合判斷」（如「整體報告看起來怎樣」）或「症狀-診斷連結」這類本質模糊的任務上，規則引擎覆蓋不足，LLM 又被限制不能自由判斷。**怎麼設計分級的「規則 ↔ LLM」介入比例**，是值得量化研究的問題。
+
+2. **臨床指引版本變動如何反映到 CDSS？**
+   KDIGO 2024 跟 KDIGO 2012 在分期邊界上有實質差異，且每幾年更新一次。**手動更新規則庫無法持續**。是否可以用 RAG 把臨床指引當動態知識庫，讓 CDSS 自動同步指引變動？這需要嚴謹的版本管理研究。
+
+3. **多模態 AI 在非專業使用者場域的應用限制**
+   ClinCalc 用 Gemini 做影像 OCR 與中英翻譯，效果可用但偶有錯誤。**對沒有醫學背景的使用者，多少程度的 AI 錯誤是可容忍的？怎麼設計 disclosure 與 fallback？** 這是 trust-aware design 的研究方向。
+
+延伸閱讀：[「先規則後 LLM」案例研究](https://github.com/RO883C/clincalc/blob/main/docs/case-study-rule-first-llm.md)（撰寫中）
+
 ## 學術引用
 
 本專題撰寫於 2026 年 2 月，相關論文：
 
 > 江家寓，《醫療輔助系統的設計與實作——以慢性腎臟病評估為核心案例之雙層健康資訊平台》，銘傳大學生物醫學工程學系專題研究，2026。
+
+## 我是誰
+
+**江家寓 / Chia-Yu Chiang**
+銘傳大學 生物醫學工程學系 · 2026 應屆畢業
+跨領域：電腦通訊工程 → 生物醫學工程
+研究興趣：醫療資訊系統 / 臨床決策支援 / LLM 安全嵌入
+
+🌐 **個人網站**：[jiayuselfweb.pages.dev](https://jiayuselfweb.pages.dev)（含完整 case study、研究探討、Reading List）
+📧 yuyulsc881209@icloud.com
+💻 GitHub：[github.com/RO883C](https://github.com/RO883C)
+
+**Clin- 系列相關專案**：
+- 🏥 醫事端：[ExClinCalc](https://github.com/RO883C/exclincalc) ── 診所臨床決策支援系統
+- ⇄ FHIR 互通：[clinconvert](https://clinconvert.pages.dev/) ── 把 XLS / CSV / JSON 病歷轉成 FHIR R4 標準
+
+歡迎研究合作、面談請益、或對任何技術細節提問。
 
 ## 授權
 
