@@ -481,8 +481,12 @@ export function getNormalRange(item: ReferenceItem, gender?: "M" | "F"): string 
   return "N/A";
 }
 
-// Check if a value is abnormal
-export type AbnormalStatus = "high" | "low" | "normal" | "unknown";
+// Check if a value is abnormal.
+// 五級判定：warning_high / warning_low 為「嚴重」門檻（比正常區間更極端），
+// 落在正常區間外但未達警示門檻則為一般偏高 / 偏低。
+export type AbnormalStatus =
+  | "critical_high" | "high" | "normal" | "low" | "critical_low" | "unknown";
+
 export function checkAbnormal(item: ReferenceItem, value: number, gender?: "M" | "F"): AbnormalStatus {
   const r =
     (gender === "M" && item.normal.male) ||
@@ -492,7 +496,16 @@ export function checkAbnormal(item: ReferenceItem, value: number, gender?: "M" |
     item.normal.female;
 
   if (!r) return "unknown";
+  // 嚴重門檻優先（比正常區間邊界更極端）
+  if (item.warning_high !== undefined && value >= item.warning_high) return "critical_high";
+  if (item.warning_low !== undefined && value <= item.warning_low) return "critical_low";
   if (r.max !== undefined && value > r.max) return "high";
   if (r.min !== undefined && value < r.min) return "low";
   return "normal";
 }
+
+// 狀態判斷式（供 UI / 統計使用，避免各處硬比對字串）
+export const isHigh     = (s: AbnormalStatus) => s === "high" || s === "critical_high";
+export const isLow      = (s: AbnormalStatus) => s === "low"  || s === "critical_low";
+export const isCritical = (s: AbnormalStatus) => s === "critical_high" || s === "critical_low";
+export const isAbnormal = (s: AbnormalStatus) => isHigh(s) || isLow(s);

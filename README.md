@@ -16,7 +16,7 @@
 
 🌐 **線上體驗（無需註冊即可使用核心功能）：[clincalc.ro883c.workers.dev](https://clincalc.ro883c.workers.dev)**
 
-ClinCalc 是針對台灣一般民眾設計的健康自查網站，提供 45 項常見體檢指標的本地即時解讀、KDIGO 2024 慢性腎臟病分期判讀、互動式身體地圖症狀問診、Google Gemini 1.5 Flash 影像 OCR 與中英醫療翻譯，以及個人健康記錄歷程追蹤。所有原始檢驗數值皆於瀏覽器內本地完成判讀，不上傳任何第三方 API。
+ClinCalc 是針對台灣一般民眾設計的健康自查網站，提供 35 項常見體檢指標的本地即時解讀、KDIGO 2024 慢性腎臟病分期判讀、互動式身體地圖症狀問診、Google Gemini 2.5 Flash 影像 OCR 與中英醫療翻譯，以及個人健康記錄歷程追蹤。所有原始檢驗數值皆於瀏覽器內本地完成判讀，不上傳任何第三方 API。
 
 ## 為什麼做這個專案
 
@@ -27,17 +27,17 @@ ClinCalc 是針對台灣一般民眾設計的健康自查網站，提供 45 項�
 
 ClinCalc 用兩個設計回應這個問題：
 
-- **本地優先解讀**：45 項指標的判讀邏輯（含 KDIGO 2024 慢性腎臟病分期）**全部在瀏覽器內完成**，原始數值不離開使用者裝置
+- **本地優先解讀**：35 項指標的判讀邏輯（含 KDIGO 2024 慢性腎臟病分期）**全部在瀏覽器內完成**，原始數值不離開使用者裝置
 - **AI 為輔助而非主導**：Gemini 只接收結構化的「正常 / 偏高 / 偏低」判定後協助總結與建議，不直接評估原始數值，降低幻覺與誤判風險
 
 目標：**讓沒有醫學背景的人也能看懂自己的體檢報告，並知道何時真的該就醫**。本系統不取代醫師，是進入醫療系統前的一個合理篩選層。
 
 ## 功能展示
 
-| 互動式身體地圖 | 45 項指標即時判讀 |
+| 互動式身體地圖 | 35 項指標即時判讀 |
 |:---:|:---:|
 | ![Body Map](assets/02-body-map.png) | ![Detail Analysis](assets/03-detail-analysis.png) |
-| 17 個身體區域、44 種症狀，AI 提供初步病因排序 | 10 大分類指標，含 KDIGO G1–G5 慢性腎臟病分期 |
+| 17 個身體區域、44 種症狀，AI 提供初步病因排序 | 8 大分類指標，含 KDIGO G1–G5 慢性腎臟病分期 |
 
 | AI 影像 OCR | 中英醫療翻譯 |
 |:---:|:---:|
@@ -52,7 +52,7 @@ ClinCalc 用兩個設計回應這個問題：
 | 模組 | 路由 | 說明 |
 |---|---|---|
 | 互動式身體地圖 | `/check/simple` | 17 個身體區域、44 種症狀，搭配 Gemini 提供初步病因排序與紅旗症狀 |
-| 本地即時分析引擎 | `/check/detail` | 45 項體檢指標即時判讀（10 大分類），KDIGO G1–G5（含 G3a/G3b 共六分期） |
+| 本地即時分析引擎 | `/check/detail` | 35 項體檢指標即時判讀（8 大分類），KDIGO G1–G5（含 G3a/G3b 共六分期） |
 | AI 醫療影像 OCR | `/scan` | 拍照上傳檢驗報告，Gemini 自動辨識指標、數值與單位 |
 | 中英醫療翻譯 | `/translate` | 醫療專有名詞雙向翻譯，輔以底線粗體標示專業詞彙 |
 | 用藥提醒 | `/meds` | 瀏覽器本地通知排程，支援跨裝置同步 |
@@ -64,7 +64,7 @@ ClinCalc 用兩個設計回應這個問題：
 - **Next.js 16** App Router + React 19 + TypeScript
 - **Tailwind CSS v4**（`@theme` 變數體系，支援明／暗主題）
 - **Supabase**（PostgreSQL + Auth + Row Level Security）
-- **Google Gemini 1.5 Flash**（醫療 OCR、症狀分析、雙語翻譯）
+- **Google Gemini 2.5 Flash**（醫療 OCR、症狀分析、雙語翻譯）
 - **Cloudflare Workers**（OpenNext for Cloudflare 轉接器，全球 320+ 邊緣節點）
 - **GitHub Actions**（自動部署、月度參考值同步、Supabase keep-alive）
 
@@ -74,14 +74,14 @@ ClinCalc 用兩個設計回應這個問題：
 graph TB
     User([民眾使用者]) -->|瀏覽器| Frontend[Next.js 前端<br/>所有判讀邏輯本地執行]
 
-    Frontend -->|45 項指標查詢| LocalKB[本地知識庫<br/>referenceRanges.ts<br/>KDIGO 2024 / ADA / ACC-AHA]
+    Frontend -->|35 項指標查詢| LocalKB[本地知識庫<br/>referenceRanges.ts<br/>KDIGO 2024 / ADA / ACC-AHA]
     LocalKB -->|結構化判定<br/>正常/偏高/偏低| Frontend
 
     Frontend -->|登入/讀寫個人記錄| Worker[Cloudflare Worker<br/>邊緣節點 320+]
     Worker -->|JWT 驗證| Supabase[(Supabase PostgreSQL<br/>RLS 保護)]
 
     Frontend -->|結構化結果 + 影像| Worker
-    Worker -->|代理呼叫| Gemini[Google Gemini 1.5 Flash<br/>OCR + 翻譯 + 整體建議]
+    Worker -->|代理呼叫| Gemini[Google Gemini 2.5 Flash<br/>OCR + 翻譯 + 整體建議]
     Gemini -->|生成內容| Worker
     Worker -->|純文字回應| Frontend
 
@@ -100,7 +100,7 @@ graph TB
 
 ClinCalc 在整合 Gemini 時採取「**先查知識庫、再交給 LLM**」的策略：
 
-1. 使用者填完 45 項指標 → 前端逐一查 [`src/lib/referenceRanges.ts`](src/lib/referenceRanges.ts) 知識庫（中英文名、單位、男女參考區間、健康解讀、來源指引 KDIGO 2024 / ADA / ACC-AHA）
+1. 使用者填完 35 項指標 → 前端逐一查 [`src/lib/referenceRanges.ts`](src/lib/referenceRanges.ts) 知識庫（中英文名、單位、男女參考區間、健康解讀、來源指引 KDIGO 2024 / ADA / ACC-AHA）
 2. 對每個欄位呼叫 `checkAbnormal()` 判定為「正常 / 偏高 / 偏低 / 嚴重偏高 / 嚴重偏低」
 3. 把**結構化判定結果**（不是原始數值）組成 prompt 交給 Gemini，僅讓它做整體性評估、生活建議與就醫時程
 4. Gemini 不再需要記憶各項指標的正常範圍 → 降低幻覺、提升準確度與可追溯性
@@ -143,7 +143,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_KEY
 # 僅伺服器端使用，繞過 RLS 用於 admin 操作
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 
-# Google Gemini 1.5 Flash（aistudio.google.com）
+# Google Gemini 2.5 Flash（aistudio.google.com）
 GEMINI_API_KEY=YOUR_GEMINI_KEY
 ```
 
@@ -190,7 +190,7 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 
 | 想看什麼 | 看哪個檔 |
 |---|---|
-| 45 項指標判讀邏輯 + 知識庫結構 | [`src/lib/referenceRanges.ts`](src/lib/referenceRanges.ts) |
+| 35 項指標判讀邏輯 + 知識庫結構 | [`src/lib/referenceRanges.ts`](src/lib/referenceRanges.ts) |
 | KDIGO 2024 慢性腎臟病分期實作 | 同上（搜 `KDIGO`） |
 | Gemini「先規則後 LLM」prompt 組裝 | [`src/app/api/`](src/app/api/) Gemini 相關路由 |
 | 互動式身體地圖（17 區 / 44 症狀） | [`src/app/check/simple/`](src/app/check/simple/) |

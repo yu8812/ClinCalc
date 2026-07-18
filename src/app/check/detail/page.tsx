@@ -6,7 +6,9 @@ import {
   CATEGORIES,
   getNormalRange,
   checkAbnormal,
+  isHigh, isLow, isCritical,
   type ReferenceItem,
+  type AbnormalStatus,
 } from "@/lib/referenceRanges";
 import { analyzeLocally, type AnalysisSummary } from "@/lib/localAnalysis";
 import { saveRecord, saveRecordCloud, getProfile, type UserProfile } from "@/lib/healthStore";
@@ -75,10 +77,20 @@ function CKDStageCard({ egfr }: { egfr: number }) {
   );
 }
 
-function StatusBadge({ status }: { status: "high" | "low" | "normal" | "unknown" }) {
+function StatusBadge({ status }: { status: AbnormalStatus }) {
   if (status === "normal") return (
     <span className="flex items-center gap-1 text-xs" style={{ color: "var(--accent)" }}>
       <CheckCircle2 size={12} /> 正常
+    </span>
+  );
+  if (status === "critical_high") return (
+    <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#ef4444" }}>
+      <AlertTriangle size={12} /> 嚴重偏高
+    </span>
+  );
+  if (status === "critical_low") return (
+    <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#ef4444" }}>
+      <AlertTriangle size={12} /> 嚴重偏低
     </span>
   );
   if (status === "high") return (
@@ -429,7 +441,7 @@ ${symptoms || "（無）"}
                         <input type="number" step="any" className="input-field text-sm flex-1"
                           placeholder={`正常 < ${item.key === "systolic" ? "120" : "80"}`}
                           value={val || ""}
-                          style={{ borderColor: status === "high" ? "rgba(245,158,11,0.5)" : status === "low" ? "rgba(96,165,250,0.5)" : undefined }}
+                          style={{ borderColor: isHigh(status) ? "rgba(245,158,11,0.5)" : isLow(status) ? "rgba(96,165,250,0.5)" : undefined }}
                           onChange={(e) => set(item.key, e.target.value)} />
                         <span className="text-xs shrink-0 w-14 text-right" style={{ color: "var(--text-secondary)" }}>
                           {item.unit}
@@ -463,7 +475,7 @@ ${symptoms || "（無）"}
                       <input type="number" step="any" className="input-field text-sm flex-1"
                         placeholder={`參考: ${getNormalRange(item, profile.gender)}`}
                         value={val || ""}
-                        style={{ borderColor: status === "high" ? "rgba(245,158,11,0.5)" : status === "low" ? "rgba(96,165,250,0.5)" : undefined }}
+                        style={{ borderColor: isHigh(status) ? "rgba(245,158,11,0.5)" : isLow(status) ? "rgba(96,165,250,0.5)" : undefined }}
                         onChange={(e) => set(item.key, e.target.value)}
                         readOnly={item.key === "bmi"}
                       />
@@ -539,8 +551,8 @@ ${symptoms || "（無）"}
                         placeholder={`參考: ${getNormalRange(item, profile.gender)} ${item.unit}`}
                         value={val || ""}
                         style={{
-                          borderColor: status === "high" ? "rgba(245,158,11,0.5)" :
-                                       status === "low" ? "rgba(96,165,250,0.5)" : undefined,
+                          borderColor: isHigh(status) ? "rgba(245,158,11,0.5)" :
+                                       isLow(status) ? "rgba(96,165,250,0.5)" : undefined,
                         }}
                         onChange={(e) => set(item.key, e.target.value)}
                         readOnly={item.key === "bmi"}
@@ -644,10 +656,14 @@ ${symptoms || "（無）"}
                         </span>
                         <span className="text-xs px-1.5 py-0.5 rounded"
                           style={{
-                            background: item.status === "high" ? "rgba(245,158,11,0.15)" : "rgba(96,165,250,0.15)",
-                            color: item.status === "high" ? "var(--warning)" : "#60a5fa",
+                            background: isCritical(item.status) ? "rgba(239,68,68,0.15)" : isHigh(item.status) ? "rgba(245,158,11,0.15)" : "rgba(96,165,250,0.15)",
+                            color: isCritical(item.status) ? "#ef4444" : isHigh(item.status) ? "var(--warning)" : "#60a5fa",
                           }}>
-                          {item.value} {item.unit} {item.status === "high" ? "↑ 偏高" : "↓ 偏低"}
+                          {item.value} {item.unit} {
+                            item.status === "critical_high" ? "↑↑ 嚴重偏高" :
+                            item.status === "critical_low" ? "↓↓ 嚴重偏低" :
+                            isHigh(item.status) ? "↑ 偏高" : "↓ 偏低"
+                          }
                         </span>
                       </div>
                       <p className="text-xs" style={{ color: "var(--text-secondary)" }}>

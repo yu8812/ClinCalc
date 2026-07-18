@@ -1,7 +1,10 @@
 // Local analysis using reference ranges — no AI needed
 // Works offline, instant response, used as primary analysis layer
 
-import { REFERENCE_RANGES, CATEGORIES, checkAbnormal, getNormalRange } from "./referenceRanges";
+import {
+  REFERENCE_RANGES, CATEGORIES, checkAbnormal, getNormalRange,
+  isHigh, isLow, isAbnormal, isCritical, type AbnormalStatus,
+} from "./referenceRanges";
 
 export interface AnalysisItem {
   key: string;
@@ -9,7 +12,7 @@ export interface AnalysisItem {
   label_en: string;
   value: number;
   unit: string;
-  status: "normal" | "high" | "low" | "unknown";
+  status: AbnormalStatus;
   normalRange: string;
   explanation_zh: string;
   category: string;
@@ -22,6 +25,7 @@ export interface AnalysisSummary {
   highCount: number;
   lowCount: number;
   normalCount: number;
+  criticalCount: number;
   bmi?: number;
   riskFlags: string[];
   suggestions: string[];
@@ -66,16 +70,17 @@ export function analyzeLocally(
     });
   }
 
-  // Sort: abnormal first, then by category
-  items.sort((a, b) => {
-    const order = { high: 0, low: 1, normal: 2, unknown: 3 };
-    return order[a.status] - order[b.status];
-  });
+  // Sort: 嚴重異常 → 一般異常 → 正常 → 未知
+  const order: Record<AbnormalStatus, number> = {
+    critical_high: 0, critical_low: 0, high: 1, low: 1, normal: 2, unknown: 3,
+  };
+  items.sort((a, b) => order[a.status] - order[b.status]);
 
-  const abnormalCount = items.filter(i => i.status !== "normal" && i.status !== "unknown").length;
-  const highCount = items.filter(i => i.status === "high").length;
-  const lowCount = items.filter(i => i.status === "low").length;
+  const abnormalCount = items.filter(i => isAbnormal(i.status)).length;
+  const highCount = items.filter(i => isHigh(i.status)).length;
+  const lowCount = items.filter(i => isLow(i.status)).length;
   const normalCount = items.filter(i => i.status === "normal").length;
+  const criticalCount = items.filter(i => isCritical(i.status)).length;
 
   // Generate risk flags
   const riskFlags: string[] = [];
@@ -108,6 +113,9 @@ export function analyzeLocally(
   if (abnormalCount === 0) {
     suggestions.push("✅ 所有檢測數值均在正常範圍內，請繼續維持健康生活習慣。");
   } else {
+    if (criticalCount > 0) {
+      suggestions.push(`🔴 其中 ${criticalCount} 項達「嚴重異常」門檻，建議儘速就醫評估。`);
+    }
     suggestions.push(`共發現 ${abnormalCount} 項數值異常，建議您：`);
     if (highCount > 0) suggestions.push("• 針對偏高的數值，諮詢醫師是否需要進一步檢查或治療");
     if (lowCount > 0) suggestions.push("• 針對偏低的數值，留意飲食補充並定期追蹤");
@@ -115,7 +123,7 @@ export function analyzeLocally(
     suggestions.push("⚠️ 以上分析僅供參考，不構成醫療診斷，請諮詢醫師獲得專業建議。");
   }
 
-  return { items, abnormalCount, highCount, lowCount, normalCount, bmi, riskFlags, suggestions };
+  return { items, abnormalCount, highCount, lowCount, normalCount, criticalCount, bmi, riskFlags, suggestions };
 }
 
 // Group items by category for display
