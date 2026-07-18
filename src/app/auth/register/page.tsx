@@ -30,7 +30,7 @@ export default function RegisterPage() {
       password: form.password,
       options: {
         data: { name: form.name },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     });
     if (err) {
