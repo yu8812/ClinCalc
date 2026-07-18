@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import { safeInternalPath } from "@/lib/safeRedirect";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,7 +18,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setNext(params.get("next") ?? "/dashboard");
+    // SEC001D-05：只接受站內路徑，避免 open redirect / javascript: XSS
+    setNext(safeInternalPath(params.get("next"), "/dashboard"));
   }, []);
 
   const submit = async (e: React.FormEvent) => {

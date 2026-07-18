@@ -22,18 +22,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/auth/login?error=invalid_link`);
   }
 
-  const supabase = await createServerSupabaseClient();
-  // signup 確認的 token type 在不同 Supabase 版本可能是 'signup' 或 'email'，
-  // 依序嘗試以求穩健（失敗的 verifyOtp 不會消耗 token）。
-  const candidates = Array.from(
-    new Set([type, "signup", "email"].filter(Boolean))
-  ) as EmailOtpType[];
-  let verified = false;
-  for (const t of candidates) {
-    const { error } = await supabase.auth.verifyOtp({ type: t, token_hash: tokenHash });
-    if (!error) { verified = true; break; }
+  // SEC001D-06：signup-only endpoint 只接受 signup 相關 type，單次 verify（不 brute-force）。
+  if (type !== "email" && type !== "signup") {
+    return NextResponse.redirect(`${origin}/auth/login?error=invalid_link`);
   }
-  if (!verified) {
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+  if (error) {
     return NextResponse.redirect(`${origin}/auth/login?error=verification_failed`);
   }
 
