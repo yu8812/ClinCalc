@@ -1,23 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 const MAX_TEXT_LENGTH = 8000;
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB in base64 chars ≈ 13.3M
-
-// In-memory rate limiter: max 10 requests / user / minute
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(userId);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(userId, { count: 1, resetAt: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 10) return false;
-  entry.count++;
-  return true;
-}
 
 const SYSTEM_PROMPT = `你是 ClinCalc 的 AI 健康助理，名字叫「小C」。幫助一般民眾理解健康數據、翻譯醫療文件、分析體檢報告。
 
@@ -44,8 +31,8 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-    // Per-user rate limit: 10 requests / minute
-    if (!checkRateLimit(user.id)) {
+    // Per-user rate limit: 10 requests / minute（持久化，跨 isolate 有效）
+    if (!(await checkRateLimit(`gemini:${user.id}`, 10, 60))) {
       return NextResponse.json(
         { error: "RATE_LIMITED", message: "請求過於頻繁，請等待 1 分鐘後再試" },
         { status: 429 }
