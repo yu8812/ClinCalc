@@ -14,12 +14,21 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [next, setNext] = useState("/dashboard");
+  const [notice, setNotice] = useState<{ ok: boolean; msg: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     // SEC001D-05：只接受站內路徑，避免 open redirect / javascript: XSS
     setNext(safeInternalPath(params.get("next"), "/dashboard"));
+    // SEC001D-06：顯示信箱驗證結果
+    if (params.get("verified") === "1") setNotice({ ok: true, msg: "信箱已驗證成功，請登入。" });
+    else {
+      const e = params.get("error");
+      if (e === "verification_failed") setNotice({ ok: false, msg: "驗證連結無效或已過期，請重新註冊或索取新驗證信。" });
+      else if (e === "invalid_link") setNotice({ ok: false, msg: "驗證連結不完整，請點擊信中完整連結。" });
+      else if (e === "missing_code") setNotice({ ok: false, msg: "驗證流程有誤，請重新操作。" });
+    }
   }, []);
 
   const submit = async (e: React.FormEvent) => {
@@ -102,6 +111,17 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+
+            {/* URL notice（驗證結果） */}
+            {notice && !error && (
+              <div className="flex items-center gap-2 p-3 rounded-lg text-sm"
+                style={notice.ok
+                  ? { background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", color: "#16a34a" }
+                  : { background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "var(--danger)" }}>
+                <AlertCircle size={14} />
+                {notice.msg}
+              </div>
+            )}
 
             {/* Error */}
             {error && (
