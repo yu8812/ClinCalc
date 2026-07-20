@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Brain, Languages, ScanLine, Activity, TestTube2, Heart, Pill } from "lucide-react";
+import { ArrowRight, Brain, Languages, ScanLine, Activity, TestTube2, Heart, Pill, Gift, Sparkles, Camera, Moon } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
 
-const featureIcons = ["💰", "🤖", "📷", "🌐", "🌙"];
+const featureIcons = [Gift, Sparkles, Camera, Languages, Moon];
 
 export default function HomePage() {
   const { t, locale } = useLang();
@@ -92,9 +92,11 @@ export default function HomePage() {
 
       {/* Feature badges */}
       <div className="flex flex-wrap justify-center gap-3 mb-16">
-        {features.map((f, i) => (
+        {features.map((f, i) => {
+          const Icon = featureIcons[i];
+          return (
           <div key={i} className="card px-4 py-3 text-center min-w-[100px]">
-            <div className="text-xl mb-1">{featureIcons[i]}</div>
+            <Icon size={22} strokeWidth={2} className="mx-auto mb-1.5" style={{ color: "var(--brand)" }} />
             <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
               {f.title}
             </div>
@@ -102,7 +104,8 @@ export default function HomePage() {
               {f.desc}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Main function cards */}
