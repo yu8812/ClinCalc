@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
   const quickLinks = [
     { href: "/check",     icon: Stethoscope,   label: locale === "zh" ? "健康自查" : "Check",     color: "#6366f1" },
-    { href: "/scan",      icon: ScanLine,      label: locale === "zh" ? "掃描報告" : "Scan",       color: "#00d4aa" },
+    { href: "/scan",      icon: ScanLine,      label: locale === "zh" ? "掃描報告" : "Scan",       color: "var(--brand)" },
     { href: "/meds",      icon: Activity,      label: locale === "zh" ? "藥物查詢" : "Meds",       color: "#f59e0b" },
     { href: "/reminders", icon: Bell,          label: locale === "zh" ? "服藥提醒" : "Remind",     color: "#8b5cf6" },
   ];

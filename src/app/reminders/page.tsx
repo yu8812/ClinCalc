@@ -115,7 +115,7 @@ export default function RemindersPage() {
       ) : permStatus !== "granted" && (
         <button onClick={handleEnable}
           className="mb-4 w-full p-3 rounded-lg flex items-center justify-center gap-2 text-sm font-medium"
-          style={{ background: "rgba(0,212,170,0.08)", border: "1px solid rgba(0,212,170,0.25)", color: "var(--accent)" }}>
+          style={{ background: "var(--brand-soft)", border: "1px solid var(--brand-soft-border)", color: "var(--accent)" }}>
           <Bell size={15} /> {t.reminder.permission_denied}
         </button>
       )}

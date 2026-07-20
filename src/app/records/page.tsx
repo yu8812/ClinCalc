@@ -253,7 +253,7 @@ export default function RecordsPage() {
       {/* Migration prompt */}
       {isCloud && localRecords.length > 0 && (
         <div className="mb-4 p-4 rounded-xl flex items-center justify-between gap-3"
-          style={{ background: "rgba(0,212,170,0.08)", border: "1px solid rgba(0,212,170,0.2)" }}>
+          style={{ background: "var(--brand-soft)", border: "1px solid var(--brand-soft-border)" }}>
           <div>
             <p className="text-sm font-medium" style={{ color: "var(--accent)" }}>
               {localRecords.length} {t.records.found_local}

@@ -23,7 +23,7 @@ export default function CheckEntryPage() {
           className="card p-6 flex flex-col gap-4 transition-all hover:scale-[1.02] cursor-pointer group"
           style={{ border: "1px solid var(--border)" }}>
           <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-            style={{ background: "rgba(0,212,170,0.12)" }}>
+            style={{ background: "var(--brand-soft)" }}>
             <Zap size={24} style={{ color: "var(--accent)" }} />
           </div>
           <div>

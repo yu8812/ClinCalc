@@ -49,8 +49,8 @@ export default function RegisterPage() {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="card p-8 text-center max-w-sm w-full">
         <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-          style={{ background: "rgba(0,212,170,0.1)" }}>
-          <Mail size={28} style={{ color: "var(--accent)" }} />
+          style={{ background: "var(--brand-soft)" }}>
+          <Mail size={28} style={{ color: "var(--brand)" }} />
         </div>
         <h2 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>確認您的電子郵件</h2>
         <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--text-secondary)" }}>

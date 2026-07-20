@@ -52,7 +52,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg mx-auto mb-3"
-            style={{ background: "var(--accent)", color: "#000" }}>
+            style={{ background: "var(--brand)", color: "var(--on-brand)" }}>
             C+
           </div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>

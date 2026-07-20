@@ -345,7 +345,7 @@ ${symptoms || "（無）"}
                 <button key={p.label} onClick={() => applyPreset(p)}
                   className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80 flex items-center gap-1.5"
                   style={{
-                    background: filled > 0 ? "var(--accent)" : p.highlight ? "rgba(0,212,170,0.12)" : "var(--bg-card)",
+                    background: filled > 0 ? "var(--accent)" : p.highlight ? "var(--brand-soft)" : "var(--bg-card)",
                     color: filled > 0 ? "#fff" : p.highlight ? "var(--accent)" : "var(--text-primary)",
                     border: p.highlight ? "1px solid var(--accent)" : "1px solid var(--border)",
                     fontWeight: p.highlight ? 600 : undefined,
@@ -491,7 +491,7 @@ ${symptoms || "（無）"}
             {/* BMI 自動計算顯示 */}
             {form.bmi && (
               <div className="mt-3 p-3 rounded-lg flex items-center gap-2"
-                style={{ background: "var(--accent-dim)", border: "1px solid rgba(0,212,170,0.2)" }}>
+                style={{ background: "var(--accent-dim)", border: "1px solid var(--brand-soft-border)" }}>
                 <span className="text-xs" style={{ color: "var(--text-secondary)" }}>BMI 自動計算：</span>
                 <span className="font-bold text-sm"
                   style={{ color: parseFloat(form.bmi) >= 24 ? "var(--warning)" : parseFloat(form.bmi) < 18.5 ? "#60a5fa" : "var(--accent)" }}>
@@ -588,7 +588,7 @@ ${symptoms || "（無）"}
       {/* Summary bar */}
       {filledItems.length > 0 && (
         <div className="flex items-center gap-3 p-3 rounded-lg mb-4"
-          style={{ background: "var(--accent-dim)", border: "1px solid rgba(0,212,170,0.2)" }}>
+          style={{ background: "var(--accent-dim)", border: "1px solid var(--brand-soft-border)" }}>
           <CheckCircle2 size={16} style={{ color: "var(--accent)" }} />
           <span className="text-sm" style={{ color: "var(--text-primary)" }}>
             {filledItems.length}{t.check.items_filled}
