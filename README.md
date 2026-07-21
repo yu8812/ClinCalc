@@ -1,7 +1,7 @@
 # ClinCalc — 民眾健康自查與 AI 解讀平台
 
 > 銘傳大學生物醫學工程學系專題研究 · **Clin- 醫療生態系**之**民眾端**
-> 同生態系作品：[ExClinCalc](https://github.com/RO883C/exclincalc)（醫事端）· [clinconvert](https://github.com/88jiayu/clinconvert)（FHIR 互通研究）
+> 同生態系作品：[ExClinCalc](https://github.com/yu8812/exclincalc)（醫事端）· [clinconvert](https://github.com/88jiayu/clinconvert)（FHIR 互通研究）
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript)
@@ -14,7 +14,7 @@
 
 ![ClinCalc Home](assets/01-home.png)
 
-🌐 **線上體驗（無需註冊即可使用核心功能）：[clincalc.ro883c.workers.dev](https://clincalc.ro883c.workers.dev)**
+🌐 **線上體驗（無需註冊即可使用核心功能）：[clincalc.yuyulsc881209.workers.dev](https://clincalc.yuyulsc881209.workers.dev)**
 
 ClinCalc 是針對台灣一般民眾設計的健康自查網站，提供 35 項常見體檢指標的本地即時解讀、KDIGO 2024 慢性腎臟病分期判讀、互動式身體地圖症狀問診、Google Gemini 2.5 Flash 影像 OCR 與中英醫療翻譯，以及個人健康記錄歷程追蹤。所有原始檢驗數值皆於瀏覽器內本地完成判讀，不上傳任何第三方 API。
 
@@ -151,24 +151,21 @@ GEMINI_API_KEY=YOUR_GEMINI_KEY
 
 ## 部署到 Cloudflare Workers
 
-```bash
-# 本地建置 + 預覽
-npm run cf:build
-npm run cf:preview
+目前採**本機 wrangler 直推**（非 git-connected CI）：
 
-# 手動部署（或 push main 自動觸發 GitHub Actions）
-npm run cf:deploy
+```bash
+npm run cf:build          # OpenNext 轉譯 → .open-next/worker.js（build 走 --webpack）
+npx wrangler login        # 首次
+npx wrangler deploy       # 部署到 Cloudflare Workers
 ```
 
-### GitHub Repository Secrets（Settings → Secrets and variables → Actions）
-- `CLOUDFLARE_API_TOKEN`（Workers 部署權限）
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`（給月度同步 workflow）
+> ⚠️ 這台 Windows 的 swc 原生 binding 失效，`dev` / `build` 已固定 `--webpack`（WASM 路徑）；opennextjs-cloudflare 也無法執行 Turbopack 輸出。
 
-### Cloudflare Workers Dashboard 環境變數（Settings → Variables and Secrets）
-- `GEMINI_API_KEY`（runtime secret，**不能放在 GitHub**因為它需在 Worker 執行階段使用）
-- `SUPABASE_SERVICE_ROLE_KEY`（同上）
+### Runtime 密鑰（`wrangler secret put`）
+- `GEMINI_API_KEY`、`SUPABASE_SERVICE_ROLE_KEY`（僅伺服器端，繞過 RLS）
+- `NEXT_PUBLIC_*` 於 build 時烤入前端（受 RLS 保護）
+
+> `.github/workflows/` 為舊 CI 設定；遷移到 yu8812 帳號後目前以本機 wrangler 為主。
 
 ## 自動化 Workflows
 
@@ -180,9 +177,9 @@ npm run cf:deploy
 
 ## 資料庫架構
 
-ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **14 張資料表 + 29 條 RLS policy**。ClinCalc 主要使用 `health_records`、`patient_consents`、`medications`、`medical_references` 四張表。
+ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **41 條 RLS policy**（由醫事端的 8 個安全 migration 建構，含 6 條 RESTRICTIVE AAL2 閘門）。ClinCalc 主要使用 `health_records`、`patient_consents`、`medications`、`medical_references` 四張表；個人健康記錄以 RLS 綁定 `auth.uid()`，僅本人與經一次性同意書授權的醫師可讀。
 
-完整 schema 與 RLS 定義見 [`supabase/`](supabase/) 目錄與 [ExClinCalc](https://github.com/RO883C/exclincalc) 對應 SQL。
+完整 schema 與 RLS 定義見 [`supabase/`](supabase/) 目錄與 [ExClinCalc](https://github.com/yu8812/exclincalc) 對應 SQL。
 
 ## 程式碼導覽（給審查者）
 
@@ -212,7 +209,7 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 3. **多模態 AI 在非專業使用者場域的應用限制**
    ClinCalc 用 Gemini 做影像 OCR 與中英翻譯，效果可用但偶有錯誤。**對沒有醫學背景的使用者，多少程度的 AI 錯誤是可容忍的？怎麼設計 disclosure 與 fallback？** 這是 trust-aware design 的研究方向。
 
-延伸閱讀：[「先規則後 LLM」案例研究](https://github.com/RO883C/clincalc/blob/main/docs/case-study-rule-first-llm.md)（撰寫中）
+延伸閱讀：[「先規則後 LLM」案例研究](https://github.com/yu8812/ClinCalc/blob/main/docs/case-study-rule-first-llm.md)（撰寫中）
 
 ## 學術引用
 
@@ -229,7 +226,7 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 
 🌐 **個人網站**：[jiayuselfweb.pages.dev](https://jiayuselfweb.pages.dev)（含完整 case study、研究探討、Reading List）
 📧 yuyulsc881209@icloud.com
-💻 GitHub：[github.com/RO883C](https://github.com/RO883C)
+💻 GitHub：[github.com/yu8812](https://github.com/yu8812)
 
 ## Clin- 生態系
 
@@ -240,7 +237,7 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 | 作品 | 角色 | 對應 |
 |---|---|---|
 | **ClinCalc**（本作品） | 民眾端 · 健康自查 + AI 解讀 | 入口：把醫療資料變得**看得懂** |
-| [ExClinCalc](https://github.com/RO883C/exclincalc) | 醫事端 · 診所 CDSS | 流程：醫師 / 護理師 / 藥師完整工作流 |
+| [ExClinCalc](https://github.com/yu8812/exclincalc) | 醫事端 · 診所 CDSS | 流程：醫師 / 護理師 / 藥師完整工作流 |
 | [clinconvert](https://github.com/88jiayu/clinconvert) | 互通研究 · FHIR R4 轉換 POC | 標準化：跨機構資料**可互通** |
 | [Kaizei](https://jiayuselfweb.pages.dev/projects/kaizei) | 跨領域 · Personal Finance OS | 證明同套工程方法**跨領域複用** |
 
