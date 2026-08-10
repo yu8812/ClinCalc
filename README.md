@@ -37,7 +37,7 @@ ClinCalc 用兩個設計回應這個問題：
 | 互動式身體地圖 | 35 項指標即時判讀 |
 |:---:|:---:|
 | ![Body Map](assets/02-body-map.png) | ![Detail Analysis](assets/03-detail-analysis.png) |
-| 17 個身體區域、44 種症狀，AI 提供初步病因排序 | 8 大分類指標，含 KDIGO G1–G5 慢性腎臟病分期 |
+| 7 大身體部位、25 種症狀，AI 提供初步病因排序 | 8 大分類指標，含 KDIGO G1–G5 慢性腎臟病分期 |
 
 | AI 影像 OCR | 中英醫療翻譯 |
 |:---:|:---:|
@@ -51,7 +51,7 @@ ClinCalc 用兩個設計回應這個問題：
 
 | 模組 | 路由 | 說明 |
 |---|---|---|
-| 互動式身體地圖 | `/check/simple` | 17 個身體區域、44 種症狀，搭配 Gemini 提供初步病因排序與紅旗症狀 |
+| 互動式身體地圖 | `/check/simple` | 7 大身體部位、25 種症狀，搭配 Gemini 提供初步病因排序與紅旗症狀 |
 | 本地即時分析引擎 | `/check/detail` | 35 項體檢指標即時判讀（8 大分類），KDIGO G1–G5（含 G3a/G3b 共六分期） |
 | AI 醫療影像 OCR | `/scan` | 拍照上傳檢驗報告，Gemini 自動辨識指標、數值與單位 |
 | 中英醫療翻譯 | `/translate` | 醫療專有名詞雙向翻譯，輔以底線粗體標示專業詞彙 |
@@ -190,7 +190,7 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 | 35 項指標判讀邏輯 + 知識庫結構 | [`src/lib/referenceRanges.ts`](src/lib/referenceRanges.ts) |
 | KDIGO 2024 慢性腎臟病分期實作 | 同上（搜 `KDIGO`） |
 | Gemini「先規則後 LLM」prompt 組裝 | [`src/app/api/`](src/app/api/) Gemini 相關路由 |
-| 互動式身體地圖（17 區 / 44 症狀） | [`src/app/check/simple/`](src/app/check/simple/) |
+| 互動式身體地圖（7 部位 / 25 症狀） | [`src/app/check/simple/`](src/app/check/simple/) |
 | 病患授權一次性權杖實作 | [`src/app/consent/`](src/app/consent/) + 對應 Supabase migration |
 | RLS Policy 定義 | [`supabase/`](supabase/) 目錄下 SQL 檔 |
 | CI/CD 自動部署流程 | [`.github/workflows/`](.github/workflows/) |
