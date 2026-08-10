@@ -209,7 +209,7 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 3. **多模態 AI 在非專業使用者場域的應用限制**
    ClinCalc 用 Gemini 做影像 OCR 與中英翻譯，效果可用但偶有錯誤。**對沒有醫學背景的使用者，多少程度的 AI 錯誤是可容忍的？怎麼設計 disclosure 與 fallback？** 這是 trust-aware design 的研究方向。
 
-延伸閱讀：[「先規則後 LLM」案例研究](https://github.com/yu8812/ClinCalc/blob/main/docs/case-study-rule-first-llm.md)（撰寫中）
+延伸閱讀：[「先規則後 LLM」案例研究](https://github.com/yu8812/ClinCalc/blob/main/docs/case-study-rule-first-llm.md)
 
 ## 學術引用
 
