@@ -177,7 +177,7 @@ npx wrangler deploy       # 部署到 Cloudflare Workers
 
 ## 資料庫架構
 
-ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **41 條 RLS policy**（由醫事端的 8 個安全 migration 建構，含 6 條 RESTRICTIVE AAL2 閘門）。ClinCalc 主要使用 `health_records`、`patient_consents`、`medications`、`medical_references` 四張表；個人健康記錄以 RLS 綁定 `auth.uid()`，僅本人與經一次性同意書授權的醫師可讀。
+ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **37 條 RLS policy**（由醫事端的 8 個安全 migration 建構，含 6 條 RESTRICTIVE AAL2 閘門）。ClinCalc 主要使用 `health_records`、`patient_consents`、`medications`、`medical_references` 四張表；個人健康記錄以 RLS 綁定 `auth.uid()`，僅本人與經一次性同意書授權的醫師可讀。
 
 完整 schema 與 RLS 定義見 [`supabase/`](supabase/) 目錄與 [ExClinCalc](https://github.com/yu8812/exclincalc) 對應 SQL。
 
