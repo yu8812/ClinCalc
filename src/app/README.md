@@ -3,7 +3,7 @@
 | 目錄 | 路由 | 說明 |
 |---|---|---|
 | `check/detail` | 體檢解讀 | 35 項指標即時判讀（含 KDIGO 分期） |
-| `check/simple` | 症狀自查 | 互動式身體地圖（17 區 / 44 症狀） |
+| `check/simple` | 症狀自查 | 互動式身體地圖（7 部位 / 25 種症狀） |
 | `scan` | 掃描 | 拍照上傳報告，Gemini OCR 辨識數值 |
 | `translate` | 翻譯 | 中英醫療名詞雙向翻譯 |
 | `analyze` | AI 分析 | Gemini 整體健康建議 |
