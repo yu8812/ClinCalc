@@ -209,11 +209,16 @@ export default function DetailCheckPage() {
     setError("");
     setResult("");
 
+    // 只送「判讀結果 + 參考範圍」,不送原始數值:判讀已在瀏覽器完成,
+    // 語言模型只負責把結果寫成一般人看得懂的話(論文第四章第一節、RQ2 的設計)。
+    const STATUS_ZH: Record<string, string> = {
+      normal: "正常", high: "偏高", low: "偏低",
+      critical_high: "嚴重偏高", critical_low: "嚴重偏低",
+    };
     const dataLines = filledItems.map((item) => {
-      const val = form[item.key];
-      const status = checkAbnormal(item, parseFloat(val), profile.gender);
+      const status = checkAbnormal(item, parseFloat(form[item.key]), profile.gender);
       const range = getNormalRange(item, profile.gender);
-      return `${item.label_zh} (${item.label_en}): ${val} ${item.unit} [參考: ${range}, 狀態: ${status}]`;
+      return `${item.label_zh} (${item.label_en}): ${STATUS_ZH[status] ?? status}（參考範圍 ${range} ${item.unit}）`;
     }).join("\n");
 
     const profileInfo = [
@@ -224,14 +229,14 @@ export default function DetailCheckPage() {
     const prompt = `
 用戶基本資料：${profileInfo || "未提供"}
 
-填寫的健康數值：
+各項指標的判讀結果（已由系統依參考範圍判定，不含原始數值）：
 ${dataLines || "（未填）"}
 
 自述症狀/其他：
 ${symptoms || "（無）"}
 
 請：
-1. 分析各項數值是否在正常範圍內，重點說明異常項目
+1. 依上述判讀結果，重點說明異常項目的意義（不要推測或捏造具體數值）
 2. 根據整體數據評估健康狀況
 3. 提出具體的建議（飲食、生活習慣、是否需要就醫），不推薦任何藥物名稱
 4. 用一般人看得懂的語言，避免過度醫療術語

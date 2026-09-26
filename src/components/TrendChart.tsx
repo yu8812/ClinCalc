@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, TrendingUp, TrendingDown, Brain } from "lucide-react";
-import { REFERENCE_RANGES } from "@/lib/referenceRanges";
+import { REFERENCE_RANGES, checkAbnormal } from "@/lib/referenceRanges";
 import { renderMarkdown } from "@/lib/renderMarkdown";
 
 interface TrendPoint {
@@ -25,8 +25,18 @@ export default function TrendChart({ metricKey, points, gender, onClose }: Trend
     setAiLoading(true);
     setAiResult("");
     const refItem = REFERENCE_RANGES.find((r) => r.key === metricKey);
+    // 只送每次的判讀結果與升降方向,不送原始數值(與 /check/detail 同一原則)
+    const STATUS_ZH: Record<string, string> = {
+      normal: "正常", high: "偏高", low: "偏低",
+      critical_high: "嚴重偏高", critical_low: "嚴重偏低",
+    };
     const trendText = points
-      .map((p) => `${p.date.slice(0, 10)}：${p.value} ${refItem?.unit ?? ""}`)
+      .map((p, i) => {
+        const status = refItem ? STATUS_ZH[checkAbnormal(refItem, p.value, gender)] ?? "未判定" : "未判定";
+        const prev = i > 0 ? points[i - 1].value : null;
+        const dir = prev === null ? "" : p.value > prev * 1.02 ? "，較前次上升" : p.value < prev * 0.98 ? "，較前次下降" : "，與前次相近";
+        return `${p.date.slice(0, 10)}：${status}${dir}`;
+      })
       .join("\n");
     const normalRange = refItem
       ? (gender === "M" ? refItem.normal?.male : gender === "F" ? refItem.normal?.female : undefined) ??
@@ -35,7 +45,7 @@ export default function TrendChart({ metricKey, points, gender, onClose }: Trend
     const rangeText = normalRange
       ? `正常範圍：${normalRange.min ?? ""}${normalRange.min && normalRange.max ? "–" : "≤"}${normalRange.max ?? ""}`
       : "";
-    const prompt = `請分析以下健康指標的歷史趨勢，判斷趨勢是否健康，並給出具體建議（不推薦藥物名稱）：\n\n指標：${refItem?.label_zh ?? metricKey}\n${rangeText}\n\n歷史數值（由舊到新）：\n${trendText}`;
+    const prompt = `請分析以下健康指標的歷史趨勢，判斷趨勢是否健康，並給出具體建議（不推薦藥物名稱）：\n\n指標：${refItem?.label_zh ?? metricKey}\n${rangeText}\n\n歷史判讀結果（由舊到新，不含原始數值）：\n${trendText}`;
     try {
       const res = await fetch("/api/gemini", {
         method: "POST",
