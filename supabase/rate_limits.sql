@@ -1,23 +1,34 @@
--- 持久化速率限制（跨 Cloudflare Workers isolate 有效）
---
--- 為什麼需要：原本各 API route 用 in-memory Map 計數，但部署在 Cloudflare Workers
--- 時每個 isolate 記憶體獨立且隨時重置、跨節點不共享 → 限流形同虛設。
--- 改用共用 Postgres 表 + 原子 RPC，計數對所有 isolate 一致。
---
--- 兩個子系統共用同一份 Supabase，此表兩邊皆可用。
+-- ═══════════════════════════════════════════════════════════════════
+-- 這個檔案和 ExClinCalc 的 supabase/migrations/20261003_12_rate_limits.sql 內容相同。
+-- 兩個 app 共用同一個 Supabase，只需要套一次；正式庫已於 2026-10-03 套用。
+-- 留在這裡是為了讓只看這個 repo 的人知道 check_rate_limit 從哪裡來。
+-- ═══════════════════════════════════════════════════════════════════
 
-create table if not exists rate_limits (
-  bucket       text primary key,          -- 例："gemini:<userId>"、"register:<ip>"
+-- 持久化限流
+--
+-- 程式裡的 checkRateLimit()（src/lib/rateLimit.ts）一直在呼叫 check_rate_limit，
+-- 但 2026-10-03 檢查正式庫才發現這張表和函式從來沒建過 —— RPC 每次都失敗，
+-- 而限流的設計是「失敗就放行」，所以 AI、註冊這些限流其實全部沒有作用。
+--
+-- 另外原本的寫法有個洞：check_rate_limit 是 SECURITY DEFINER，預設任何人（含 anon）都能呼叫，
+-- 等於誰都可以拿別人的 bucket 名字去灌次數，把別人的 AI 額度用光，或塞一堆垃圾 bucket。
+-- 這裡只開給 service_role（伺服器端），前端和匿名呼叫都會被拒。
+-- ═══════════════════════════════════════════════════════════════════
+
+create table if not exists public.rate_limits (
+  bucket       text primary key,          -- 例："gemini-clinical:<userId>"、"ai-demo:day"
   count        integer not null default 0,
   window_start timestamptz not null default now()
 );
+alter table public.rate_limits enable row level security;
+-- 不建任何 policy；表權限也收回，只有 service_role（BYPASSRLS）碰得到
+revoke all on public.rate_limits from anon, authenticated;
 
-alter table rate_limits enable row level security;
--- 僅 service_role 可存取（一般用戶不得讀寫）。不建立任何 anon/authenticated policy → 預設全拒。
+create index if not exists rate_limits_window_idx on public.rate_limits (window_start);
 
--- 原子檢查 + 遞增。回傳 true = 允許，false = 超過限制。
--- 視窗過期時自動重置計數。整段在單一 upsert 內完成，避免競態。
-create or replace function check_rate_limit(
+-- 原子檢查 + 遞增。回傳 true = 允許，false = 超過限制。視窗過期就重新計數。
+-- 整段在同一個 upsert 裡完成，不會有兩個請求同時讀到舊值的問題。
+create or replace function public.check_rate_limit(
   p_bucket text,
   p_limit integer,
   p_window_seconds integer
@@ -29,17 +40,15 @@ as $$
 declare
   v_count integer;
 begin
-  insert into rate_limits(bucket, count, window_start)
+  insert into public.rate_limits (bucket, count, window_start)
     values (p_bucket, 1, now())
   on conflict (bucket) do update
     set count = case
-          when rate_limits.window_start < now() - make_interval(secs => p_window_seconds)
-          then 1
+          when rate_limits.window_start < now() - make_interval(secs => p_window_seconds) then 1
           else rate_limits.count + 1
         end,
         window_start = case
-          when rate_limits.window_start < now() - make_interval(secs => p_window_seconds)
-          then now()
+          when rate_limits.window_start < now() - make_interval(secs => p_window_seconds) then now()
           else rate_limits.window_start
         end
   returning count into v_count;
@@ -48,5 +57,7 @@ begin
 end;
 $$;
 
--- 清理舊 bucket（可選，交給排程或手動；避免表無限成長）
-create index if not exists rate_limits_window_idx on rate_limits(window_start);
+revoke execute on function public.check_rate_limit(text, integer, integer) from public, anon, authenticated;
+grant execute on function public.check_rate_limit(text, integer, integer) to service_role;
+
+select 'migration 12：限流表與 check_rate_limit 已建立（只限伺服器呼叫）' as status;

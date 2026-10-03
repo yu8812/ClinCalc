@@ -2,7 +2,7 @@
 // 取代原本 route 內的 in-memory Map — 那在 serverless edge 上每個 isolate 獨立、
 // 隨時重置、不共享，等於無效。此處透過共用 Postgres 的原子 RPC 計數。
 //
-// 需先在 Supabase 執行 supabase/rate_limits.sql（建表 + check_rate_limit 函式）。
+// 資料表與函式見 supabase/rate_limits.sql（與 ExClinCalc migration 12 相同，只開放 service role 呼叫）。
 // ClinCalc 與 ExClinCalc 共用同一份 Supabase，此表兩邊通用。
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
