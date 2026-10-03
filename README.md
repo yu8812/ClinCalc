@@ -10,6 +10,7 @@
 ![Cloudflare Workers](https://img.shields.io/badge/Cloudflare%20Workers-deployed-f38020?logo=cloudflare)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?logo=supabase)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
+[![CI](https://github.com/yu8812/ClinCalc/actions/workflows/ci.yml/badge.svg)](https://github.com/yu8812/ClinCalc/actions/workflows/ci.yml)
 ![Status](https://img.shields.io/badge/status-production-success)
 
 ![ClinCalc Home](assets/01-home.png)
