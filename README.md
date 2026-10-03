@@ -16,7 +16,7 @@
 
 🌐 **線上體驗（無需註冊即可使用核心功能）：[clincalc.yuyulsc881209.workers.dev](https://clincalc.yuyulsc881209.workers.dev)**
 
-ClinCalc 是針對台灣一般民眾設計的健康自查網站，提供 35 項常見體檢指標的本地即時解讀、KDIGO 2024 慢性腎臟病分期判讀、互動式身體地圖症狀問診、Google Gemini 2.5 Flash 影像 OCR 與中英醫療翻譯，以及個人健康記錄歷程追蹤。所有原始檢驗數值皆於瀏覽器內本地完成判讀，不上傳任何第三方 API。
+ClinCalc 是針對台灣一般民眾設計的健康自查網站，提供 35 項常見體檢指標的本地即時解讀、KDIGO 2024 慢性腎臟病分期判讀、互動式身體地圖症狀問診、Google Gemini 2.5 Flash 影像 OCR 與中英醫療翻譯，以及個人健康記錄歷程追蹤。手動輸入的檢驗數值在瀏覽器內判讀；用到 AI 時，指標分析只送出判讀結果（正常／偏高／偏低），拍照辨識則會把照片送到 Gemini。
 
 ## 為什麼做這個專案
 
@@ -27,7 +27,7 @@ ClinCalc 是針對台灣一般民眾設計的健康自查網站，提供 35 項�
 
 ClinCalc 用兩個設計回應這個問題：
 
-- **本地優先解讀**：35 項指標的判讀邏輯（含 KDIGO 2024 慢性腎臟病分期）**全部在瀏覽器內完成**，原始數值不離開使用者裝置
+- **本地優先解讀**：35 項指標的判讀邏輯（含 KDIGO 2024 慢性腎臟病分期）**全部在瀏覽器內完成**；只用判讀功能時，原始數值不會離開使用者的裝置（拍照辨識例外：照片要送到 Gemini 才能辨識）
 - **AI 為輔助而非主導**：Gemini 只接收結構化的「正常 / 偏高 / 偏低」判定後協助總結與建議，不直接評估原始數值，降低幻覺與誤判風險
 
 目標：**讓沒有醫學背景的人也能看懂自己的體檢報告，並知道何時真的該就醫**。本系統不取代醫師，是進入醫療系統前的一個合理篩選層。
@@ -66,7 +66,7 @@ ClinCalc 用兩個設計回應這個問題：
 - **Supabase**（PostgreSQL + Auth + Row Level Security）
 - **Google Gemini 2.5 Flash**（醫療 OCR、症狀分析、雙語翻譯）
 - **Cloudflare Workers**（OpenNext for Cloudflare 轉接器，全球 320+ 邊緣節點）
-- **GitHub Actions**（自動部署、月度參考值同步、Supabase keep-alive）
+- **GitHub Actions**（每次 push 跑型別檢查和 KDIGO 邊界值測試、定期喚醒 Supabase）
 
 ## 系統架構
 
@@ -92,7 +92,7 @@ graph TB
 ```
 
 **設計重點**：
-- 🔵 **本地優先** ── 原始檢驗數值不離本地，前端先過 [`referenceRanges.ts`](src/lib/referenceRanges.ts) 判定
+- 🔵 **本地優先** ── 手動輸入的數值在前端用 [`referenceRanges.ts`](src/lib/referenceRanges.ts) 判定，不會送出去（拍照辨識除外）
 - 🟠 **AI 為輔** ── Gemini 只接結構化判定結果（不看原始數值），降低幻覺風險與隱私風險
 - 🟢 **資料庫層權限** ── Supabase RLS 在 PG 層保護個人健康記錄
 
@@ -165,19 +165,20 @@ npx wrangler deploy       # 部署到 Cloudflare Workers
 - `GEMINI_API_KEY`、`SUPABASE_SERVICE_ROLE_KEY`（僅伺服器端，繞過 RLS）
 - `NEXT_PUBLIC_*` 於 build 時烤入前端（受 RLS 保護）
 
-> `.github/workflows/` 為舊 CI 設定；遷移到 yu8812 帳號後目前以本機 wrangler 為主。
+> GitHub Actions 的 `deploy.yml` 需要 `CLOUDFLARE_API_TOKEN` secret，目前沒有設定，所以改成只能手動觸發；實際部署用上面的本機 wrangler。
 
 ## 自動化 Workflows
 
 | Workflow | 觸發 | 功能 |
 |---|---|---|
-| `deploy.yml` | push main | 自動建置並部署到 Cloudflare Workers |
+| `ci.yml` | push、PR | 型別檢查 + KDIGO 邊界值測試（24 個值）|
 | `keep-alive.yml` | 每 3 天 | Ping Supabase REST API 防止 free tier 休眠 |
-| `sync-references.yml` | 每月 1 日 08:00 (台灣時間) | 將 `referenceRanges.ts` 同步到 `medical_references` 表 |
+| `deploy.yml` | 手動 | 建置並部署到 Cloudflare Workers（需要 `CLOUDFLARE_API_TOKEN`）|
+| `sync-references.yml` | 手動 | 將 `referenceRanges.ts` 同步到 `medical_references` 表（需要 service key secret）|
 
 ## 資料庫架構
 
-ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **37 條 RLS policy**（由醫事端的 8 個安全 migration 建構，含 6 條 RESTRICTIVE AAL2 閘門）。ClinCalc 主要使用 `health_records`、`patient_consents`、`medications`、`medical_references` 四張表；個人健康記錄以 RLS 綁定 `auth.uid()`，僅本人與經一次性同意書授權的醫師可讀。
+ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **42 條 RLS policy**（由醫事端的 15 個安全 migration 建構，其中 6 條 RESTRICTIVE 閘門要求 MFA、8 條把展示帳號關在展示資料裡）。ClinCalc 主要使用 `health_records`、`patient_consents`、`medications`、`medical_references` 四張表；個人健康記錄以 RLS 綁定 `auth.uid()`，僅本人與經一次性同意書授權的醫師可讀。
 
 完整 schema 與 RLS 定義見 [`supabase/`](supabase/) 目錄與 [ExClinCalc](https://github.com/yu8812/exclincalc) 對應 SQL。
 
