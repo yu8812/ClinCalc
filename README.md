@@ -248,6 +248,10 @@ ClinCalc 與醫事端 ExClinCalc 共用同一份 Supabase PostgreSQL，總計 **
 
 歡迎研究合作、面談請益、或對任何技術細節提問。
 
+## 開發方式
+
+開發時使用 AI 輔助（Claude、GPT），架構決策、測試與上線驗證由我負責。
+
 ## 授權
 
 MIT License — 學術與非商業用途自由使用。商業使用請先聯絡作者。
